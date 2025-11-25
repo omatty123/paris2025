@@ -116,7 +116,7 @@
 
 <body>
   <h1>Dominica Flight Weather Dashboard</h1>
-  <h2>GOOD and BAD flying conditions for exact takeoff and landing times</h2>
+  <h2>Good and bad flying conditions for exact takeoff and landing times</h2>
   <div id="status">Loading forecasts...</div>
 
   <table>
@@ -132,54 +132,48 @@
   </table>
 
   <div id="footer">
-    Classification by Open Meteo. Forecast links by Meteoblue. Auto-refresh every 30 minutes.
+    Classification by Open Meteo. Detail pages use Open Meteo data and a custom viewer. Auto refresh every 30 minutes.
   </div>
 
 <script>
-/* Airport definitions */
 const airports = {
   ATW: {
     code: "ATW",
     name: "Appleton (ATW)",
     lat: 44.2581,
     lon: -88.5191,
-    timezone: "America/Chicago",
-    mbID: "Appleton_United-States_7253865"
+    timezone: "America/Chicago"
   },
   DTW: {
     code: "DTW",
     name: "Detroit (DTW)",
     lat: 42.2162,
     lon: -83.3554,
-    timezone: "America/New_York",
-    mbID: "Detroit_Metropolitan_Wayne_County_Airport_United-States_4990729"
+    timezone: "America/New_York"
   },
   CDG: {
     code: "CDG",
     name: "Paris Charles de Gaulle (CDG)",
     lat: 49.0097,
     lon: 2.5479,
-    timezone: "Europe/Paris",
-    mbID: "Roissy-en-France_France_6455427"
+    timezone: "Europe/Paris"
   }
 };
 
-/* Flight events */
 const events = [
-  { id:"ATW_TAKE", label:"ATW to DTW takeoff", airport:"ATW", iso:"2025-12-01T17:21:00-06:00" },
-  { id:"DTW_LAND1", label:"ATW to DTW landing", airport:"DTW", iso:"2025-12-01T19:43:00-05:00" },
-  { id:"DTW_TAKE", label:"DTW to CDG takeoff", airport:"DTW", iso:"2025-12-01T21:20:00-05:00" },
-  { id:"CDG_LAND", label:"DTW to CDG landing", airport:"CDG", iso:"2025-12-02T11:05:00+01:00" },
-  { id:"CDG_TAKE", label:"CDG to DTW takeoff", airport:"CDG", iso:"2025-12-08T10:30:00+01:00" },
-  { id:"DTW_LAND2", label:"CDG to DTW landing", airport:"DTW", iso:"2025-12-08T13:45:00-05:00" },
-  { id:"DTW_TAKE2", label:"DTW to ATW takeoff", airport:"DTW", iso:"2025-12-08T16:50:00-05:00" },
-  { id:"ATW_LAND", label:"DTW to ATW landing", airport:"ATW", iso:"2025-12-08T17:14:00-06:00" }
+  { id:"ATW_TAKE",  label:"ATW to DTW takeoff",    airport:"ATW", iso:"2025-12-01T17:21:00-06:00" },
+  { id:"DTW_LAND1", label:"ATW to DTW landing",    airport:"DTW", iso:"2025-12-01T19:43:00-05:00" },
+  { id:"DTW_TAKE",  label:"DTW to CDG takeoff",    airport:"DTW", iso:"2025-12-01T21:20:00-05:00" },
+  { id:"CDG_LAND",  label:"DTW to CDG landing",    airport:"CDG", iso:"2025-12-02T11:05:00+01:00" },
+  { id:"CDG_TAKE",  label:"CDG to DTW takeoff",    airport:"CDG", iso:"2025-12-08T10:30:00+01:00" },
+  { id:"DTW_LAND2", label:"CDG to DTW landing",    airport:"DTW", iso:"2025-12-08T13:45:00-05:00" },
+  { id:"DTW_TAKE2", label:"DTW to ATW takeoff",    airport:"DTW", iso:"2025-12-08T16:50:00-05:00" },
+  { id:"ATW_LAND",  label:"DTW to ATW landing",    airport:"ATW", iso:"2025-12-08T17:14:00-06:00" }
 ];
 
 const tbody = document.getElementById("rows");
 const status = document.getElementById("status");
 
-/* Initial table rendering */
 function renderInitial() {
   tbody.innerHTML = "";
   for (const ev of events) {
@@ -198,16 +192,16 @@ function renderInitial() {
   }
 }
 
-/* Forecast functions */
 async function fetchForecast(ap) {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${ap.lat}&longitude=${ap.lon}&hourly=temperature_2m,weathercode,precipitation,windspeed_10m&timezone=${ap.timezone}&forecast_days=16`;
-  const r = await fetch(url);
-  return r.json();
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${ap.lat}&longitude=${ap.lon}&hourly=temperature_2m,weathercode,precipitation,windspeed_10m&timezone=${encodeURIComponent(ap.timezone)}&forecast_days=16`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Forecast error " + res.status);
+  return res.json();
 }
 
 function nearestIndex(times, target) {
   let best = 0;
-  let bestDiff = 1e18;
+  let bestDiff = Number.POSITIVE_INFINITY;
   const t = target.getTime();
   for (let i = 0; i < times.length; i++) {
     const diff = Math.abs(new Date(times[i]).getTime() - t);
@@ -217,15 +211,15 @@ function nearestIndex(times, target) {
 }
 
 function classify(code, wind, precip) {
-  const bad = [65,66,67,71,73,75,77,80,81,82,85,86,95,96,99];
-  if (bad.includes(code)) return "BAD";
+  const badCodes = [65,66,67,71,73,75,77,80,81,82,85,86,95,96,99];
+  if (badCodes.includes(code)) return "BAD";
   if (wind >= 45) return "BAD";
   if (precip >= 4) return "BAD";
   return "GOOD";
 }
 
 function describe(code, tc, wind, prec) {
-  const desc = {
+  const descMap = {
     0:"Clear",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",
     45:"Fog",48:"Rime fog",
     51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",
@@ -233,60 +227,72 @@ function describe(code, tc, wind, prec) {
     71:"Light snow",73:"Snow",75:"Heavy snow",
     80:"Showers",81:"Showers",82:"Heavy showers",
     95:"Thunderstorm",96:"Storm hail",99:"Severe hail"
-  }[code] || "Weather";
-
-  const f = tc * 9/5 + 32;
-  return `${desc}; ${f.toFixed(0)} F; wind ${wind} km/h; precip ${prec} mm`;
+  };
+  const label = descMap[code] || "Weather";
+  const f = tc * 9 / 5 + 32;
+  return `${label}; ${f.toFixed(0)} F; wind ${wind} km/h; precip ${prec} mm`;
 }
 
-/* Update all */
 async function updateAll() {
   status.textContent = "Updating...";
+  const byAirport = {};
 
   for (const ev of events) {
-    const ap = airports[ev.airport];
-    const row = document.getElementById("row_" + ev.id);
-    const summary = row.children[2];
-    const weather = row.children[3];
-
-    const fc = await fetchForecast(ap);
-
-    const times = fc.hourly.time;
-    const temps = fc.hourly.temperature_2m;
-    const precs = fc.hourly.precipitation;
-    const codes = fc.hourly.weathercode;
-    const winds = fc.hourly.windspeed_10m;
-
-    const target = new Date(ev.iso);
-    const idx = nearestIndex(times, target);
-
-    const tc = temps[idx];
-    const prec = precs[idx];
-    const wcode = codes[idx];
-    const wind = winds[idx];
-
-    summary.textContent = describe(wcode, tc, wind, prec);
-
-    const rating = classify(wcode, wind, prec);
-
-    const iso = target.toISOString().slice(0,16);
-    const link = `https://www.meteoblue.com/en/weather/forecast/hourly/${ap.mbID}?fcsthour=${iso}`;
-
-    const text = `${ap.name} forecast for ${target.toLocaleString()}`;
-
-    if (rating === "GOOD") {
-      weather.innerHTML = `<a class="tag good" href="${link}" target="_blank" title="${text}">🟢 GOOD</a>`;
-    } else {
-      weather.innerHTML = `<a class="tag bad" href="${link}" target="_blank" title="${text}">🔴 BAD</a>`;
-    }
+    if (!byAirport[ev.airport]) byAirport[ev.airport] = [];
+    byAirport[ev.airport].push(ev);
   }
 
-  status.textContent = "Last updated: " + new Date().toLocaleString();
+  try {
+    for (const code of Object.keys(byAirport)) {
+      const ap = airports[code];
+      const forecast = await fetchForecast(ap);
+
+      const times = forecast.hourly.time;
+      const temps = forecast.hourly.temperature_2m;
+      const precs = forecast.hourly.precipitation;
+      const wcodes = forecast.hourly.weathercode;
+      const winds = forecast.hourly.windspeed_10m;
+
+      for (const ev of byAirport[code]) {
+        const row = document.getElementById("row_" + ev.id);
+        if (!row) continue;
+
+        const summaryCell = row.children[2];
+        const weatherCell = row.children[3];
+
+        const target = new Date(ev.iso);
+        const idx = nearestIndex(times, target);
+
+        const tc = temps[idx];
+        const prec = precs[idx];
+        const wcode = wcodes[idx];
+        const wind = winds[idx];
+
+        const rating = classify(wcode, wind, prec);
+        const text = describe(wcode, tc, wind, prec);
+        summaryCell.textContent = text;
+
+        const detailUrl = `forecast.html?airport=${encodeURIComponent(ap.code)}&time=${encodeURIComponent(ev.iso)}`;
+        const tooltip = `${ap.name} forecast for ${target.toLocaleString()}`;
+
+        if (rating === "GOOD") {
+          weatherCell.innerHTML = `<a class="tag good" href="${detailUrl}" target="_blank" title="${tooltip}">🟢 GOOD</a>`;
+        } else {
+          weatherCell.innerHTML = `<a class="tag bad" href="${detailUrl}" target="_blank" title="${tooltip}">🔴 BAD</a>`;
+        }
+      }
+    }
+
+    status.textContent = "Last updated: " + new Date().toLocaleString();
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Error fetching forecasts. Try reloading.";
+  }
 }
 
 renderInitial();
 updateAll();
-setInterval(updateAll, 1800000);
+setInterval(updateAll, 30 * 60 * 1000);
 </script>
 
 </body>
