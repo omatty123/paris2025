@@ -58,13 +58,12 @@
     }
     .tag {
       display: inline-block;
-      padding: 0.1rem 0.5rem;
+      padding: 0.1rem 0.65rem;
       border-radius: 999px;
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
       text-decoration: none;
+      letter-spacing: 0.03em;
     }
     .good {
       background: #133a20;
@@ -110,7 +109,7 @@
 
 <body>
   <h1>Dominica Flight Weather Dashboard</h1>
-  <h2>Live GOOD / BAD conditions for each takeoff and landing</h2>
+  <h2>Live flying conditions for each takeoff and landing</h2>
   <div id="status">Loading latest forecasts…</div>
 
   <table>
@@ -126,15 +125,39 @@
   </table>
 
   <div id="footer">
-    Data from <a href="https://open-meteo.com/" target="_blank" style="color:#9bb4ff;">Open-Meteo</a>.
-    Auto-refresh every 30 minutes.
+    Forecast classification from Open Meteo.  
+    Weather links use NOAA (ATW, DTW) and Météo France (CDG).  
+    Auto refresh every 30 minutes.
   </div>
 
 <script>
 const airports = {
-  ATW: { code: "ATW", name: "Appleton (ATW)", lat: 44.2581, lon: -88.5191, timezone: "America/Chicago" },
-  DTW: { code: "DTW", name: "Detroit (DTW)", lat: 42.2162, lon: -83.3554, timezone: "America/New_York" },
-  CDG: { code: "CDG", name: "Paris CDG", lat: 49.0097, lon: 2.5479, timezone: "Europe/Paris" }
+  ATW: {
+    code: "ATW",
+    name: "Appleton (ATW)",
+    lat: 44.2581,
+    lon: -88.5191,
+    timezone: "America/Chicago",
+    // NOAA graphical hourly forecast page
+    link: "https://forecast.weather.gov/MapClick.php?lat=44.2581&lon=-88.5191&FcstType=graphical"
+  },
+  DTW: {
+    code: "DTW",
+    name: "Detroit (DTW)",
+    lat: 42.2162,
+    lon: -83.3554,
+    timezone: "America/New_York",
+    link: "https://forecast.weather.gov/MapClick.php?lat=42.2162&lon=-83.3554&FcstType=graphical"
+  },
+  CDG: {
+    code: "CDG",
+    name: "Paris CDG",
+    lat: 49.0097,
+    lon: 2.5479,
+    timezone: "Europe/Paris",
+    // Official Météo France forecast page for Roissy Charles de Gaulle
+    link: "https://meteofrance.com/previsions-meteo-france/roissy-charles-de-gaulle/95700"
+  }
 };
 
 const events = [
@@ -157,16 +180,22 @@ function renderInitial() {
     const tr = document.createElement("tr");
     tr.id = "row-" + ev.id;
 
-    const airport = airports[ev.airport];
-    const local = new Date(ev.iso);
+    const ap = airports[ev.airport];
+    const localDate = new Date(ev.iso);
 
     tr.innerHTML = `
-      <td><strong>${ev.label}</strong><br><span class="small">${airport.name}</span></td>
+      <td><strong>${ev.label}</strong><br><span class="small">${ap.name}</span></td>
       <td>
-        ${local.toLocaleString(undefined, { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" })}
-        <span class="pill">${airport.code}</span>
+        ${localDate.toLocaleString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        })}
+        <span class="pill">${ap.code}</span>
       </td>
-      <td class="small">Waiting…</td>
+      <td class="small">Waiting for forecast…</td>
       <td><span class="tag wait">WAIT</span></td>
     `;
     tbody.appendChild(tr);
@@ -174,61 +203,76 @@ function renderInitial() {
 }
 
 async function fetchForecast(ap) {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${ap.lat}&longitude=${ap.lon}&hourly=temperature_2m,weathercode,precipitation,windspeed_10m&timezone=${ap.timezone}&forecast_days=16`;
+  const url =
+    "https://api.open-meteo.com/v1/forecast"
+    + `?latitude=${ap.lat}&longitude=${ap.lon}`
+    + "&hourly=temperature_2m,weathercode,precipitation,windspeed_10m"
+    + `&timezone=${encodeURIComponent(ap.timezone)}`
+    + "&forecast_days=16";
   const r = await fetch(url);
+  if (!r.ok) throw new Error("Forecast error " + r.status);
   return r.json();
 }
 
 function nearestIndex(times, target) {
   let best = 0;
   let bestDiff = Infinity;
+  const targetMs = target.getTime();
   for (let i = 0; i < times.length; i++) {
-    let d = Math.abs(new Date(times[i]).getTime() - target.getTime());
-    if (d < bestDiff) { bestDiff = d; best = i; }
+    const tMs = new Date(times[i]).getTime();
+    const diff = Math.abs(tMs - targetMs);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = i;
+    }
   }
   return best;
 }
 
-function classify(code, wind, precip) {
-  const badCodes = [65,66,67,71,73,75,77,80,81,82,85,86,95,96,99];
-  if (badCodes.includes(code)) return "BAD";
-  if (wind >= 45) return "BAD";
-  if (precip >= 4) return "BAD";
+function classify(code, windKmh, precipMm) {
+  const badCodes = [65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99];
+  const strongWind = windKmh >= 45;
+  const heavyPrecip = precipMm >= 4;
+  if (badCodes.includes(code) || strongWind || heavyPrecip) {
+    return "BAD";
+  }
   return "GOOD";
 }
 
-function describe(code, tC, wind, precip) {
+function describe(code, tC, windKmh, precipMm) {
   const descs = {
-    0:"Clear",
-    1:"Mainly clear",
-    2:"Partly cloudy",
-    3:"Overcast",
-    45:"Fog",
-    48:"Rime fog",
-    51:"Light drizzle",
-    53:"Moderate drizzle",
-    55:"Heavy drizzle",
-    56:"Freezing drizzle",
-    57:"Dense freezing drizzle",
-    61:"Light rain",
-    63:"Moderate rain",
-    65:"Heavy rain",
-    71:"Light snow",
-    73:"Moderate snow",
-    75:"Heavy snow",
-    80:"Rain showers",
-    81:"Moderate showers",
-    82:"Violent showers",
-    95:"Thunderstorm",
-    96:"Tstorm hail",
-    99:"Tstorm heavy hail"
+    0: "Clear",
+    1: "Mainly clear",
+    2: "Partly cloudy",
+    3: "Overcast",
+    45: "Fog",
+    48: "Rime fog",
+    51: "Light drizzle",
+    53: "Moderate drizzle",
+    55: "Heavy drizzle",
+    56: "Freezing drizzle",
+    57: "Dense freezing drizzle",
+    61: "Light rain",
+    63: "Moderate rain",
+    65: "Heavy rain",
+    71: "Light snow",
+    73: "Moderate snow",
+    75: "Heavy snow",
+    80: "Rain showers",
+    81: "Moderate showers",
+    82: "Violent showers",
+    95: "Thunderstorm",
+    96: "Thunderstorm, hail",
+    99: "Thunderstorm, heavy hail"
   };
-  let f = tC * 9/5 + 32;
-  return `${descs[code] || "Weather"}; ${f.toFixed(0)}°F; wind ${wind} km/h; precip ${precip} mm`;
+  const f = tC * 9 / 5 + 32;
+  return `${descs[code] || "Weather"}; ${f.toFixed(0)}°F; wind ${windKmh.toFixed(
+    0
+  )} km/h; precip ${precipMm.toFixed(1)} mm`;
 }
 
 async function updateAll() {
-  status.textContent = "Updating…";
+  status.textContent = "Updating forecasts…";
 
   const grouped = {};
   events.forEach(ev => {
@@ -236,45 +280,77 @@ async function updateAll() {
     grouped[ev.airport].push(ev);
   });
 
-  for (const code of Object.keys(grouped)) {
-    const ap = airports[code];
-    const f = await fetchForecast(ap);
+  try {
+    for (const code of Object.keys(grouped)) {
+      const ap = airports[code];
+      const forecast = await fetchForecast(ap);
 
-    const times = f.hourly.time;
-    const temps = f.hourly.temperature_2m;
-    const precs = f.hourly.precipitation;
-    const codes = f.hourly.weathercode;
-    const winds = f.hourly.windspeed_10m;
+      const times = forecast.hourly.time;
+      const temps = forecast.hourly.temperature_2m;
+      const precs = forecast.hourly.precipitation;
+      const codes = forecast.hourly.weathercode;
+      const winds = forecast.hourly.windspeed_10m;
 
-    for (const ev of grouped[code]) {
-      const row = document.getElementById("row-" + ev.id);
-      const summary = row.children[2];
-      const cell = row.children[3];
+      for (const ev of grouped[code]) {
+        const row = document.getElementById("row-" + ev.id);
+        if (!row) continue;
 
-      const t = new Date(ev.iso);
-      const idx = nearestIndex(times, t);
+        const summaryCell = row.children[2];
+        const weatherCell = row.children[3];
 
-      const tempC = temps[idx];
-      const precip = precs[idx];
-      const wcode = codes[idx];
-      const wind = winds[idx];
+        const targetDate = new Date(ev.iso);
+        const idx = nearestIndex(times, targetDate);
 
-      const rating = classify(wcode, wind, precip);
-      const desc = describe(wcode, tempC, wind, precip);
+        if (idx < 0 || idx >= times.length) {
+          summaryCell.textContent = "No forecast available yet for this date.";
+          weatherCell.innerHTML = `<span class="tag wait">WAIT</span>`;
+          continue;
+        }
 
-      summary.textContent = desc;
+        const tempC = temps[idx];
+        const precipMm = precs[idx];
+        const wcode = codes[idx];
+        const windKmh = winds[idx];
 
-      const link = `https://open-meteo.com/en/docs?latitude=${ap.lat}&longitude=${ap.lon}#${t.toISOString()}`;
+        const rating = classify(wcode, windKmh, precipMm);
+        const desc = describe(wcode, tempC, windKmh, precipMm);
 
-      if (rating === "GOOD") {
-        cell.innerHTML = `<a class="tag good" href="${link}" target="_blank">GOOD</a>`;
-      } else {
-        cell.innerHTML = `<a class="tag bad" href="${link}" target="_blank">BAD</a>`;
+        summaryCell.textContent = desc;
+
+        const apLink = ap.link;
+        const tooltip =
+          `${ap.name} forecast at `
+          + targetDate.toLocaleString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            });
+
+        if (rating === "GOOD") {
+          weatherCell.innerHTML =
+            `<a class="tag good" href="${apLink}" target="_blank" title="${tooltip}">🟢 GOOD</a>`;
+        } else {
+          weatherCell.innerHTML =
+            `<a class="tag bad" href="${apLink}" target="_blank" title="${tooltip}">🔴 BAD</a>`;
+        }
       }
     }
-  }
 
-  status.textContent = "Last updated: " + new Date().toLocaleString();
+    status.textContent =
+      "Last updated: "
+      + new Date().toLocaleString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Error fetching forecasts. Try reloading the page.";
+  }
 }
 
 renderInitial();
