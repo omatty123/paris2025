@@ -23,7 +23,7 @@
       justify-content: center;
     }
 
-    /* Two column container */
+    /* Two column layout */
     #cols {
       display: flex;
       flex-direction: row;
@@ -32,7 +32,7 @@
       gap: 1.5rem;
     }
 
-    /* Left: itinerary */
+    /* Left itinerary column */
     #itin {
       flex: 1;
       background: rgba(20, 27, 51, 0.85);
@@ -44,9 +44,9 @@
       max-height: 95vh;
     }
 
-    /* Right: weather */
+    /* Right weather column (narrower) */
     #weather {
-      flex: 1;
+      flex: 0 0 42%;
       background: rgba(20, 27, 51, 0.85);
       backdrop-filter: blur(4px);
       padding: 1rem 1.3rem;
@@ -66,7 +66,7 @@
       font-size: 1rem;
       opacity: 0.9;
       text-align: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.8rem;
     }
 
     details {
@@ -84,19 +84,20 @@
       margin-bottom: 0.4rem;
     }
 
+
+    /* Weather table */
     table {
       width: 100%;
       border-collapse: collapse;
       background: rgba(20, 27, 51, 0.9);
       border-radius: 6px;
       overflow: hidden;
-      margin-bottom: 1rem;
     }
 
     th, td {
-      padding: 0.6rem;
+      padding: 0.45rem;
       border-bottom: 1px solid rgba(255,255,255,0.08);
-      font-size: 0.9rem;
+      font-size: 0.82rem;
     }
 
     th {
@@ -104,19 +105,26 @@
       font-weight: 600;
     }
 
+    /* Column widths */
+    th:nth-child(1), td:nth-child(1) { width: 34%; }
+    th:nth-child(2), td:nth-child(2) { width: 23%; }
+    th:nth-child(3), td:nth-child(3) { width: 23%; }
+    th:nth-child(4), td:nth-child(4) { width: 20%; text-align: center; }
+
     .tag {
-      padding: 0.3rem 0.7rem;
+      padding: 0.25rem 0.6rem;
       border-radius: 20px;
       font-weight: 600;
       text-decoration: none;
       display: inline-block;
+      font-size: 0.8rem;
     }
 
     .good { background: #133a20; color: #61e27b; border: 1px solid #61e27b; }
     .bad { background: #3a1414; color: #ff6b6b; border: 1px solid #ff6b6b; }
     .wait { background: #33384f; color: #d3d6f5; border: 1px solid #5e668f; }
 
-    .small { font-size: 0.8rem; opacity: 0.85; }
+    .small { font-size: 0.75rem; opacity: 0.8; }
 
     #footer {
       font-size: 0.75rem;
@@ -127,11 +135,12 @@
   </style>
 </head>
 
+
 <body>
 
 <div id="cols">
 
-  <!-- LEFT COLUMN -->
+  <!-- LEFT COLUMN: ITINERARY -->
   <div id="itin">
     <h1>Paris Itinerary</h1>
     <h2>2 to 8 December 2025</h2>
@@ -141,7 +150,7 @@
       <ul>
         <li>11h05 Arrive Charles de Gaulle Airport</li>
         <li>12h15 RER B to Denfert Rochereau then Metro line 6 to Place d Italie</li>
-        <li>13h15 Arrive apartment at 7 Avenue Stephen Pichon Batiment B ground floor</li>
+        <li>13h15 Arrive apartment at 7 Avenue Stephen Pichon Batiment B</li>
         <li>14h00 Explore Chinatown</li>
         <li>14h30 Lunch near Tang Freres</li>
         <li>16h00 Metro to Bastille</li>
@@ -169,7 +178,7 @@
     <details>
       <summary>Day 3 Thursday 04 December</summary>
       <ul>
-        <li>9h00 Louvre nineteenth century galleries</li>
+        <li>9h00 Louvre nineteenth century rooms</li>
         <li>11h30 Tuileries Garden</li>
         <li>12h15 Chez Alain Miam Miam</li>
         <li>13h30 Walk toward Passy</li>
@@ -184,13 +193,13 @@
       <ul>
         <li>7h00 Metro to Opera then walk to Gare Saint Lazare</li>
         <li>8h14 Train to Rouen</li>
-        <li>09h46 Arrive Rouen taxi to Cathedral</li>
+        <li>09h46 Taxi to Cathedral</li>
         <li>10h00 Gros Horloge</li>
         <li>12h00 Vegan and Cie</li>
         <li>13h00 Musee Flaubert</li>
         <li>14h00 Cimetière Monumental</li>
         <li>14h30 Croisset</li>
-        <li>18h00 Train to Paris</li>
+        <li>18h00 Train back</li>
         <li>Dinner at Brasserie Le Lazare</li>
       </ul>
     </details>
@@ -198,9 +207,9 @@
     <details>
       <summary>Day 5 Saturday 06 December</summary>
       <ul>
-        <li>9h00 Belleville and Parc de Belleville</li>
+        <li>9h00 Belleville</li>
         <li>10h00 Promenade Dora Bruder</li>
-        <li>11h30 Walk to Montmartre</li>
+        <li>11h30 Montmartre</li>
         <li>12h00 Sacre Coeur</li>
         <li>14h00 Pere Lachaise</li>
         <li>17h00 Pain Vin Fromages</li>
@@ -223,17 +232,18 @@
       <summary>Day 7 Monday 08 December</summary>
       <ul>
         <li>6h15 Leave apartment</li>
-        <li>6h30 Metro line 6 then RER B to CDG</li>
+        <li>6h30 Metro then RER B to CDG</li>
         <li>7h30 Arrive airport</li>
         <li>10h30 Flight departs</li>
       </ul>
     </details>
-
   </div>
 
-  <!-- RIGHT COLUMN -->
+
+
+  <!-- RIGHT COLUMN: WEATHER -->
   <div id="weather">
-    <h1>Flight Weather Dashboard</h1>
+    <h1>Flight Weather</h1>
     <h2>Good or bad flying conditions</h2>
 
     <table>
@@ -254,6 +264,7 @@
   </div>
 
 </div>
+
 
 
 <script>
