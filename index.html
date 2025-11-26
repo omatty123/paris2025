@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Dominica Flight Weather Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -26,152 +26,225 @@
     }
 
     h1 {
-      font-size: 2rem;
-      margin: 0.2rem 0 0.5rem;
-      text-align: center;
-      font-weight: 600;
-    }
-
-    .sub {
-      margin-top: -0.3rem;
-      font-size: 1rem;
-      opacity: 0.85;
-    }
-
-    .weather-card {
-      width: 95%;
-      max-width: 420px;
-      padding: 1.2rem 1.4rem;
-      background: rgba(255,255,255,0.18);
-      backdrop-filter: blur(12px);
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-
-    .weather-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      font-size: 1.6rem;
       margin: 0.5rem 0;
+      text-align: center;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.7);
     }
 
-    .weather-main {
-      font-size: 2.2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .weather-desc {
+    h2 {
       font-size: 1rem;
+      margin: 0;
       opacity: 0.9;
+      text-align: center;
     }
 
-    .small {
+    table {
+      width: 100%;
+      max-width: 900px;
+      border-collapse: collapse;
+      background: rgba(20, 27, 51, 0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+
+    th, td {
+      padding: 0.7rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       font-size: 0.9rem;
-      opacity: 0.85;
     }
 
-    .icon {
-      width: 52px;
-      height: 52px;
-    }
-
-    .section-title {
-      margin-top: 1.3rem;
-      font-size: 1.2rem;
+    th {
+      background: rgba(28, 36, 64, 0.95);
       font-weight: 600;
-      text-align: center;
     }
 
-    .forecast-grid {
+    .tag {
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .good { background: #133a20; color: #61e27b; border: 1px solid #61e27b; }
+    .bad { background: #3a1414; color: #ff6b6b; border: 1px solid #ff6b6b; }
+    .wait { background: #33384f; color: #d3d6f5; border: 1px solid #5e668f; }
+
+    .small { font-size: 0.8rem; opacity: 0.85; }
+
+    #footer {
+      font-size: 0.75rem;
+      opacity: 0.8;
       margin-top: 0.5rem;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0.6rem;
       text-align: center;
-    }
-
-    .forecast-item {
-      padding: 0.6rem 0.4rem;
-      background: rgba(255,255,255,0.15);
-      border-radius: 10px;
-      font-size: 0.85rem;
-    }
-
-    .forecast-item img {
-      width: 38px;
-      height: 38px;
     }
   </style>
 </head>
 
 <body>
+  <h1>Dominica Flight Weather Dashboard</h1>
+  <h2>Good and bad flying conditions for exact takeoff and landing times</h2>
 
-  <h1>Paris Weather Dashboard</h1>
-  <div class="sub">Your real-time conditions & 5-day forecast</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Segment</th>
+        <th>Local Time</th>
+        <th>Summary</th>
+        <th>Weather</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
 
-  <div id="weatherCard" class="weather-card">
-    <div class="weather-row weather-main">
-      <img id="mainIcon" class="icon">
-      <span id="mainTemp">--°C</span>
-    </div>
-    <div class="weather-row weather-desc">
-      <span id="mainDesc">Loading...</span>
-      <span id="mainFeel" class="small"></span>
-    </div>
-
-    <div class="weather-row small">
-      <div>Wind: <span id="windSpeed">--</span> km/h</div>
-      <div>Humidity: <span id="humidity">--</span>%</div>
-    </div>
-
-    <div class="section-title">5-Day Forecast</div>
-    <div id="forecastGrid" class="forecast-grid"></div>
+  <div id="footer">
+    Forecasts retrieved from Open Meteo. Clicking a rating shows exact time forecast.
   </div>
 
-  <script>
-    async function loadWeather() {
-      const url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
-      const res = await fetch(url);
-      const data = await res.json();
+<script>
+const airports = {
+  ATW: { code: "ATW", name: "Appleton ATW", lat: 44.2581, lon: -88.5191, timezone: "America/Chicago" },
+  DTW: { code: "DTW", name: "Detroit DTW", lat: 42.2162, lon: -83.3554, timezone: "America/New_York" },
+  CDG: { code: "CDG", name: "Paris CDG", lat: 49.0097, lon: 2.5479, timezone: "Europe/Paris" }
+};
 
-      const w = data.current_weather;
-      const daily = data.daily;
+const events = [
+  { id:"ATW_TAKE",  label:"ATW to DTW takeoff", airport:"ATW", iso:"2025-12-01T17:21:00-06:00" },
+  { id:"DTW_LAND1", label:"ATW to DTW landing", airport:"DTW", iso:"2025-12-01T19:43:00-05:00" },
+  { id:"DTW_TAKE",  label:"DTW to CDG takeoff", airport:"DTW", iso:"2025-12-01T21:20:00-05:00" },
+  { id:"CDG_LAND",  label:"DTW to CDG landing", airport:"CDG", iso:"2025-12-02T11:05:00+01:00" },
+  { id:"CDG_TAKE",  label:"CDG to DTW takeoff", airport:"CDG", iso:"2025-12-08T10:30:00+01:00" },
+  { id:"DTW_LAND2", label:"CDG to DTW landing", airport:"DTW", iso:"2025-12-08T13:45:00-05:00" },
+  { id:"DTW_TAKE2", label:"DTW to ATW takeoff", airport:"DTW", iso:"2025-12-08T16:50:00-05:00" },
+  { id:"ATW_LAND",  label:"DTW to ATW landing", airport:"ATW", iso:"2025-12-08T17:14:00-06:00" }
+];
 
-      const iconMap = {
-        0: "icons/sun.png",
-        1: "icons/sun-small.png",
-        2: "icons/partly.png",
-        3: "icons/cloud.png",
-        45: "icons/fog.png",
-        48: "icons/fog.png",
-        51: "icons/drizzle.png",
-        61: "icons/rain.png",
-        71: "icons/snow.png",
-        95: "icons/storm.png"
-      };
+const tbody = document.getElementById("rows");
 
-      document.getElementById("mainIcon").src = iconMap[w.weathercode] || "icons/cloud.png";
-      document.getElementById("mainTemp").innerText = Math.round(w.temperature) + "°C";
-      document.getElementById("mainDesc").innerText = "Weather code " + w.weathercode;
-      document.getElementById("windSpeed").innerText = w.windspeed;
-      document.getElementById("humidity").innerText = "--";
+function initialRender() {
+  tbody.innerHTML = "";
+  for (const ev of events) {
+    const ap = airports[ev.airport];
+    const dt = new Date(ev.iso);
 
-      const forecast = daily.time.map((t, i) => `
-        <div class="forecast-item">
-          <div>${t.slice(5)}</div>
-          <img src="${iconMap[daily.weathercode[i]] || "icons/cloud.png"}">
-          <div>${Math.round(daily.temperature_2m_max[i])}°</div>
-          <div class="small">${Math.round(daily.temperature_2m_min[i])}°</div>
-        </div>
-      `).join("");
+    const row = document.createElement("tr");
+    row.id = "row_" + ev.id;
+    row.innerHTML = 
+      <td><strong>${ev.label}</strong><br><span class="small">${ap.name}</span></td>
+      <td>${dt.toLocaleString()}</td>
+      <td class="small">Loading</td>
+      <td><span class="tag wait">WAIT</span></td>
+    ;
+    tbody.appendChild(row);
+  }
+}
 
-      document.getElementById("forecastGrid").innerHTML = forecast;
+async function getForecast(ap) {
+  const url =
+    "https://api.open-meteo.com/v1/forecast"
+    + "?latitude=" + ap.lat
+    + "&longitude=" + ap.lon
+    + "&hourly=temperature_2m,weathercode,precipitation,windspeed_10m"
+    + "&timezone=" + encodeURIComponent(ap.timezone)
+    + "&forecast_days=16";
+
+  const r = await fetch(url);
+  return r.json();
+}
+
+function nearestIndex(times, target) {
+  let best = 0;
+  let diff = Number.POSITIVE_INFINITY;
+  const t = target.getTime();
+  for (let i = 0; i < times.length; i++) {
+    const d = Math.abs(new Date(times[i]).getTime() - t);
+    if (d < diff) { diff = d; best = i; }
+  }
+  return best;
+}
+
+function classify(code, wind, prec) {
+  const badCodes = [65,66,67,71,73,75,77,80,81,82,85,86,95,96,99];
+  if (badCodes.includes(code)) return "BAD";
+  if (wind >= 45) return "BAD";
+  if (prec >= 4) return "BAD";
+  return "GOOD";
+}
+
+function describe(code) {
+  const labels = {
+    0:"Clear", 1:"Mainly clear", 2:"Partly cloudy", 3:"Overcast",
+    45:"Fog", 48:"Rime fog",
+    51:"Light drizzle", 53:"Drizzle", 55:"Heavy drizzle",
+    61:"Light rain", 63:"Moderate rain", 65:"Heavy rain",
+    71:"Light snow", 73:"Snow", 75:"Heavy snow",
+    80:"Showers", 81:"Showers", 82:"Heavy showers",
+    95:"Thunderstorm", 96:"Storm hail", 99:"Severe hail"
+  };
+  return labels[code] || "Weather";
+}
+
+function fahrenheit(c) { return c * 9 / 5 + 32; }
+
+async function updateAll() {
+  const byAirport = {};
+
+  for (const ev of events) {
+    if (!byAirport[ev.airport]) byAirport[ev.airport] = [];
+    byAirport[ev.airport].push(ev);
+  }
+
+  for (const code of Object.keys(byAirport)) {
+    const ap = airports[code];
+    const data = await getForecast(ap);
+
+    const times = data.hourly.time;
+    const temps = data.hourly.temperature_2m;
+    const precs = data.hourly.precipitation;
+    const wcodes = data.hourly.weathercode;
+    const winds = data.hourly.windspeed_10m;
+
+    for (const ev of byAirport[code]) {
+      const row = document.getElementById("row_" + ev.id);
+
+      const summaryCell = row.children[2];
+      const weatherCell = row.children[3];
+
+      const moment = new Date(ev.iso);
+      const idx = nearestIndex(times, moment);
+
+      const t = temps[idx];
+      const p = precs[idx];
+      const w = winds[idx];
+      const c = wcodes[idx];
+
+      const rating = classify(c, w, p);
+      const label = describe(c);
+      const f = fahrenheit(t).toFixed(0);
+
+      summaryCell.textContent = label + "; " + f + " F";
+
+      const detailUrl =
+        "forecast.html"
+        + "?airport=" + ap.code
+        + "&time=" + encodeURIComponent(ev.iso);
+
+      if (rating === "GOOD") {
+        weatherCell.innerHTML = <a class="tag good" href="${detailUrl}" target="_blank">GOOD</a>;
+      } else {
+        weatherCell.innerHTML = <a class="tag bad" href="${detailUrl}" target="_blank">BAD</a>;
+      }
     }
+  }
+}
 
-    loadWeather();
-  </script>
+initialRender();
+updateAll();
+setInterval(updateAll, 1800000);
+</script>
 
 </body>
 </html>
