@@ -81,6 +81,33 @@
       margin-top: 0.5rem;
       text-align: center;
     }
+
+    /* itinerary styling inside same visual card system */
+    .itin-card {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(20,27,51,0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+
+    details {
+      margin-bottom: 0.8rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+      line-height: 1.35;
+    }
   </style>
 </head>
 
@@ -88,6 +115,7 @@
   <h1>Dominica Flight Weather Dashboard</h1>
   <h2>Good and bad flying conditions for exact takeoff and landing times</h2>
 
+  <!-- WEATHER TABLE -->
   <table>
     <thead>
       <tr>
@@ -99,6 +127,127 @@
     </thead>
     <tbody id="rows"></tbody>
   </table>
+
+
+  <!-- ITINERARY SECTION -->
+  <div class="itin-card">
+
+    <h1 style="font-size:1.4rem; margin:0 0 0.5rem 0; text-align:center;">
+      Paris Itinerary 2–8 December 2025
+    </h1>
+
+    <h2 style="font-size:1rem; opacity:0.9; margin:0.5rem 0 1rem 0; text-align:center;">
+      Daily schedule for Dominica’s Paris trip
+    </h2>
+
+    <!-- DAY 1 -->
+    <details open>
+      <summary>Day 1 Tuesday 02 December</summary>
+      <ul>
+        <li>11h05 Arrive Charles de Gaulle Airport</li>
+        <li>12h15 RER B to Denfert Rochereau then Metro line 6 to Place d Italie</li>
+        <li>13h15 Arrive apartment at 7 Avenue Stephen Pichon Batiment B ground floor</li>
+        <li>14h00 Explore Chinatown near Avenue de Choisy and Avenue d Ivry</li>
+        <li>14h30 Lunch tofu banh mi near Tang Freres at Banh Mi 17 or Bao Long</li>
+        <li>16h00 Metro line 5 from Place d Italie to Bastille</li>
+        <li>16h15 Walk the Coulee Verte</li>
+        <li>17h30 Drink at Le Train Bleu inside Gare de Lyon</li>
+        <li>18h45 Dinner at Afrik N Fusion at 91 Boulevard Vincent Auriol</li>
+        <li>20h30 Walk home</li>
+      </ul>
+    </details>
+
+    <!-- DAY 2 -->
+    <details>
+      <summary>Day 2 Wednesday 03 December</summary>
+      <ul>
+        <li>9h00 Sainte Chapelle timed entry Metro line 7 to Chatelet line 4 to Cite</li>
+        <li>9h45 Conciergerie</li>
+        <li>10h30 Notre Dame exterior</li>
+        <li>11h00 Walk to Pont Neuf and Pont des Arts</li>
+        <li>11h30 Jardin du Luxembourg</li>
+        <li>12h15 Lunch at Huitrerie Regis at 3 Rue de Montfaucon</li>
+        <li>14h00 Musee d Orsay timed entry</li>
+        <li>17h00 Metro line 10 to Jussieu then line 7 to Place d Italie</li>
+        <li>19h00 Dinner at Chez Gladines</li>
+      </ul>
+    </details>
+
+    <!-- DAY 3 -->
+    <details>
+      <summary>Day 3 Thursday 04 December</summary>
+      <ul>
+        <li>9h00 Louvre timed entry focus on nineteenth century galleries</li>
+        <li>11h30 Walk Tuileries Garden</li>
+        <li>12h15 Lunch at Chez Alain Miam Miam at 39 Rue de Bretagne</li>
+        <li>13h30 Walk along Seine toward Passy</li>
+        <li>14h30 Maison de Balzac reservation required at 47 Rue Raynouard</li>
+        <li>16h00 Walk to Trocadero</li>
+        <li>17h00 Metro line 6 to Place d Italie</li>
+        <li>19h00 Dinner at Le Temps des Cerises</li>
+      </ul>
+    </details>
+
+    <!-- DAY 4 -->
+    <details>
+      <summary>Day 4 Friday 05 December</summary>
+      <ul>
+        <li>7h00 Metro line 7 to Opera then walk to Gare Saint Lazare</li>
+        <li>8h14 Train to Rouen Rive Droite</li>
+        <li>09h46 Arrive Rouen taxi to Cathedral</li>
+        <li>10h00 Visit Cathedral and Gros Horloge</li>
+        <li>12h00 Vegan and Cie at 35 Rue du Bac</li>
+        <li>13h00 Taxi to Musee Flaubert</li>
+        <li>14h00 Taxi to Cimetière Monumental de Rouen</li>
+        <li>14h30 Taxi to Croisset driver waits</li>
+        <li>15h15 Taxi to station</li>
+        <li>18h00 Return train to Paris</li>
+        <li>19h15 to 19h45 Arrive Paris Saint Lazare</li>
+        <li>Dinner at Brasserie Le Lazare</li>
+      </ul>
+    </details>
+
+    <!-- DAY 5 -->
+    <details>
+      <summary>Day 5 Saturday 06 December</summary>
+      <ul>
+        <li>9h00 Metro to Belleville via line 11 walk to Parc de Belleville</li>
+        <li>10h00 Promenade Dora Bruder</li>
+        <li>11h30 Walk to Montmartre</li>
+        <li>12h00 Visit Sacre Coeur</li>
+        <li>Lunch near Rue Lamarck or Rue des Abbesses</li>
+        <li>14h00 Pere Lachaise via line 2</li>
+        <li>17h00 Dinner at Pain Vin Fromages</li>
+      </ul>
+    </details>
+
+    <!-- DAY 6 -->
+    <details>
+      <summary>Day 6 Sunday 07 December</summary>
+      <ul>
+        <li>9h00 Walk to Parc Montsouris</li>
+        <li>10h15 Covered passages near Strasbourg Saint Denis</li>
+        <li>12h00 Tuileries Christmas Market</li>
+        <li>14h15 Galeries Lafayette</li>
+        <li>15h45 Metro line 7 to Place d Italie</li>
+        <li>16h00 Carrefour Italie 2</li>
+        <li>18h00 Darkoum Cantine Marocaine</li>
+      </ul>
+    </details>
+
+    <!-- DAY 7 -->
+    <details>
+      <summary>Day 7 Monday 08 December</summary>
+      <ul>
+        <li>6h15 Leave apartment</li>
+        <li>6h30 Metro line 6 then RER B to CDG</li>
+        <li>7h30 Arrive airport</li>
+        <li>10h30 Flight departs</li>
+      </ul>
+    </details>
+
+  </div>
+
 
   <div id="footer">
     Forecasts retrieved from Open Meteo. Clicking a rating shows exact time forecast.
