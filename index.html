@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dominica Flight Weather Dashboard</title>
+  <title>Dominica Flight Weather Dashboard and Paris Itinerary</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="apple-touch-icon" href="paris-christmas-markets.jpg">
@@ -18,40 +18,83 @@
       background-size: cover;
       color: #f5f5f5;
       margin: 0;
-      padding: 1.5rem;
+      padding: 1rem;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
+      justify-content: center;
+    }
+
+    /* Two column container */
+    #cols {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      max-width: 1500px;
+      gap: 1.5rem;
+    }
+
+    /* Left: itinerary */
+    #itin {
+      flex: 1;
+      background: rgba(20, 27, 51, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 1rem 1.3rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      overflow-y: auto;
+      max-height: 95vh;
+    }
+
+    /* Right: weather */
+    #weather {
+      flex: 1;
+      background: rgba(20, 27, 51, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 1rem 1.3rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      overflow-y: auto;
+      max-height: 95vh;
     }
 
     h1 {
-      font-size: 1.6rem;
-      margin: 0.5rem 0;
+      font-size: 1.4rem;
+      margin: 0 0 0.7rem 0;
       text-align: center;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.7);
     }
 
     h2 {
       font-size: 1rem;
-      margin: 0;
       opacity: 0.9;
       text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    details {
+      margin-bottom: 1rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.2rem 0;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
     }
 
     table {
       width: 100%;
-      max-width: 900px;
       border-collapse: collapse;
-      background: rgba(20, 27, 51, 0.85);
-      backdrop-filter: blur(4px);
-      border-radius: 8px;
+      background: rgba(20, 27, 51, 0.9);
+      border-radius: 6px;
       overflow: hidden;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      margin-bottom: 1rem;
     }
 
     th, td {
-      padding: 0.7rem;
+      padding: 0.6rem;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       font-size: 0.9rem;
     }
@@ -78,64 +121,20 @@
     #footer {
       font-size: 0.75rem;
       opacity: 0.8;
-      margin-top: 0.5rem;
       text-align: center;
-    }
-
-    .itin-card {
-      width: 100%;
-      max-width: 900px;
-      background: rgba(20,27,51,0.85);
-      backdrop-filter: blur(4px);
-      border-radius: 8px;
-      padding: 1rem 1.2rem;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-    }
-
-    details {
-      margin-bottom: 0.8rem;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 0.3rem;
-    }
-
-    li {
-      margin-bottom: 0.4rem;
-      line-height: 1.35;
+      margin-top: 0.5rem;
     }
   </style>
 </head>
 
 <body>
-  <h1>Dominica Flight Weather Dashboard</h1>
-  <h2>Good and bad flying conditions for exact takeoff and landing times</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Segment</th>
-        <th>Local Time</th>
-        <th>Summary</th>
-        <th>Weather</th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
+<div id="cols">
 
-  <!-- ITINERARY SECTION -->
-  <div class="itin-card">
-
-    <h1 style="font-size:1.4rem; margin:0 0 0.5rem 0; text-align:center;">
-      Paris Itinerary 2–8 December 2025
-    </h1>
-
-    <h2 style="font-size:1rem; opacity:0.9; margin:0.5rem 0 1rem 0; text-align:center;">
-      Daily schedule
-    </h2>
+  <!-- LEFT COLUMN -->
+  <div id="itin">
+    <h1>Paris Itinerary</h1>
+    <h2>2 to 8 December 2025</h2>
 
     <details open>
       <summary>Day 1 Tuesday 02 December</summary>
@@ -143,9 +142,9 @@
         <li>11h05 Arrive Charles de Gaulle Airport</li>
         <li>12h15 RER B to Denfert Rochereau then Metro line 6 to Place d Italie</li>
         <li>13h15 Arrive apartment at 7 Avenue Stephen Pichon Batiment B ground floor</li>
-        <li>14h00 Explore Chinatown near Avenue de Choisy and Avenue d Ivry</li>
-        <li>14h30 Lunch near Tang Freres at Banh Mi 17 or Bao Long</li>
-        <li>16h00 Metro line 5 to Bastille</li>
+        <li>14h00 Explore Chinatown</li>
+        <li>14h30 Lunch near Tang Freres</li>
+        <li>16h00 Metro to Bastille</li>
         <li>16h15 Walk the Coulee Verte</li>
         <li>17h30 Drink at Le Train Bleu</li>
         <li>18h45 Dinner at Afrik N Fusion</li>
@@ -156,13 +155,14 @@
     <details>
       <summary>Day 2 Wednesday 03 December</summary>
       <ul>
-        <li>9h00 Sainte Chapelle then Conciergerie</li>
+        <li>9h00 Sainte Chapelle</li>
+        <li>9h45 Conciergerie</li>
         <li>10h30 Notre Dame exterior</li>
         <li>11h00 Pont Neuf and Pont des Arts</li>
         <li>11h30 Jardin du Luxembourg</li>
         <li>12h15 Huitrerie Regis</li>
         <li>14h00 Musee d Orsay</li>
-        <li>19h00 Dinner at Chez Gladines</li>
+        <li>19h00 Chez Gladines</li>
       </ul>
     </details>
 
@@ -175,21 +175,22 @@
         <li>13h30 Walk toward Passy</li>
         <li>14h30 Maison de Balzac</li>
         <li>16h00 Walk to Trocadero</li>
-        <li>19h00 Dinner at Le Temps des Cerises</li>
+        <li>19h00 Le Temps des Cerises</li>
       </ul>
     </details>
 
     <details>
       <summary>Day 4 Friday 05 December</summary>
       <ul>
-        <li>7h00 Metro to Opera then walk to Saint Lazare</li>
+        <li>7h00 Metro to Opera then walk to Gare Saint Lazare</li>
         <li>8h14 Train to Rouen</li>
-        <li>09h46 Taxi to Cathedral and Gros Horloge</li>
+        <li>09h46 Arrive Rouen taxi to Cathedral</li>
+        <li>10h00 Gros Horloge</li>
         <li>12h00 Vegan and Cie</li>
         <li>13h00 Musee Flaubert</li>
         <li>14h00 Cimetière Monumental</li>
         <li>14h30 Croisset</li>
-        <li>18h00 Train back to Paris</li>
+        <li>18h00 Train to Paris</li>
         <li>Dinner at Brasserie Le Lazare</li>
       </ul>
     </details>
@@ -202,7 +203,7 @@
         <li>11h30 Walk to Montmartre</li>
         <li>12h00 Sacre Coeur</li>
         <li>14h00 Pere Lachaise</li>
-        <li>17h00 Dinner at Pain Vin Fromages</li>
+        <li>17h00 Pain Vin Fromages</li>
       </ul>
     </details>
 
@@ -227,11 +228,33 @@
         <li>10h30 Flight departs</li>
       </ul>
     </details>
+
   </div>
 
-  <div id="footer">
-    Forecasts retrieved from Open Meteo. Clicking a rating shows exact time forecast.
+  <!-- RIGHT COLUMN -->
+  <div id="weather">
+    <h1>Flight Weather Dashboard</h1>
+    <h2>Good or bad flying conditions</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Segment</th>
+          <th>Local Time</th>
+          <th>Summary</th>
+          <th>Weather</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <div id="footer">
+      Forecasts are from Open Meteo
+    </div>
   </div>
+
+</div>
+
 
 <script>
 const airports = {
