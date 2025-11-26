@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dominica Travel Dashboard</title>
+  <title>Dominica Flight Weather Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
@@ -26,34 +26,38 @@
       box-sizing: border-box;
     }
 
-    /* Left panel */
+    /* LEFT PANEL */
     .left-panel {
       flex: 2;
+      overflow-y: hidden;
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
 
+    /* ICON BAR */
     .icon-row {
       display: flex;
       gap: 1rem;
+      padding-bottom: 0.5rem;
     }
 
     .icon-button {
-      width: 48px;
-      height: 48px;
+      width: 42px;
+      height: 42px;
       border-radius: 10px;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.18);
       backdrop-filter: blur(4px);
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      font-size: 22px;
+      font-size: 20px;
       text-decoration: none;
       color: #fff;
     }
 
+    /* ITINERARY CARD */
     .itinerary-card {
       flex: 1;
       overflow-y: auto;
@@ -63,7 +67,7 @@
       backdrop-filter: blur(4px);
     }
 
-    /* Right panel */
+    /* RIGHT PANEL */
     .right-panel {
       flex: 1;
       max-width: 360px;
@@ -105,7 +109,7 @@
     <!-- LEFT SIDE -->
     <div class="left-panel">
 
-      <!-- ICON SHORTCUT ROW -->
+      <!-- ICON SHORTCUTS -->
       <div class="icon-row">
         <a class="icon-button" href="https://www.ratp.fr" target="_blank">M</a>
         <a class="icon-button" href="https://maps.google.com" target="_blank">🗺️</a>
@@ -114,25 +118,25 @@
 
       <!-- ITINERARY CARD -->
       <div class="itinerary-card">
-        <h1>Paris Itinerary</h1>
+        <h1>Paris Trip Itinerary</h1>
 
         <h2>Day 1</h2>
-        <p>Place d’Italie. Chinatown. Bep Viet. Walk to Bastille. Coulée Verte. Le Train Bleu. Afrik’N’Fusion.</p>
+        <p>Place d’Italie to Chinatown. Lunch at Bep Viet. Walk to Bastille. Coulée Verte. Le Train Bleu. Afrik’N’Fusion.</p>
 
         <h2>Day 2</h2>
-        <p>Sainte Chapelle. Notre Dame. Pont des Arts. Jardin du Luxembourg. Huitrerie Régis. Musée d’Orsay.</p>
+        <p>Sainte Chapelle. Notre Dame. Pont des Arts. Jardin du Luxembourg. Lunch at Huitrerie Régis. Musée d’Orsay.</p>
 
         <h2>Day 3</h2>
-        <p>Belleville. Le Temps des Cerises.</p>
+        <p>Belleville. Dinner at Le Temps des Cerises.</p>
 
         <h2>Day 4</h2>
-        <p>Rouen. Cathedral. Flaubert Museum. Optional Croisset Pavilion. Taxis for all segments.</p>
+        <p>Rouen Day Trip. Cathedral. Flaubert Museum. Optional Croisset Pavilion. Taxis recommended for all segments.</p>
 
         <h2>Day 5</h2>
-        <p>Les Tontons du Beaujolais. Or Pain Vin Fromages.</p>
+        <p>Dinner at Les Tontons du Beaujolais or Pain Vin Fromages.</p>
 
         <h2>Day 6</h2>
-        <p>Louvre area. Maison de Balzac. Darkoum Cantine Marocaine. Carrefour Italie 2.</p>
+        <p>Louvre Area. Maison de Balzac. Darkoum Cantine Marocaine. Grocery stop at Carrefour Italie 2.</p>
 
         <h2>Day 7</h2>
         <p>Christmas Markets at Gare de l’Est and Tuileries.</p>
@@ -168,12 +172,12 @@
 
         <div class="flight-box">
           <h3>DL 8718</h3>
-          <p id="flight1">Checking…</p>
+          <p id="flight1">Checking flight…</p>
         </div>
 
         <div class="flight-box">
           <h3>DL 2866</h3>
-          <p id="flight2">Checking…</p>
+          <p id="flight2">Checking flight…</p>
         </div>
       </div>
 
@@ -182,7 +186,7 @@
   </div>
 
   <script>
-    /* WEATHER HANDLER */
+    /* WEATHER LOADING */
     async function loadWeather(city, elementId) {
       try {
         const response = await fetch(
@@ -197,7 +201,7 @@
           w.temperature + " C, wind " + w.windspeed + " km h";
       } catch {
         document.getElementById(elementId).innerText =
-          "Error loading weather";
+          "Weather unavailable";
       }
     }
 
@@ -211,16 +215,16 @@
     loadWeather(cities.detroit, "weather-detroit");
     loadWeather(cities.paris, "weather-paris");
 
-    /* SIMPLE MOCK FLIGHT STATUS */
-
-    function mockFlightStatus() {
+    /* SIMPLE FLIGHT STATUS MOCKUP */
+    function loadFlightStatus() {
       document.getElementById("flight1").innerText =
-        "On time. Arrival CDG 11:05";
+        "On time. Scheduled arrival at CDG 11:05 local time";
+
       document.getElementById("flight2").innerText =
-        "On time. Regular performance.";
+        "On time. Usual reliability holds";
     }
 
-    mockFlightStatus();
+    loadFlightStatus();
   </script>
 
 </body>
