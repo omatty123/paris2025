@@ -2,398 +2,226 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dominica Flight Weather Dashboard</title>
+  <title>Dominica Travel Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="apple-touch-icon" href="paris-christmas-markets.jpg">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
   <style>
     body {
+      margin: 0;
+      padding: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
       background:
-        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
         url("paris-christmas-markets.jpg") no-repeat center center fixed;
       background-size: cover;
       color: #f5f5f5;
-      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      height: 100vh;
       padding: 1.5rem;
+      box-sizing: border-box;
+    }
+
+    /* Left panel */
+    .left-panel {
+      flex: 2;
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 1rem;
     }
 
-    h1 {
-      font-size: 1.6rem;
-      margin: 0.5rem 0;
-      text-align: center;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.7);
+    .icon-row {
+      display: flex;
+      gap: 1rem;
     }
 
-    h2 {
-      font-size: 1rem;
-      margin: 0;
-      opacity: 0.9;
-      text-align: center;
-    }
-
-    table {
-      width: 100%;
-      max-width: 900px;
-      border-collapse: collapse;
-      background: rgba(20, 27, 51, 0.85);
+    .icon-button {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.15);
       backdrop-filter: blur(4px);
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-    }
-
-    th, td {
-      padding: 0.7rem;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      font-size: 0.9rem;
-    }
-
-    th {
-      background: rgba(28, 36, 64, 0.95);
-      font-weight: 600;
-    }
-
-    .tag {
-      padding: 0.3rem 0.7rem;
-      border-radius: 20px;
-      font-weight: 600;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 22px;
       text-decoration: none;
-      display: inline-block;
+      color: #fff;
     }
 
-    .good { background: #133a20; color: #61e27b; border: 1px solid #61e27b; }
-    .bad { background: #3a1414; color: #ff6b6b; border: 1px solid #ff6b6b; }
-    .wait { background: #33384f; color: #d3d6f5; border: 1px solid #5e668f; }
-
-    .small { font-size: 0.8rem; opacity: 0.85; }
-
-    #footer {
-      font-size: 0.75rem;
-      opacity: 0.8;
-      margin-top: 0.5rem;
-      text-align: center;
-    }
-
-    /* itinerary styling inside same visual card system */
-    .itin-card {
-      width: 100%;
-      max-width: 900px;
-      background: rgba(20,27,51,0.85);
+    .itinerary-card {
+      flex: 1;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.35);
+      border-radius: 12px;
+      padding: 1.2rem;
       backdrop-filter: blur(4px);
-      border-radius: 8px;
-      padding: 1rem 1.2rem;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
     }
 
-    details {
+    /* Right panel */
+    .right-panel {
+      flex: 1;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.45);
+      padding: 1rem;
+      border-radius: 12px;
+      backdrop-filter: blur(4px);
+    }
+
+    .weather-box, .flight-box {
+      background: rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 0.8rem;
       margin-bottom: 0.8rem;
     }
 
-    summary {
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 1rem;
-      margin-bottom: 0.3rem;
-    }
-
-    li {
-      margin-bottom: 0.4rem;
-      line-height: 1.35;
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        height: auto;
+      }
+      .right-panel {
+        max-width: 100 percent;
+      }
     }
   </style>
 </head>
 
 <body>
-  <h1>Dominica Flight Weather Dashboard</h1>
-  <h2>Good and bad flying conditions for exact takeoff and landing times</h2>
 
-  <!-- WEATHER TABLE -->
-  <table>
-    <thead>
-      <tr>
-        <th>Segment</th>
-        <th>Local Time</th>
-        <th>Summary</th>
-        <th>Weather</th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
+  <div class="container">
 
+    <!-- LEFT SIDE -->
+    <div class="left-panel">
 
-  <!-- ITINERARY SECTION -->
-  <div class="itin-card">
+      <!-- ICON SHORTCUT ROW -->
+      <div class="icon-row">
+        <a class="icon-button" href="https://www.ratp.fr" target="_blank">M</a>
+        <a class="icon-button" href="https://maps.google.com" target="_blank">🗺️</a>
+        <a class="icon-button" href="https://weather.com" target="_blank">☼</a>
+      </div>
 
-    <h1 style="font-size:1.4rem; margin:0 0 0.5rem 0; text-align:center;">
-      Paris Itinerary 2–8 December 2025
-    </h1>
+      <!-- ITINERARY CARD -->
+      <div class="itinerary-card">
+        <h1>Paris Itinerary</h1>
 
-    <h2 style="font-size:1rem; opacity:0.9; margin:0.5rem 0 1rem 0; text-align:center;">
-      Daily schedule for Dominica’s Paris trip
-    </h2>
+        <h2>Day 1</h2>
+        <p>Place d’Italie. Chinatown. Bep Viet. Walk to Bastille. Coulée Verte. Le Train Bleu. Afrik’N’Fusion.</p>
 
-    <!-- DAY 1 -->
-    <details open>
-      <summary>Day 1 Tuesday 02 December</summary>
-      <ul>
-        <li>11h05 Arrive Charles de Gaulle Airport</li>
-        <li>12h15 RER B to Denfert Rochereau then Metro line 6 to Place d Italie</li>
-        <li>13h15 Arrive apartment at 7 Avenue Stephen Pichon Batiment B ground floor</li>
-        <li>14h00 Explore Chinatown near Avenue de Choisy and Avenue d Ivry</li>
-        <li>14h30 Lunch tofu banh mi near Tang Freres at Banh Mi 17 or Bao Long</li>
-        <li>16h00 Metro line 5 from Place d Italie to Bastille</li>
-        <li>16h15 Walk the Coulee Verte</li>
-        <li>17h30 Drink at Le Train Bleu inside Gare de Lyon</li>
-        <li>18h45 Dinner at Afrik N Fusion at 91 Boulevard Vincent Auriol</li>
-        <li>20h30 Walk home</li>
-      </ul>
-    </details>
+        <h2>Day 2</h2>
+        <p>Sainte Chapelle. Notre Dame. Pont des Arts. Jardin du Luxembourg. Huitrerie Régis. Musée d’Orsay.</p>
 
-    <!-- DAY 2 -->
-    <details>
-      <summary>Day 2 Wednesday 03 December</summary>
-      <ul>
-        <li>9h00 Sainte Chapelle timed entry Metro line 7 to Chatelet line 4 to Cite</li>
-        <li>9h45 Conciergerie</li>
-        <li>10h30 Notre Dame exterior</li>
-        <li>11h00 Walk to Pont Neuf and Pont des Arts</li>
-        <li>11h30 Jardin du Luxembourg</li>
-        <li>12h15 Lunch at Huitrerie Regis at 3 Rue de Montfaucon</li>
-        <li>14h00 Musee d Orsay timed entry</li>
-        <li>17h00 Metro line 10 to Jussieu then line 7 to Place d Italie</li>
-        <li>19h00 Dinner at Chez Gladines</li>
-      </ul>
-    </details>
+        <h2>Day 3</h2>
+        <p>Belleville. Le Temps des Cerises.</p>
 
-    <!-- DAY 3 -->
-    <details>
-      <summary>Day 3 Thursday 04 December</summary>
-      <ul>
-        <li>9h00 Louvre timed entry focus on nineteenth century galleries</li>
-        <li>11h30 Walk Tuileries Garden</li>
-        <li>12h15 Lunch at Chez Alain Miam Miam at 39 Rue de Bretagne</li>
-        <li>13h30 Walk along Seine toward Passy</li>
-        <li>14h30 Maison de Balzac reservation required at 47 Rue Raynouard</li>
-        <li>16h00 Walk to Trocadero</li>
-        <li>17h00 Metro line 6 to Place d Italie</li>
-        <li>19h00 Dinner at Le Temps des Cerises</li>
-      </ul>
-    </details>
+        <h2>Day 4</h2>
+        <p>Rouen. Cathedral. Flaubert Museum. Optional Croisset Pavilion. Taxis for all segments.</p>
 
-    <!-- DAY 4 -->
-    <details>
-      <summary>Day 4 Friday 05 December</summary>
-      <ul>
-        <li>7h00 Metro line 7 to Opera then walk to Gare Saint Lazare</li>
-        <li>8h14 Train to Rouen Rive Droite</li>
-        <li>09h46 Arrive Rouen taxi to Cathedral</li>
-        <li>10h00 Visit Cathedral and Gros Horloge</li>
-        <li>12h00 Vegan and Cie at 35 Rue du Bac</li>
-        <li>13h00 Taxi to Musee Flaubert</li>
-        <li>14h00 Taxi to Cimetière Monumental de Rouen</li>
-        <li>14h30 Taxi to Croisset driver waits</li>
-        <li>15h15 Taxi to station</li>
-        <li>18h00 Return train to Paris</li>
-        <li>19h15 to 19h45 Arrive Paris Saint Lazare</li>
-        <li>Dinner at Brasserie Le Lazare</li>
-      </ul>
-    </details>
+        <h2>Day 5</h2>
+        <p>Les Tontons du Beaujolais. Or Pain Vin Fromages.</p>
 
-    <!-- DAY 5 -->
-    <details>
-      <summary>Day 5 Saturday 06 December</summary>
-      <ul>
-        <li>9h00 Metro to Belleville via line 11 walk to Parc de Belleville</li>
-        <li>10h00 Promenade Dora Bruder</li>
-        <li>11h30 Walk to Montmartre</li>
-        <li>12h00 Visit Sacre Coeur</li>
-        <li>Lunch near Rue Lamarck or Rue des Abbesses</li>
-        <li>14h00 Pere Lachaise via line 2</li>
-        <li>17h00 Dinner at Pain Vin Fromages</li>
-      </ul>
-    </details>
+        <h2>Day 6</h2>
+        <p>Louvre area. Maison de Balzac. Darkoum Cantine Marocaine. Carrefour Italie 2.</p>
 
-    <!-- DAY 6 -->
-    <details>
-      <summary>Day 6 Sunday 07 December</summary>
-      <ul>
-        <li>9h00 Walk to Parc Montsouris</li>
-        <li>10h15 Covered passages near Strasbourg Saint Denis</li>
-        <li>12h00 Tuileries Christmas Market</li>
-        <li>14h15 Galeries Lafayette</li>
-        <li>15h45 Metro line 7 to Place d Italie</li>
-        <li>16h00 Carrefour Italie 2</li>
-        <li>18h00 Darkoum Cantine Marocaine</li>
-      </ul>
-    </details>
+        <h2>Day 7</h2>
+        <p>Christmas Markets at Gare de l’Est and Tuileries.</p>
+      </div>
+    </div>
 
-    <!-- DAY 7 -->
-    <details>
-      <summary>Day 7 Monday 08 December</summary>
-      <ul>
-        <li>6h15 Leave apartment</li>
-        <li>6h30 Metro line 6 then RER B to CDG</li>
-        <li>7h30 Arrive airport</li>
-        <li>10h30 Flight departs</li>
-      </ul>
-    </details>
+    <!-- RIGHT SIDE -->
+    <div class="right-panel">
+
+      <!-- WEATHER DASHBOARD -->
+      <div class="card">
+        <h2>Weather</h2>
+
+        <div class="weather-box">
+          <h3>Appleton</h3>
+          <p id="weather-appleton">Loading…</p>
+        </div>
+
+        <div class="weather-box">
+          <h3>Detroit</h3>
+          <p id="weather-detroit">Loading…</p>
+        </div>
+
+        <div class="weather-box">
+          <h3>Paris</h3>
+          <p id="weather-paris">Loading…</p>
+        </div>
+      </div>
+
+      <!-- FLIGHT STATUS DASHBOARD -->
+      <div class="card">
+        <h2>Flight Status</h2>
+
+        <div class="flight-box">
+          <h3>DL 8718</h3>
+          <p id="flight1">Checking…</p>
+        </div>
+
+        <div class="flight-box">
+          <h3>DL 2866</h3>
+          <p id="flight2">Checking…</p>
+        </div>
+      </div>
+
+    </div>
 
   </div>
 
+  <script>
+    /* WEATHER HANDLER */
+    async function loadWeather(city, elementId) {
+      try {
+        const response = await fetch(
+          "https://api.open-meteo.com/v1/forecast?latitude=" + city.lat +
+          "&longitude=" + city.lon +
+          "&current_weather=true"
+        );
+        const data = await response.json();
+        const w = data.current_weather;
 
-  <div id="footer">
-    Forecasts retrieved from Open Meteo. Clicking a rating shows exact time forecast.
-  </div>
-
-<script>
-const airports = {
-  ATW: { code: "ATW", name: "Appleton ATW", lat: 44.2581, lon: -88.5191, timezone: "America/Chicago" },
-  DTW: { code: "DTW", name: "Detroit DTW", lat: 42.2162, lon: -83.3554, timezone: "America/New_York" },
-  CDG: { code: "CDG", name: "Paris CDG", lat: 49.0097, lon: 2.5479, timezone: "Europe/Paris" }
-};
-
-const events = [
-  { id:"ATW_TAKE",  label:"ATW to DTW takeoff", airport:"ATW", iso:"2025-12-01T17:21:00-06:00" },
-  { id:"DTW_LAND1", label:"ATW to DTW landing", airport:"DTW", iso:"2025-12-01T19:43:00-05:00" },
-  { id:"DTW_TAKE",  label:"DTW to CDG takeoff", airport:"DTW", iso:"2025-12-01T21:20:00-05:00" },
-  { id:"CDG_LAND",  label:"DTW to CDG landing", airport:"CDG", iso:"2025-12-02T11:05:00+01:00" },
-  { id:"CDG_TAKE",  label:"CDG to DTW takeoff", airport:"CDG", iso:"2025-12-08T10:30:00+01:00" },
-  { id:"DTW_LAND2", label:"CDG to DTW landing", airport:"DTW", iso:"2025-12-08T13:45:00-05:00" },
-  { id:"DTW_TAKE2", label:"DTW to ATW takeoff", airport:"DTW", iso:"2025-12-08T16:50:00-05:00" },
-  { id:"ATW_LAND",  label:"DTW to ATW landing", airport:"ATW", iso:"2025-12-08T17:14:00-06:00" }
-];
-
-const tbody = document.getElementById("rows");
-
-function initialRender() {
-  tbody.innerHTML = "";
-  for (const ev of events) {
-    const ap = airports[ev.airport];
-    const dt = new Date(ev.iso);
-
-    const row = document.createElement("tr");
-    row.id = "row_" + ev.id;
-    row.innerHTML = `
-      <td><strong>${ev.label}</strong><br><span class="small">${ap.name}</span></td>
-      <td>${dt.toLocaleString()}</td>
-      <td class="small">Loading</td>
-      <td><span class="tag wait">WAIT</span></td>
-    `;
-    tbody.appendChild(row);
-  }
-}
-
-async function getForecast(ap) {
-  const url =
-    "https://api.open-meteo.com/v1/forecast"
-    + "?latitude=" + ap.lat
-    + "&longitude=" + ap.lon
-    + "&hourly=temperature_2m,weathercode,precipitation,windspeed_10m"
-    + "&timezone=" + encodeURIComponent(ap.timezone)
-    + "&forecast_days=16";
-
-  const r = await fetch(url);
-  return r.json();
-}
-
-function nearestIndex(times, target) {
-  let best = 0;
-  let diff = Number.POSITIVE_INFINITY;
-  const t = target.getTime();
-  for (let i = 0; i < times.length; i++) {
-    const d = Math.abs(new Date(times[i]).getTime() - t);
-    if (d < diff) { diff = d; best = i; }
-  }
-  return best;
-}
-
-function classify(code, wind, prec) {
-  const badCodes = [65,66,67,71,73,75,77,80,81,82,85,86,95,96,99];
-  if (badCodes.includes(code)) return "BAD";
-  if (wind >= 45) return "BAD";
-  if (prec >= 4) return "BAD";
-  return "GOOD";
-}
-
-function describe(code) {
-  const labels = {
-    0:"Clear", 1:"Mainly clear", 2:"Partly cloudy", 3:"Overcast",
-    45:"Fog", 48:"Rime fog",
-    51:"Light drizzle", 53:"Drizzle", 55:"Heavy drizzle",
-    61:"Light rain", 63:"Moderate rain", 65:"Heavy rain",
-    71:"Light snow", 73:"Snow", 75:"Heavy snow",
-    80:"Showers", 81:"Showers", 82:"Heavy showers",
-    95:"Thunderstorm", 96:"Storm hail", 99:"Severe hail"
-  };
-  return labels[code] || "Weather";
-}
-
-function fahrenheit(c) { return c * 9 / 5 + 32; }
-
-async function updateAll() {
-  const byAirport = {};
-
-  for (const ev of events) {
-    if (!byAirport[ev.airport]) byAirport[ev.airport] = [];
-    byAirport[ev.airport].push(ev);
-  }
-
-  for (const code of Object.keys(byAirport)) {
-    const ap = airports[code];
-    const data = await getForecast(ap);
-
-    const times = data.hourly.time;
-    const temps = data.hourly.temperature_2m;
-    const precs = data.hourly.precipitation;
-    const wcodes = data.hourly.weathercode;
-    const winds = data.hourly.windspeed_10m;
-
-    for (const ev of byAirport[code]) {
-      const row = document.getElementById("row_" + ev.id);
-
-      const summaryCell = row.children[2];
-      const weatherCell = row.children[3];
-
-      const moment = new Date(ev.iso);
-      const idx = nearestIndex(times, moment);
-
-      const t = temps[idx];
-      const p = precs[idx];
-      const w = winds[idx];
-      const c = wcodes[idx];
-
-      const rating = classify(c, w, p);
-      const label = describe(c);
-      const f = fahrenheit(t).toFixed(0);
-
-      summaryCell.textContent = label + "; " + f + " F";
-
-      const detailUrl =
-        "forecast.html"
-        + "?airport=" + ap.code
-        + "&time=" + encodeURIComponent(ev.iso);
-
-      if (rating === "GOOD") {
-        weatherCell.innerHTML = `<a class="tag good" href="${detailUrl}" target="_blank">GOOD</a>`;
-      } else {
-        weatherCell.innerHTML = `<a class="tag bad" href="${detailUrl}" target="_blank">BAD</a>`;
+        document.getElementById(elementId).innerText =
+          w.temperature + " C, wind " + w.windspeed + " km h";
+      } catch {
+        document.getElementById(elementId).innerText =
+          "Error loading weather";
       }
     }
-  }
-}
 
-initialRender();
-updateAll();
-setInterval(updateAll, 1800000);
-</script>
+    const cities = {
+      appleton: { lat: 44.2619, lon: -88.4154 },
+      detroit: { lat: 42.3314, lon: -83.0458 },
+      paris: { lat: 48.8566, lon: 2.3522 }
+    };
+
+    loadWeather(cities.appleton, "weather-appleton");
+    loadWeather(cities.detroit, "weather-detroit");
+    loadWeather(cities.paris, "weather-paris");
+
+    /* SIMPLE MOCK FLIGHT STATUS */
+
+    function mockFlightStatus() {
+      document.getElementById("flight1").innerText =
+        "On time. Arrival CDG 11:05";
+      document.getElementById("flight2").innerText =
+        "On time. Regular performance.";
+    }
+
+    mockFlightStatus();
+  </script>
 
 </body>
 </html>
