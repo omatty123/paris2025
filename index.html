@@ -23,7 +23,6 @@
       justify-content: center;
     }
 
-    /* Two column layout */
     #cols {
       display: flex;
       flex-direction: row;
@@ -32,7 +31,6 @@
       gap: 1.5rem;
     }
 
-    /* Left itinerary column */
     #itin {
       flex: 1;
       background: rgba(20, 27, 51, 0.85);
@@ -44,7 +42,6 @@
       max-height: 95vh;
     }
 
-    /* Right weather column (narrower) */
     #weather {
       flex: 0 0 42%;
       background: rgba(20, 27, 51, 0.85);
@@ -84,8 +81,6 @@
       margin-bottom: 0.4rem;
     }
 
-
-    /* Weather table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -105,7 +100,6 @@
       font-weight: 600;
     }
 
-    /* Column widths */
     th:nth-child(1), td:nth-child(1) { width: 34%; }
     th:nth-child(2), td:nth-child(2) { width: 23%; }
     th:nth-child(3), td:nth-child(3) { width: 23%; }
@@ -132,6 +126,30 @@
       text-align: center;
       margin-top: 0.5rem;
     }
+
+    /* MOBILE FIX */
+    @media (max-width: 800px) {
+
+      body {
+        padding: 0.5rem;
+        display: block;
+      }
+
+      #cols {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      #itin, #weather {
+        max-height: none;
+        width: 100%;
+      }
+
+      #weather {
+        flex: none;
+      }
+    }
+
   </style>
 </head>
 
@@ -140,7 +158,6 @@
 
 <div id="cols">
 
-  <!-- LEFT COLUMN: ITINERARY -->
   <div id="itin">
     <h1>Paris Itinerary</h1>
     <h2>2 to 8 December 2025</h2>
@@ -239,9 +256,6 @@
     </details>
   </div>
 
-
-
-  <!-- RIGHT COLUMN: WEATHER -->
   <div id="weather">
     <h1>Flight Weather</h1>
     <h2>Good or bad flying conditions</h2>
@@ -264,7 +278,6 @@
   </div>
 
 </div>
-
 
 
 <script>
