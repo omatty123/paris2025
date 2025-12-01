@@ -271,8 +271,12 @@
       margin-bottom: 0.5rem;
       font-size: 0.92rem;
       line-height: 1.4;
-      padding-right: 1rem;
+      padding-right: 1.5rem;
       position: relative;
+    }
+    
+    li[data-lat][data-lon] {
+      cursor: pointer;
     }
     
     li:hover {
@@ -663,16 +667,46 @@
         <span>Day 1 - Tuesday 2 Dec</span>
       </summary>
       <ul>
-        <li>11:05 Land CDG <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>12:15 RER B → Denfert-Rochereau → M6 Place d'Italie <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>13:15 Check-in 7 Av. Stephen-Pichon, Bât. B <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>14:00 Chinatown stroll <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>14:30 Lunch near Tang Frères <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>16:00 Métro to Bastille <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>16:15 Coulée Verte walk <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>17:30 Drink at Le Train Bleu <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>18:45 Dinner Afrik'N'Fusion <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>20:30 Walk home <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
+        <li data-lat="49.0097" data-lon="2.5479">
+          11:05 Land CDG
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          12:15 RER B → Denfert-Rochereau → M6 Place d'Italie
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li data-lat="48.8198" data-lon="2.3569">
+          13:15 Check-in 7 Av. Stephen-Pichon, Bât. B
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          14:00 Chinatown stroll
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          14:30 Lunch near Tang Frères
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          16:00 Métro to Bastille
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          16:15 Coulée Verte walk
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          17:30 Drink at Le Train Bleu
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          18:45 Dinner Afrik'N'Fusion
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li data-lat="48.8198" data-lon="2.3569">
+          20:30 Walk home
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
       </ul>
     </details>
 
@@ -682,14 +716,38 @@
         <span>Day 2 - Wednesday 3 Dec</span>
       </summary>
       <ul>
-        <li>09:00 Sainte-Chapelle <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>09:45 Conciergerie <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>10:30 Notre-Dame (exterior) <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>11:00 Pont Neuf and Pont des Arts <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>11:30 Jardin du Luxembourg <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>12:15 Huîtrerie Régis <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>14:00 Musée d'Orsay <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>19:00 Chez Gladines <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
+        <li>
+          09:00 Sainte-Chapelle
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          09:45 Conciergerie
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          10:30 Notre-Dame (exterior)
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          11:00 Pont Neuf and Pont des Arts
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          11:30 Jardin du Luxembourg
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          12:15 Huîtrerie Régis
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          14:00 Musée d'Orsay
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          19:00 Chez Gladines
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
       </ul>
     </details>
 
@@ -699,13 +757,34 @@
         <span>Day 3 - Thursday 4 Dec</span>
       </summary>
       <ul>
-        <li>09:00 Louvre - 19th century rooms <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>11:30 Tuileries Garden <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>12:15 Chez Alain Miam Miam <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>13:30 Walk toward Passy <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>14:30 Maison de Balzac <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>16:00 Trocadéro <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>19:00 Le Temps des Cerises <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
+        <li>
+          09:00 Louvre - 19th century rooms
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          11:30 Tuileries Garden
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          12:15 Chez Alain Miam Miam
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          13:30 Walk toward Passy
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          14:30 Maison de Balzac
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          16:00 Trocadéro
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          19:00 Le Temps des Cerises
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
       </ul>
     </details>
 
@@ -715,16 +794,46 @@
         <span>Day 4 - Friday 5 Dec</span>
       </summary>
       <ul>
-        <li>07:00 Métro → Opéra → Gare Saint-Lazare <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>08:14 Train to Rouen <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>09:46 Taxi to Cathedral <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>10:00 Gros Horloge <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>12:00 Vegan and Cie <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>13:00 Musée Flaubert <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>14:00 Cimetière Monumental <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>14:30 Croisset <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>18:00 Train back <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>Dinner Brasserie Le Lazare <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
+        <li>
+          07:00 Métro → Opéra → Gare Saint-Lazare
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          08:14 Train to Rouen
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          09:46 Taxi to Cathedral
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          10:00 Gros Horloge
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          12:00 Vegan and Cie
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          13:00 Musée Flaubert
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          14:00 Cimetière Monumental
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          14:30 Croisset
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          18:00 Train back
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          Dinner Brasserie Le Lazare
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
       </ul>
     </details>
 
@@ -734,12 +843,30 @@
         <span>Day 5 - Saturday 6 Dec</span>
       </summary>
       <ul>
-        <li>09:00 Belleville <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>10:00 Promenade Dora Bruder <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>11:30 Montmartre <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>12:00 Sacré-Cœur <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>14:00 Père Lachaise <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>17:00 Pain Vin Fromages <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
+        <li>
+          09:00 Belleville
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          10:00 Promenade Dora Bruder
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          11:30 Montmartre
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          12:00 Sacré-Cœur
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          14:00 Père Lachaise
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          17:00 Pain Vin Fromages
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
       </ul>
     </details>
 
@@ -749,12 +876,30 @@
         <span>Day 6 - Sunday 7 Dec</span>
       </summary>
       <ul>
-        <li>09:00 Parc Montsouris <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>10:15 Covered passages <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>12:00 Tuileries Christmas Market <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>14:15 Galeries Lafayette <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>16:00 Carrefour Italie 2 <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>18:00 Darkoum Cantine Marocaine <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
+        <li data-lat="48.8195" data-lon="2.3372">
+          09:00 Parc Montsouris
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          10:15 Covered passages
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li data-lat="48.8635" data-lon="2.3270">
+          12:00 Tuileries Christmas Market
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li data-lat="48.8720" data-lon="2.3320">
+          14:15 Galeries Lafayette
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          16:00 Carrefour Italie 2
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li data-lat="48.8339" data-lon="2.3306">
+          18:00 Darkoum Cantine Marocaine
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
       </ul>
     </details>
 
@@ -764,10 +909,22 @@
         <span>Day 7 - Monday 8 Dec</span>
       </summary>
       <ul>
-        <li>06:15 Leave apartment <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>06:30 Métro → RER B → CDG <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>07:30 Arrive airport <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
-        <li>10:30 Flight departs <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button></li>
+        <li data-lat="48.8198" data-lon="2.3569">
+          06:15 Leave apartment
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          06:30 Métro → RER B → CDG
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li data-lat="49.0097" data-lon="2.5479">
+          07:30 Arrive airport
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
+        <li>
+          10:30 Flight departs
+          <button class="copy-btn" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+        </li>
       </ul>
     </details>
   </section>
@@ -877,22 +1034,13 @@ function nearestIndex(times, target) {
 }
 
 // ---------- MAP ----------
-(function initMap() {
+let map;
+
+function initMap() {
   // Apartment coordinates (7 Avenue Stephen Pichon, Bâtiment B, rez-de-chaussée, 75013 Paris)
   const apartment = [48.8198, 2.3569];
 
-  // Key transport points near home base
-  const placeItalieMetro = {
-    name: "Place d'Italie (Métro 5, 6, 7)",
-    coords: [48.8315, 2.3556]
-  };
-
-  const placeItalieBus = {
-    name: "Place d'Italie bus hub",
-    coords: [48.8308, 2.3550]
-  };
-
-  const map = L.map('map', {
+  map = L.map('map', {
     zoomControl: true
   }).setView(apartment, 16);
 
@@ -903,39 +1051,22 @@ function nearestIndex(times, target) {
 
   // Home HQ red dot
   L.circleMarker(apartment, {
-    radius: 8,
-    fillColor: "#ff3b3b",
+    radius: 9,
+    fillColor: "#d90000",
     color: "#ffffff",
     weight: 2,
     opacity: 1,
-    fillOpacity: 0.9
+    fillOpacity: 1
   })
     .addTo(map)
-    .bindPopup("<b>Home HQ</b><br>7 Avenue Stephen Pichon<br>Bâtiment B, rez-de-chaussée");
+    .bindPopup("<b>Home HQ</b><br>7 Avenue Stephen Pichon<br>Bâtiment B, rez-de-chaussée")
+    .openPopup();
 
-  // Place d'Italie Métro marker
-  L.marker(placeItalieMetro.coords)
-    .addTo(map)
-    .bindPopup("<b>Place d'Italie</b><br>Métro lines 5, 6, 7");
-
-  // Place d'Italie bus hub marker
-  L.marker(placeItalieBus.coords)
-    .addTo(map)
-    .bindPopup("<b>Place d'Italie</b><br>Bus hub");
-
-  // Fit map to show all markers nicely
-  const bounds = L.latLngBounds([
-    apartment,
-    placeItalieMetro.coords,
-    placeItalieBus.coords
-  ]);
-  map.fitBounds(bounds, { padding: [40, 40] });
-
-  // Fix layout issues when the map is in a flex container
+  // Make sure the map renders correctly in flex layout
   setTimeout(() => {
     map.invalidateSize();
   }, 300);
-})();
+}
 
 // ---------- WEATHER ----------
 const tbody = document.getElementById('rows');
@@ -1112,6 +1243,23 @@ function updateLocalTime() {
   document.getElementById('paris-time').textContent = timeStr;
 }
 
+// ---------- ITINERARY → MAP ----------
+function setupItineraryMapLinks() {
+  const items = document.querySelectorAll('#itin li[data-lat][data-lon]');
+  items.forEach(li => {
+    li.addEventListener('click', (e) => {
+      // Allow copy button to work without panning the map when clicked
+      if (e.target.closest('.copy-btn')) return;
+
+      const lat = parseFloat(li.getAttribute('data-lat'));
+      const lon = parseFloat(li.getAttribute('data-lon'));
+      if (!isNaN(lat) && !isNaN(lon) && map) {
+        map.setView([lat, lon], 16, { animate: true });
+      }
+    });
+  });
+}
+
 // ---------- ITINERARY FEATURES ----------
 function expandCurrentDay() {
   const now = new Date();
@@ -1201,6 +1349,7 @@ function setupOfflineDetection() {
 
 // ---------- INITIALIZATION ----------
 function init() {
+  initMap();
   initialRender();
   updateAll();
   updateCountdown();
@@ -1209,6 +1358,7 @@ function init() {
   setupCopyButtons();
   setupShareButton();
   setupOfflineDetection();
+  setupItineraryMapLinks();
   
   setInterval(updateCountdown, 60000);
   setInterval(updateLocalTime, 60000);
