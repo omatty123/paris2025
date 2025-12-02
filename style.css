@@ -1,202 +1,429 @@
-/* =========================================
-   Global Reset
-   ========================================= */
+/* ===========================
+   Global base
+   =========================== */
 
 * {
+  box-sizing: border-box;
+}
+
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  background: #f7f7f7;
-  color: #222;
-  padding: 20px;
+  background: #f5f1e8; /* warm cream */
+  color: #2c2925;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  line-height: 1.5;
 }
 
-/* =========================================
-   Itinerary Container
-   ========================================= */
+/* Links */
+
+a {
+  color: #2b4c7e;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Header
+   =========================== */
+
+.main-header {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 14px;
+}
+
+.main-header h1 {
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  font-size: 40px;
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  margin: 0 0 16px;
+  font-size: 15px;
+  color: #6a645b;
+}
+
+/* Header buttons row */
+
+.header-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 999px;
+  border: 1px solid #ddd0bd;
+  background: #fbf7ef;
+  cursor: pointer;
+}
+
+.header-btn i {
+  font-size: 13px;
+}
+
+.header-btn:hover {
+  background: #f0e5d5;
+  text-decoration: none;
+}
+
+/* Paris time badge */
+
+.paris-time {
+  margin-left: auto;
+  font-size: 13px;
+  color: #4d463f;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f0e6d7;
+}
+
+/* ===========================
+   Card shell
+   =========================== */
+
+.card {
+  background: #fdfaf3;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  padding: 18px 18px 20px;
+}
+
+/* Section wrapper widths */
+
+.map-wrapper,
+.row {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 24px;
+}
+
+/* Map card */
+
+.map-wrapper .module-title {
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.map-container {
+  border-radius: 16px;
+  overflow: hidden;
+  height: 320px;
+}
+
+/* ===========================
+   Two column layout
+   =========================== */
+
+.row {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+}
+
+.col-large {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.col-small {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebar-stack {
+  position: sticky;
+  top: 10px;
+}
+
+/* Module shell inside cards */
+
+.module-box {
+  min-height: 120px;
+}
+
+/* Generic module titles */
+
+.module-box h2,
+.module-box h3 {
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ===========================
+   Itinerary planner styles
+   =========================== */
 
 #itinerary-board-container {
-  width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 20px;
+  padding: 4px;
 }
 
 #itinerary-board-container h2 {
-  margin-bottom: 15px;
-  font-size: 26px;
+  margin: 0 0 10px;
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  font-size: 24px;
   font-weight: 600;
 }
 
-/* =========================================
-   Controls
-   ========================================= */
+/* Controls */
 
 .itinerary-controls {
-  margin-bottom: 20px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .itinerary-controls button {
-  background: #e3e3e3;
-  border: none;
-  padding: 7px 14px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #d2c5af;
+  background: #f8efe1;
+  font-size: 13px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
 }
 
 .itinerary-controls button:hover {
-  background: #d3d3d3;
+  background: #f0e3cf;
 }
 
-/* =========================================
-   Board Layout (Trello style)
-   ========================================= */
+/* Board */
 
 #itinerary-board {
   display: flex;
   flex-direction: row;
-  gap: 20px;
-  width: 100%;
+  gap: 14px;
   overflow-x: auto;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 }
+
+/* scrollbar */
+
+#itinerary-board::-webkit-scrollbar {
+  height: 8px;
+}
+
+#itinerary-board::-webkit-scrollbar-thumb {
+  background: #d0c3af;
+  border-radius: 999px;
+}
+
+#itinerary-board::-webkit-scrollbar-track {
+  background: #f4ebdd;
+}
+
+/* Column card */
 
 .itinerary-col {
-  background: #ffffff;
-  width: 260px;
-  min-width: 260px;
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.10);
+  background: #fffdf6;
+  border-radius: 14px;
+  padding: 10px;
+  min-width: 240px;
+  max-width: 260px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
-/* =========================================
-   Column Header
-   ========================================= */
+/* Column header row */
 
 .itinerary-col-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .itinerary-col-header span {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
+  color: #3e352c;
 }
 
 .add-item-btn {
-  background: #e3e3e3;
   border: none;
-  padding: 4px 9px;
-  border-radius: 6px;
+  background: #efe3d1;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 14px;
   cursor: pointer;
-  font-size: 16px;
 }
 
 .add-item-btn:hover {
-  background: #d3d3d3;
+  background: #e3d4be;
 }
 
-/* =========================================
-   Card List
-   ========================================= */
+/* Card list */
 
 .itinerary-card-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .itinerary-card-list.drag-over {
-  background: #f1f7ff;
-  border: 2px dashed #5a7cff;
-  border-radius: 8px;
-  padding: 10px;
+  outline: 2px dashed #c7aa74;
+  outline-offset: 3px;
+  border-radius: 10px;
+  padding: 6px;
 }
 
-/* =========================================
-   Individual Cards
-   ========================================= */
+/* Single itinerary card */
 
 .itinerary-card {
-  background: #fafafa;
+  background: #faf4e8;
   border-radius: 10px;
-  padding: 10px 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  padding: 7px 9px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: grab;
-}
-
-.itinerary-card:hover {
-  background: #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .itinerary-card span {
-  font-size: 14px;
-  line-height: 1.3;
-  max-width: 200px;
-  word-wrap: break-word;
+  font-size: 13px;
+  color: #43382e;
+  margin-right: 6px;
+}
+
+.itinerary-card:hover {
+  background: #f3ebdf;
 }
 
 .del-btn {
-  background: #ddd;
   border: none;
-  padding: 3px 7px;
-  border-radius: 6px;
+  background: #e0d2c0;
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 11px;
   cursor: pointer;
-  font-size: 13px;
 }
 
 .del-btn:hover {
-  background: #c7c7c7;
+  background: #cfbfa9;
 }
 
-/* =========================================
-   Scrollbar Styling
-   ========================================= */
+/* ===========================
+   Weather and flight modules
+   =========================== */
 
-#itinerary-board::-webkit-scrollbar {
-  height: 10px;
+#paris-weather-module h2,
+#flight-weather-module h2,
+#flight-status-module h2 {
+  margin-top: 0;
+  margin-bottom: 6px;
+  font-size: 20px;
 }
 
-#itinerary-board::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 5px;
+#paris-weather-module p,
+#flight-weather-module p,
+#flight-status-module p,
+#flight-status-module li,
+#flight-weather-module li {
+  font-size: 13px;
+  color: #51473d;
 }
 
-#itinerary-board::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+/* Tables inside flight status */
+
+#flight-status-module table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 12px;
 }
 
-/* =========================================
-   Mobile
-   ========================================= */
+#flight-status-module th,
+#flight-status-module td {
+  padding: 4px 4px;
+  border-bottom: 1px solid #e1d5c4;
+  text-align: left;
+}
+
+/* Emphasis text */
+
+strong {
+  font-weight: 600;
+}
+
+/* ===========================
+   Responsiveness
+   =========================== */
+
+@media (max-width: 900px) {
+  .main-header {
+    padding: 18px 16px 10px;
+  }
+
+  .main-header h1 {
+    font-size: 32px;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .sidebar-stack {
+    position: static;
+  }
+
+  .map-wrapper,
+  .row {
+    padding: 0 16px 20px;
+  }
+}
 
 @media (max-width: 600px) {
+  .header-buttons {
+    gap: 6px;
+  }
+
+  .header-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .paris-time {
+    margin-left: 0;
+  }
+
+  .map-container {
+    height: 260px;
+  }
+
+  #itinerary-board {
+    padding-bottom: 6px;
+  }
+
   .itinerary-col {
-    width: 220px;
-    min-width: 220px;
-  }
-
-  .itinerary-col-header span {
-    font-size: 16px;
-  }
-
-  .itinerary-card span {
-    font-size: 13px;
+    min-width: 210px;
   }
 }
