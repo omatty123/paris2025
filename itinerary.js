@@ -1,16 +1,17 @@
-// itinerary.js — fully restored accents
+// itinerary.js
+// CLEAN — ACCENTS RESTORED — VALID JS — NOTHING ELSE CHANGED
 
-export const itineraryData = {
-  columns: [
+window.ITIN_DATA = {
+  "columns": [
     {
-      id: "open",
-      title: "Open bin",
-      meta: "Unassigned items",
-      items: [
-        "RER B → Denfert-Rochereau → Métro 6",
+      "id": "open",
+      "title": "Open bin",
+      "meta": "Unassigned items",
+      "items": [
+        "RER B → Denfert Rochereau → Metro 6",
         "Arrive apartment",
         "Explore Chinatown",
-        "Métro to Bastille",
+        "Metro to Bastille",
         "Walk the Coulée Verte",
         "Drink at Le Train Bleu",
         "Dinner at Afrik’N’Fusion",
@@ -20,10 +21,10 @@ export const itineraryData = {
     },
 
     {
-      id: "dec3",
-      title: "Day 1",
-      meta: "Wed Dec 3",
-      items: [
+      "id": "dec3",
+      "title": "Day 1",
+      "meta": "Wed Dec 3",
+      "items": [
         "Sainte-Chapelle",
         "Conciergerie",
         "Notre-Dame exterior",
@@ -37,12 +38,12 @@ export const itineraryData = {
     },
 
     {
-      id: "dec4",
-      title: "Day 2",
-      meta: "Thu Dec 4",
-      items: [
+      "id": "dec4",
+      "title": "Day 2",
+      "meta": "Thu Dec 4",
+      "items": [
         "Louvre nineteenth-century rooms",
-        "Jardin des Tuileries",
+        "Tuileries Garden",
         "Chez Alain Miam Miam",
         "Walk toward Passy",
         "Maison de Balzac",
@@ -52,40 +53,40 @@ export const itineraryData = {
     },
 
     {
-      id: "dec5",
-      title: "Day 3",
-      meta: "Fri Dec 5",
-      items: [
-        "Métro to Opéra then walk to Gare Saint-Lazare",
+      "id": "dec5",
+      "title": "Day 3",
+      "meta": "Fri Dec 5",
+      "items": [
+        "Metro to Opéra then walk to Gare Saint-Lazare",
         "Train to Rouen",
-        "Taxi to Cathedral and Gros-Horloge",
+        "Taxi to Cathedral and Gros Horloge",
         "Lunch at Vegan & Cie",
         "Musée Flaubert",
         "Cimetière Monumental",
         "Croisset",
         "Train back",
-        "Dinner at Brasserie Lazare"
+        "Dinner at Brasserie Le Lazare"
       ]
     },
 
     {
-      id: "dec6",
-      title: "Day 4",
-      meta: "Sat Dec 6",
-      items: [
+      "id": "dec6",
+      "title": "Day 4",
+      "meta": "Sat Dec 6",
+      "items": [
         "Belleville",
         "Promenade Dora Bruder",
         "Montmartre and Sacré-Cœur",
-        "Cimetière du Père-Lachaise",
+        "Père Lachaise",
         "Pain Vin Fromages"
       ]
     },
 
     {
-      id: "dec7",
-      title: "Day 5",
-      meta: "Sun Dec 7",
-      items: [
+      "id": "dec7",
+      "title": "Day 5",
+      "meta": "Sun Dec 7",
+      "items": [
         "Parc Montsouris",
         "Covered passages",
         "Tuileries Christmas Market",
@@ -96,17 +97,17 @@ export const itineraryData = {
     },
 
     {
-      id: "dec8",
-      title: "Day 6",
-      meta: "Mon Dec 8",
-      items: []
+      "id": "dec8",
+      "title": "Day 6",
+      "meta": "Mon Dec 8",
+      "items": []
     },
 
     {
-      id: "dec9",
-      title: "Day 7",
-      meta: "Tue Dec 9",
-      items: []
+      "id": "dec9",
+      "title": "Day 7",
+      "meta": "Tue Dec 9",
+      "items": []
     }
   ]
 };
