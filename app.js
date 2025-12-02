@@ -1,7 +1,9 @@
 // app.js
-// Paris time + simple 6-day weather (today + 5 days) with emojis.
+// Paris time + simple 6-day weather (today + 5).
 
-// ------------------ PARIS TIME ------------------
+// ----------------------
+// PARIS TIME
+// ----------------------
 function updateParisTime() {
   const el = document.getElementById("parisTime");
   if (!el) return;
@@ -20,7 +22,9 @@ function updateParisTime() {
 updateParisTime();
 setInterval(updateParisTime, 30_000);
 
-// ------------------ WEATHER ------------------
+// ----------------------
+// WEATHER
+// ----------------------
 
 function iconForCode(code) {
   if (code === 0) return "☀️";
@@ -35,29 +39,15 @@ function iconForCode(code) {
   return "🌡️";
 }
 
-// Get YYYY-MM-DD in Europe/Paris
-function parisDateString(offsetDays = 0) {
-  const now = new Date();
-  const parisNow = new Date(
-    now.toLocaleString("en-CA", { timeZone: "Europe/Paris" })
-  );
-  parisNow.setDate(parisNow.getDate() + offsetDays);
-  return parisNow.toISOString().slice(0, 10);
-}
-
 async function loadParisWeather() {
   const container = document.getElementById("paris-weather-days");
   if (!container) return;
-
-  const start = parisDateString(0);
-  const end = parisDateString(5);
 
   const baseUrl =
     "https://api.open-meteo.com/v1/forecast" +
     "?latitude=48.8566&longitude=2.3522" +
     "&daily=weathercode,temperature_2m_max,temperature_2m_min" +
-    "&timezone=Europe%2FParis" +
-    `&start_date=${start}&end_date=${end}`;
+    "&timezone=Europe%2FParis";
 
   async function fetchWeather(url) {
     const res = await fetch(url, { cache: "no-store" });
@@ -87,7 +77,7 @@ async function loadParisWeather() {
   const tmax = data.daily.temperature_2m_max;
   const tmin = data.daily.temperature_2m_min;
 
-  for (let i = 0; i < days.length && i < 6; i++) {
+  for (let i = 0; i < 6 && i < days.length; i++) {
     const d = new Date(days[i]);
     const label = d.toLocaleDateString("en-US", {
       weekday: "short",
