@@ -9,7 +9,7 @@ async function loadModules() {
       const html = await fetch(url).then(r => r.text());
       box.innerHTML = html;
 
-      // Re-execute any scripts inside loaded module
+      // Execute any scripts inside the loaded module
       const scripts = box.querySelectorAll("script");
       scripts.forEach(oldScript => {
         const newScript = document.createElement("script");
@@ -28,16 +28,13 @@ async function loadModules() {
   }
 }
 
-// -------- INITIALIZE EVERYTHING AFTER MODULES LOADED -------- //
+// -------- INITIALIZE EVERYTHING AFTER MODULES LOAD -------- //
 async function init() {
   await loadModules();
 
-  // Now we can safely initialize map & widgets
-  initializeMap();
   updateParisTime();
   setInterval(updateParisTime, 15000);
 
-  // If your modules include weather scripts:
   if (typeof loadParisWeather === "function") loadParisWeather();
   if (typeof loadFlightWeather === "function") loadFlightWeather();
   if (typeof initItinerary === "function") initItinerary();
@@ -63,22 +60,51 @@ function updateParisTime() {
   document.getElementById("parisTime").textContent = `Paris time: ${now}`;
 }
 
-// -------- LEAFLET MAP (waits until module is injected) -------- //
-function initializeMap() {
-  const container = document.getElementById("map");
-  if (!container) {
-    console.warn("Map container not found — module may not have loaded yet.");
-    return;
+// -------- PARIS WEATHER (ICONS + CLICKABLE LINKS) -------- //
+async function loadParisWeather() {
+  const url =
+    "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
+
+  try {
+    const data = await fetch(url).then(r => r.json());
+
+    const container = document.getElementById("paris-weather-days");
+    if (!container) return;
+    container.innerHTML = "";
+
+    const days = data.daily.time;
+    const icons = data.daily.weathercode;
+    const tmax = data.daily.temperature_2m_max;
+    const tmin = data.daily.temperature_2m_min;
+
+    const iconURL = (code) =>
+      `https://www.open-meteo.com/images/weather-icons/${code}.png`;
+
+    days.forEach((day, i) => {
+      const pretty = new Date(day).toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric"
+      });
+
+      // Link to weather.com
+      const link = `https://weather.com/weather/tenday/l/Paris+France?day=${i}`;
+
+      const div = document.createElement("div");
+      div.className = "weather-day";
+
+      div.innerHTML = `
+        <a href="${link}" target="_blank" rel="noopener noreferrer">
+          <img src="${iconURL(icons[i])}" alt="weather icon">
+          <div style="font-weight:600; margin-bottom:4px;">${pretty}</div>
+          <div>${Math.round(tmax[i])}° / ${Math.round(tmin[i])}°C</div>
+        </a>
+      `;
+
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Weather load error", err);
   }
-
-  const map = L.map("map").setView([48.83055, 2.35582], 17);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap contributors"
-  }).addTo(map);
-
-  const marker = L.marker([48.83055, 2.35582]).addTo(map);
-  marker.bindPopup(
-    `<b>Home HQ</b><br>7 Avenue Stephen Pichon<br>Bât. B, rez de chaussée<br>75013 Paris`
-  ).openPopup();
 }
