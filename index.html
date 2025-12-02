@@ -1,226 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Paris December 2025</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Font Awesome for icons used in modules -->
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- Optional external styles you already have -->
-  <link rel="stylesheet" href="style.css">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      background:
-        linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
-        url("paris-christmas-markets.jpg") center / cover fixed no-repeat;
-      color: #111827;
-    }
-
-    #page {
-      max-width: 1300px;
-      margin: 1.25rem auto 2.5rem;
-      padding: 1.75rem 2rem 2.5rem;
-      background: rgba(248, 250, 252, 0.96);
-      border-radius: 18px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.55);
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 2.1rem;
-      letter-spacing: 0.04em;
-    }
-
-    .subtitle {
-      margin-top: 0.25rem;
-      font-size: 0.9rem;
-      color: #4b5563;
-    }
-
-    .time-badge {
-      padding: 0.4rem 0.75rem;
-      border-radius: 999px;
-      background: #e5edf9;
-      font-size: 0.85rem;
-      color: #111827;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      white-space: nowrap;
-    }
-
-    .time-badge i {
-      font-size: 0.85rem;
-    }
-
-    /* Quick links row */
-    .top-links {
-      margin-top: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-    }
-
-    .top-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.45rem 0.9rem;
-      font-size: 0.85rem;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      background: #f9fafb;
-      color: #111827;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
-    }
-
-    .top-link i {
-      font-size: 0.85rem;
-    }
-
-    .top-link:hover {
-      background: #e5e7eb;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
-      transform: translateY(-1px);
-    }
-
-    main {
-      margin-top: 1.5rem;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 1.25rem 1.4rem 1.5rem;
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
-    }
-
-    .row {
-      display: flex;
-      gap: 1.25rem;
-      margin-top: 1.25rem;
-      flex-wrap: wrap;
-    }
-
-    .col {
-      flex: 1 1 0;
-      min-width: 270px;
-    }
-
-    /* Map row full width */
-    #map-card {
-      margin-top: 1.25rem;
-    }
-
-    /* Module containers start slightly transparent while loading */
-    .module-loading {
-      opacity: 0.35;
-    }
-
-    /* Basic module header style if not already defined in style.css */
-    .module-header h2 {
-      margin: 0 0 0.35rem;
-      font-size: 1.15rem;
-    }
-
-    .panel-subtitle {
-      margin: 0;
-      font-size: 0.88rem;
-      color: #6b7280;
-    }
-
-    @media (max-width: 768px) {
-      #page {
-        padding: 1.25rem 1.1rem 2rem;
-      }
-      header h1 {
-        font-size: 1.7rem;
-      }
-    }
-  </style>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
-  <div id="page">
-    <header>
-      <div>
-        <h1>Paris December 2025</h1>
-        <div class="subtitle">
-          December 2–8 • Appleton → Detroit → Paris → Detroit → Appleton
-        </div>
-        <div class="top-links">
-          <a class="top-link" href="https://www.ratp.fr/itineraires" target="_blank" rel="noopener noreferrer">
-            <i class="fas fa-route"></i> RATP directions
-          </a>
-          <a class="top-link"
-             href="https://www.google.com/maps/search/?api=1&query=7+Av+Stephen+Pichon+75013+Paris"
-             target="_blank" rel="noopener noreferrer">
-            <i class="fas fa-home"></i> Open home in Maps
-          </a>
-          <a class="top-link" href="#paris-weather-card">
-            <i class="fas fa-cloud-sun"></i> Paris weather
-          </a>
-          <a class="top-link" href="#flight-weather-card">
-            <i class="fas fa-plane-departure"></i> Flight weather
-          </a>
-        </div>
+
+  <header class="main-header">
+    <h1>Paris December 2025</h1>
+    <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
+
+    <div class="header-buttons">
+      <a class="header-btn" href="https://www.ratp.fr/en" target="_blank">
+        <i class="fas fa-route"></i> RATP directions
+      </a>
+
+      <a class="header-btn" href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris" target="_blank">
+        <i class="fas fa-map-pin"></i> Open home in Maps
+      </a>
+
+      <button class="header-btn" onclick="scrollToModule('paris-weather-module')">
+        <i class="fas fa-cloud-sun"></i> Paris weather
+      </button>
+
+      <button class="header-btn" onclick="scrollToModule('flight-weather-module')">
+        <i class="fas fa-plane-departure"></i> Flight weather
+      </button>
+
+      <div class="paris-time">
+        <i class="fas fa-clock"></i>
+        <span id="parisTime">Paris time: --:--</span>
       </div>
+    </div>
+  </header>
 
-      <div>
-        <div class="time-badge">
-          <i class="fas fa-clock"></i>
-          Paris time:
-          <span id="paris-time">--:--</span>
-        </div>
-      </div>
-    </header>
+  <!-- MAP -->
+  <section class="map-wrapper card">
+    <h2 class="module-title">Home Base</h2>
+    <div id="map" class="map-container"></div>
+  </section>
 
-    <main>
-      <!-- Map full width -->
-      <section id="map-card" class="card">
-        <div id="map-section" class="module-loading"></div>
-      </section>
+  <!-- ROW: itinerary + paris weather -->
+  <section class="row">
+    <div id="itinerary-module" class="card module-box" data-module="modules/itinerary.html"></div>
+    <div id="paris-weather-module" class="card module-box" data-module="modules/paris-weather.html"></div>
+  </section>
 
-      <!-- Row: Itinerary | Paris weather -->
-      <div class="row">
-        <section id="itinerary-card" class="card col">
-          <div id="itinerary-section" class="module-loading"></div>
-        </section>
-
-        <section id="paris-weather-card" class="card col">
-          <div id="paris-weather-section" class="module-loading"></div>
-        </section>
-      </div>
-
-      <!-- Row: Flight weather | Flight status -->
-      <div class="row">
-        <section id="flight-weather-card" class="card col">
-          <div id="flight-weather-section" class="module-loading"></div>
-        </section>
-
-        <section id="flight-status-card" class="card col">
-          <div id="flight-status-section" class="module-loading"></div>
-        </section>
-      </div>
-    </main>
-  </div>
+  <!-- ROW: flight weather + flight status -->
+  <section class="row">
+    <div id="flight-weather-module" class="card module-box" data-module="modules/flight-weather.html"></div>
+    <div id="flight-status-module" class="card module-box" data-module="modules/flight-status.html"></div>
+  </section>
 
   <script src="app.js"></script>
 </body>
