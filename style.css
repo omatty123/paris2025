@@ -23,7 +23,7 @@ a {
   color: inherit;
 }
 
-/* Layout helpers */
+/* Layout */
 
 .card {
   background: #ffffff;
@@ -128,6 +128,13 @@ a {
   margin-bottom: 12px;
 }
 
+.itinerary-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
 .secondary-btn {
   border-radius: 999px;
   border: 1px solid #d3cdc4;
@@ -140,6 +147,35 @@ a {
 
 .secondary-btn:hover {
   background: #f0e9e0;
+}
+
+/* GitHub controls */
+
+.github-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.small-btn {
+  border-radius: 999px;
+  border: 1px solid #d3cdc4;
+  background: #f8f3eb;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.small-btn:hover {
+  background: #eee0d1;
+}
+
+.github-status {
+  font-size: 0.78rem;
+  color: #7a7267;
+  min-height: 1em;
 }
 
 /* Two-column itinerary layout */
