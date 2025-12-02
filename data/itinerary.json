@@ -5,7 +5,6 @@
       "title": "Open bin",
       "meta": "Unassigned items",
       "items": [
-        "Arrive CDG",
         "RER B → Denfert Rochereau → Metro 6",
         "Arrive apartment",
         "Explore Chinatown",
@@ -17,7 +16,6 @@
         "Walk home"
       ]
     },
-
     {
       "id": "dec3",
       "title": "Day 1",
@@ -33,7 +31,6 @@
         "Chez Gladines"
       ]
     },
-
     {
       "id": "dec4",
       "title": "Day 2",
@@ -48,7 +45,6 @@
         "Le Temps des Cerises"
       ]
     },
-
     {
       "id": "dec5",
       "title": "Day 3",
@@ -65,7 +61,6 @@
         "Dinner at Brasserie Le Lazare"
       ]
     },
-
     {
       "id": "dec6",
       "title": "Day 4",
@@ -78,7 +73,6 @@
         "Pain Vin Fromages"
       ]
     },
-
     {
       "id": "dec7",
       "title": "Day 5",
@@ -92,14 +86,12 @@
         "Darkoum Cantine Marocaine"
       ]
     },
-
     {
       "id": "dec8",
       "title": "Day 6",
       "meta": "Mon Dec 8",
       "items": []
     },
-
     {
       "id": "dec9",
       "title": "Day 7",
