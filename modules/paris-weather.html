@@ -1,17 +1,56 @@
-<div class="module-header">
-  <h2><i class="fas fa-cloud-sun"></i> Paris weather</h2>
-  <p class="panel-subtitle">Today and next five days</p>
-</div>
+async function loadParisWeather() {
+  const url =
+    "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
 
-<p style="text-align:center; margin-bottom:1rem;">
-  Data from Open-Meteo · Central Paris
-</p>
+  let data;
 
-<div id="paris-weather-days" class="weather-grid"></div>
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    data = await res.json();
+  } catch (e) {
+    console.warn("Open-Meteo blocked, retrying with proxy…");
 
-<script>
-  // The loader system re-runs this function after module injection
-  if (typeof loadParisWeather === "function") {
-    loadParisWeather();
+    const proxy =
+      "https://cors-proxy.api.exponential-hub.workers.dev/?" + url;
+
+    const res = await fetch(proxy);
+    data = await res.json();
   }
-</script>
+
+  const container = document.getElementById("paris-weather-days");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const days = data.daily.time;
+  const icons = data.daily.weathercode;
+  const tmax = data.daily.temperature_2m_max;
+  const tmin = data.daily.temperature_2m_min;
+
+  const iconURL = code =>
+    `https://www.open-meteo.com/images/weather-icons/${code}.png`;
+
+  days.forEach((day, i) => {
+    const pretty = new Date(day).toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric"
+    });
+
+    const link =
+      `https://weather.com/weather/tenday/l/Paris+France?day=${i}`;
+
+    const div = document.createElement("div");
+    div.className = "weather-day";
+
+    div.innerHTML = `
+      <a href="${link}" target="_blank">
+        <img src="${iconURL(icons[i])}" />
+        <div style="font-weight:600;">${pretty}</div>
+        <div>${Math.round(tmax[i])}° / ${Math.round(tmin[i])}°C</div>
+      </a>
+    `;
+
+    container.appendChild(div);
+  });
+}
