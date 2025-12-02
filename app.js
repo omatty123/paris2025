@@ -1,8 +1,6 @@
-// Basic config
 const GITHUB_OWNER = "omatty123";
 const GITHUB_REPO = "paris2025";
-// Change this to "master" if your default branch is master, not main
-const GITHUB_BRANCH = "main";
+const GITHUB_BRANCH = "main"; // change to "master" if needed
 const GITHUB_FILE_PATH = "data/itinerary.json";
 
 const STORAGE_TOKEN_KEY = "paris25_github_token";
@@ -24,7 +22,7 @@ function updateParisTime() {
 setInterval(updateParisTime, 30000);
 updateParisTime();
 
-// Initial local default as hard backup
+// Hard backup for reset
 const INITIAL_BOARD = {
   columns: [
     {
@@ -125,9 +123,8 @@ const INITIAL_BOARD = {
 
 let boardState = null;
 let currentSha = null;
-let isSaving = false;
+let dragging = null;
 
-// Utility
 function cloneBoard(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -136,7 +133,7 @@ function setStatus(text) {
   if (SAVE_STATUS_EL) SAVE_STATUS_EL.textContent = text;
 }
 
-// GitHub API helpers
+// GitHub API
 
 async function fetchItineraryFromGitHub() {
   const url =
@@ -150,14 +147,10 @@ async function fetchItineraryFromGitHub() {
     GITHUB_BRANCH;
 
   const res = await fetch(url, {
-    headers: {
-      Accept: "application/vnd.github+json"
-    }
+    headers: { Accept: "application/vnd.github+json" }
   });
 
-  if (!res.ok) {
-    throw new Error("GitHub fetch failed with status " + res.status);
-  }
+  if (!res.ok) throw new Error("GitHub fetch failed " + res.status);
 
   const data = await res.json();
   currentSha = data.sha;
@@ -176,7 +169,6 @@ async function saveItineraryToGitHub() {
 
   if (!boardState) return;
 
-  // Always maintain a local backup
   localStorage.setItem(STORAGE_LOCAL_BACKUP, JSON.stringify(boardState));
 
   if (!token) {
@@ -185,12 +177,9 @@ async function saveItineraryToGitHub() {
   }
 
   if (!currentSha) {
-    // If we do not have a sha yet, fetch metadata once
     try {
       await fetchItineraryFromGitHub();
-    } catch (e) {
-      // If this fails, we still have local backup
-    }
+    } catch (e) {}
   }
 
   const url =
@@ -209,12 +198,8 @@ async function saveItineraryToGitHub() {
     content: encoded,
     branch: GITHUB_BRANCH
   };
+  if (currentSha) body.sha = currentSha;
 
-  if (currentSha) {
-    body.sha = currentSha;
-  }
-
-  isSaving = true;
   setStatus("Saving to GitHub…");
 
   const res = await fetch(url, {
@@ -226,8 +211,6 @@ async function saveItineraryToGitHub() {
     },
     body: JSON.stringify(body)
   });
-
-  isSaving = false;
 
   if (!res.ok) {
     setStatus("GitHub save failed " + res.status);
@@ -242,7 +225,7 @@ async function saveItineraryToGitHub() {
   setStatus("Saved to GitHub");
 }
 
-// Token management
+// Token button
 
 const githubModeBtn = document.getElementById("githubModeBtn");
 
@@ -272,7 +255,7 @@ if (githubModeBtn) {
   });
 }
 
-// Board rendering and interactions
+// Board rendering
 
 const boardEl = document.getElementById("itineraryBoard");
 
@@ -281,7 +264,7 @@ function renderBoard() {
 
   boardEl.innerHTML = "";
 
-  boardState.columns.forEach((col, colIndex) => {
+  boardState.columns.forEach((col) => {
     const colEl = document.createElement("div");
     colEl.className = "itinerary-column";
     colEl.dataset.columnId = col.id;
@@ -355,7 +338,7 @@ function renderBoard() {
   });
 }
 
-let dragging = null; // { fromColumnId, fromIndex }
+// Drag and drop
 
 function handleDragStart(e) {
   const target = e.currentTarget;
@@ -405,7 +388,7 @@ function handleDrop(e) {
   renderBoard();
 }
 
-// Buttons for add day and reset
+// Add day and reset
 
 const addDayBtn = document.getElementById("addDayBtn");
 const resetBtn = document.getElementById("resetItineraryBtn");
@@ -444,7 +427,6 @@ async function initBoard() {
     renderBoard();
   } catch (e) {
     console.error(e);
-    // Try local backup
     const backup = localStorage.getItem(STORAGE_LOCAL_BACKUP);
     if (backup) {
       boardState = JSON.parse(backup);
