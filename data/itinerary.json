@@ -4,7 +4,9 @@
       "id": "open",
       "title": "Open bin",
       "meta": "Unassigned items",
-      "items": []
+      "items": [
+        "Parc Montsouris"
+      ]
     },
     {
       "id": "dec3",
@@ -69,7 +71,6 @@
       "title": "Day 5",
       "meta": "Sun Dec 7",
       "items": [
-        "Parc Montsouris",
         "Covered passages",
         "Tuileries Christmas market",
         "Galeries Lafayette",
