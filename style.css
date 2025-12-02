@@ -181,3 +181,47 @@ body {
   font-size: 0.85rem;
   opacity: 0.8;
 }
+
+/* --- COMPACT WEATHER MODULE --- */
+
+#paris-weather-module.card {
+  padding: 14px 16px !important; /* reduce big card padding */
+}
+
+#paris-weather-module .module-header h2 {
+  margin-bottom: 4px;
+}
+
+#paris-weather-module .panel-subtitle {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+#paris-weather-days.weather-grid {
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+#paris-weather-module .weather-day {
+  padding: 8px 6px;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+
+#paris-weather-module .weather-emoji {
+  font-size: 1.4rem;
+  margin-bottom: 2px;
+}
+
+#paris-weather-module .weather-date {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+#paris-weather-module .weather-temps {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
