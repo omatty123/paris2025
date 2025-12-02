@@ -16,11 +16,8 @@ async function loadParisWeather() {
     const res = await fetch(url, { cache: "no-store" });
     data = await res.json();
   } catch (e) {
-    console.warn("Open-Meteo blocked, retrying with proxy…");
-
     const proxy =
       "https://cors-proxy.api.exponential-hub.workers.dev/?" + url;
-
     const res = await fetch(proxy);
     data = await res.json();
   }
@@ -35,8 +32,9 @@ async function loadParisWeather() {
   const tmax = data.daily.temperature_2m_max;
   const tmin = data.daily.temperature_2m_min;
 
+  // ✅ Correct icon path
   const iconURL = code =>
-    `https://www.open-meteo.com/images/weather-icons/${code}.png`;
+    `https://api.open-meteo.com/v1/weather/icon/${code}.png`;
 
   days.forEach((day, i) => {
     const pretty = new Date(day).toLocaleDateString("en-US", {
@@ -62,6 +60,7 @@ async function loadParisWeather() {
   });
 }
 
-// Call when module loads
 loadParisWeather();
 </script>
+
+  
