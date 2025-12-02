@@ -8,7 +8,7 @@
   <!-- Cormorant Garamond -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Font Awesome (no integrity to avoid blocking issues) -->
+  <!-- Font Awesome (no integrity so it doesn't block) -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -73,7 +73,7 @@
           <i class="fas fa-suitcase-rolling"></i> Itinerary planner
         </h2>
         <p class="section-subtitle">
-          Drag items between days and the Open Bin · Add or delete freely · Saved in this browser & can sync to GitHub
+          Drag items between days and the Open Bin · Add or delete freely · Automatically saved in this browser, optional GitHub sync
         </p>
       </div>
       <div class="itinerary-header-right">
@@ -84,18 +84,18 @@
           <button class="small-btn" id="githubToken">Set GitHub token</button>
           <button class="small-btn" id="githubSave">Save to GitHub</button>
           <button class="small-btn" id="githubLoad">Load from GitHub</button>
-          <div id="githubStatus" class="github-status"></div>
         </div>
+        <div id="githubStatus" class="github-status"></div>
       </div>
     </div>
 
     <div class="itinerary-layout">
-      <!-- Days stacked vertically (narrow) -->
+      <!-- Narrow days column -->
       <div id="daysColumn" class="days-column">
-        <!-- itinerary.js will populate -->
+        <!-- itinerary.js will populate day columns here -->
       </div>
 
-      <!-- Open Bin (Day 1) -->
+      <!-- Open Bin -->
       <aside class="open-bin-column">
         <h3 class="open-bin-title">
           <i class="fas fa-inbox"></i> Open Bin
