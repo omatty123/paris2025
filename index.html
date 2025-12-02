@@ -1,130 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Paris December 2025</title>
 
-  <!-- Cormorant Garamond -->
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-  <!-- Core CSS -->
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
 
+  <!-- HEADER -->
   <header class="main-header">
     <h1>Paris December 2025</h1>
-    <p class="subtitle">December 2 to 10, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
+    <p class="subtitle">December 2–8, 2025 • Appleton → Detroit → Paris → Detroit → Appleton</p>
 
     <div class="header-buttons">
-
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
         <i class="fas fa-route"></i> RATP directions
       </a>
-
       <a class="header-btn" href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris" target="_blank">
         <i class="fas fa-map-pin"></i> Open home in Maps
       </a>
+      <button class="header-btn" onclick="scrollToModule('paris-weather')"><i class="fas fa-cloud-sun"></i> Paris weather</button>
+      <button class="header-btn" onclick="scrollToModule('flight-weather')"><i class="fas fa-plane-departure"></i> Flight weather</button>
 
-      <button class="header-btn" onclick="scrollToModule('paris-weather-module')">
-        <i class="fas fa-cloud-sun"></i> Paris weather
-      </button>
-
-      <button class="header-btn" onclick="scrollToModule('flight-weather-module')">
-        <i class="fas fa-plane-departure"></i> Flight weather
-      </button>
-
-      <div class="paris-time">
-        <i class="fas fa-clock"></i>
-        <span id="parisTime">Paris time: --:--</span>
-      </div>
-
+      <div class="paris-time"><i class="fas fa-clock"></i> <span id="parisTime">Paris time — --:--</span></div>
     </div>
   </header>
 
-
-  <!-- GOOGLE MAP -->
+  <!-- MAP -->
   <section class="map-wrapper card">
     <h2 class="module-title">Home Base</h2>
     <div class="map-container">
       <iframe
-        width="100%"
-        height="100%"
-        style="border:0; border-radius:12px;"
-        loading="lazy"
-        allowfullscreen
-        referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2759.6629974250623!2d2.357184576428085!3d48.83348360245892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6718b7ec95f99%3A0x6eaf265702e5e619!2s7%20Av.%20Stephen%20Pichon%2C%2075013%20Paris%2C%20France!5e1!3m2!1sen!2sus!4v1764636856567!5m2!1sen!2sus">
+        width="100%" height="100%" style="border:0; border-radius:12px;"
+        loading="lazy" allowfullscreen
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2759.6629974250623!2d2.357184576428085!3d48.83348360245892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6718b7ec95f99%3A0x6eaf265702e5e619!2s7%20Av.%20Stephen%20Pichon%2C%2075013%20Paris%2C%20France!5e1!3m2!1sen!2sus!4v1764636856567">
       </iframe>
     </div>
   </section>
 
-
-  <!-- MAIN LAYOUT: LEFT = itinerary + flight weather, RIGHT = paris weather + flight status -->
+  <!-- MAIN COLUMNS -->
   <section class="row">
 
-    <!-- LEFT COLUMN -->
+    <!-- LEFT SIDE: ITINERARY + FLIGHT WEATHER -->
     <div class="col-large">
 
-      <div
-        id="itinerary-module"
-        class="card module-box"
-        data-module="modules/itinerary.html">
-      </div>
+      <!-- ITINERARY LIVES HERE, NOT AS A MODULE -->
+      <section class="card">
+        <h2 class="module-title">Itinerary Planner</h2>
+        <div id="itinerary-board"></div>
+      </section>
 
-      <div
-        id="flight-weather-module"
-        class="card module-box"
-        data-module="modules/flight-weather.html">
-      </div>
+      <!-- Flight weather (module loaded) -->
+      <div id="flight-weather" class="card module-box"
+           data-module="modules/flight-weather.html"></div>
 
     </div>
 
-    <!-- RIGHT SIDEBAR COLUMN -->
+    <!-- RIGHT SIDE: PARIS WEATHER + FLIGHT STATUS -->
     <div class="col-small sidebar-stack">
+      <div id="paris-weather" class="card module-box"
+           data-module="modules/paris-weather.html"></div>
 
-      <div
-        id="paris-weather-module"
-        class="card module-box"
-        data-module="modules/paris-weather.html">
-      </div>
-
-      <div
-        id="flight-status-module"
-        class="card module-box"
-        data-module="modules/flight-status.html">
-      </div>
-
+      <div id="flight-status" class="card module-box"
+           data-module="modules/flight-status.html"></div>
     </div>
 
   </section>
 
+  <script src="modules/itinerary.js"></script>
   <script src="app.js"></script>
-  <!-- LOAD itinerary JS when itinerary module is loaded -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const itBox = document.getElementById("itinerary-module");
-
-  // When the HTML content finishes loading
-  const observer = new MutationObserver(() => {
-    // check if the module's inner HTML is present
-    if (itBox.innerHTML.trim().length > 0) {
-      // load the JS file associated with itinerary
-      const script = document.createElement("script");
-      script.src = "modules/itinerary.js";
-      script.type = "text/javascript";
-      document.body.appendChild(script);
-      observer.disconnect(); // stop watching
-    }
-  });
-
-  observer.observe(itBox, { childList: true });
-});
-</script>
 </body>
 </html>
