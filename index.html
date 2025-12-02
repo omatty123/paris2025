@@ -11,7 +11,7 @@
   <!-- Core CSS -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Icons -->
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
@@ -22,6 +22,7 @@
     <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
 
     <div class="header-buttons">
+
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
         <i class="fas fa-route"></i> RATP directions
       </a>
@@ -42,13 +43,14 @@
         <i class="fas fa-clock"></i>
         <span id="parisTime">Paris time: --:--</span>
       </div>
+
     </div>
   </header>
+
 
   <!-- GOOGLE MAP -->
   <section class="map-wrapper card">
     <h2 class="module-title">Home Base</h2>
-
     <div class="map-container">
       <iframe
         width="100%"
@@ -62,39 +64,42 @@
     </div>
   </section>
 
-  <!-- ROW 1: ITINERARY (WIDE) + PARIS WEATHER (NARROW) -->
+
+  <!-- MAIN LAYOUT: LEFT = itinerary + flight weather, RIGHT = paris weather + flight status -->
   <section class="row">
+
+    <!-- LEFT COLUMN -->
     <div class="col-large">
+
       <div id="itinerary-module"
         class="card module-box"
         data-module="https://omatty123.github.io/paris2025/modules/itinerary.html">
       </div>
-    </div>
 
-    <div class="col-small">
-      <div id="paris-weather-module"
-        class="card module-box"
-        data-module="https://omatty123.github.io/paris2025/modules/paris-weather.html">
-      </div>
-    </div>
-  </section>
-
-  <!-- ROW 2: FLIGHT WEATHER (WIDE) + FLIGHT STATUS (NARROW) -->
-  <section class="row">
-    <div class="col-large">
       <div id="flight-weather-module"
         class="card module-box"
         data-module="https://omatty123.github.io/paris2025/modules/flight-weather.html">
       </div>
+
     </div>
 
-    <div class="col-small">
+    <!-- RIGHT SIDEBAR COLUMN -->
+    <div class="col-small sidebar-stack">
+
+      <div id="paris-weather-module"
+        class="card module-box"
+        data-module="https://omatty123.github.io/paris2025/modules/paris-weather.html">
+      </div>
+
       <div id="flight-status-module"
         class="card module-box"
         data-module="https://omatty123.github.io/paris2025/modules/flight-status.html">
       </div>
+
     </div>
+
   </section>
+
 
   <script src="app.js"></script>
 </body>
