@@ -1,69 +1,17 @@
 <div class="module-header">
-  <h2><i class="fas fa-cloud-sun-rain"></i> Paris weather</h2>
-  <p class="panel-subtitle">Today and next five days · CDG area</p>
+  <h2><i class="fas fa-cloud-sun"></i> Paris weather</h2>
+  <p class="panel-subtitle">Today and next five days</p>
 </div>
 
-<div id="paris-weather-today" class="weather-today"></div>
-<div id="paris-weather-days" class="weather-days"></div>
+<p style="text-align:center; margin-bottom:1rem;">
+  Data from Open-Meteo · Central Paris
+</p>
+
+<div id="paris-weather-days" class="weather-grid"></div>
 
 <script>
-async function loadParisWeather() {
-  const url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Europe%2FParis";
-
-  const data = await fetch(url).then(r => r.json());
-
-  const today = data.current_weather;
-  const daily = data.daily;
-
-  // TODAY
-  document.getElementById("paris-weather-today").innerHTML = `
-    <div class="today-temp">${Math.round(today.temperature)}°F</div>
-    <div class="today-desc">${today.weathercode === 3 ? "Overcast" : "Cloudy"}</div>
-  `;
-
-  // FIVE DAY FORECAST
-  let html = "";
-  for (let i = 0; i < 5; i++) {
-    html += `
-      <div class="weather-card">
-        <div class="day-name">${new Date(daily.time[i]).toLocaleDateString("en-US", { weekday: "short" })}</div>
-        <div class="temps">${Math.round(daily.temperature_2m_min[i])}° / ${Math.round(daily.temperature_2m_max[i])}°F</div>
-        <div class="desc">Light rain</div>
-      </div>
-    `;
+  // The loader system re-runs this function after module injection
+  if (typeof loadParisWeather === "function") {
+    loadParisWeather();
   }
-  document.getElementById("paris-weather-days").innerHTML = html;
-}
-
-loadParisWeather();
 </script>
-
-<style>
-.module-header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-}
-.panel-subtitle {
-  margin-top: 4px;
-  opacity: 0.7;
-}
-
-.weather-today {
-  font-size: 32px;
-  margin-bottom: 14px;
-}
-
-.weather-days {
-  display: flex;
-  gap: 10px;
-}
-
-.weather-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px 14px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-</style>
