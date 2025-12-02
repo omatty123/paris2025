@@ -1,236 +1,202 @@
 // itinerary.js
-// Drag-and-drop itinerary with Open Bin and GitHub save/load to itinerary.json in repo root.
+// Drag & drop itinerary with OPEN BIN on the right + localStorage + optional GitHub sync.
 
 (function () {
-  const STORAGE_KEY = "paris-itinerary-v1";
-  const TOKEN_KEY = "paris2025-github-token";
-
-  const GITHUB_CONFIG = {
-    owner: "omatty123",
-    repo: "paris2025",
-    filePath: "itinerary.json",
-    branch: "main",
-    token: null
-  };
+  console.log("Itinerary module loaded");
 
   const daysColumn = document.getElementById("daysColumn");
   const openBinList = document.getElementById("openBinList");
   const openBinInput = document.getElementById("openBinInput");
   const openBinAdd = document.getElementById("openBinAdd");
-  const resetBtn = document.getElementById("resetBtn");
 
+  const resetBtn = document.getElementById("resetBtn");
   const githubTokenBtn = document.getElementById("githubToken");
   const githubSaveBtn = document.getElementById("githubSave");
   const githubLoadBtn = document.getElementById("githubLoad");
   const githubStatus = document.getElementById("githubStatus");
 
   if (!daysColumn || !openBinList) {
-    console.warn("Itinerary containers missing.");
+    console.warn("Itinerary containers not found.");
     return;
   }
 
-  // Default data: Day 1 in OPEN BIN, Dec 3–7 filled, Dec 8–9 empty.
+  // ------------------ DEFAULT ITINERARY ------------------
 
-  const defaultData = {
+  const defaultDays = {
     "OPEN BIN": [
       "11h05 Arrive Charles de Gaulle Airport",
-      "12h15 RER B to Denfert Rochereau then Metro line 6 to Place d’Italie",
-      "13h15 Arrive apartment (7 Avenue Stephen Pichon, Bâtiment B)",
+      "12h15 RER B to Denfert Rochereau then Metro line 6 to Place d'Italie",
+      "13h15 Arrive apartment at 7 Avenue Stephen Pichon Bâtiment B",
       "Explore Chinatown",
       "Lunch near Tang Frères",
       "Metro to Bastille",
       "Walk the Coulée Verte",
       "Drink at Le Train Bleu",
-      "Dinner at Afrik’N’Fusion",
+      "Dinner at Afrik'N'Fusion",
       "Walk home"
     ],
     "Dec 3": [
-      "Sainte Chapelle",
-      "Conciergerie",
-      "Notre Dame exterior",
-      "Pont Neuf & Pont des Arts",
-      "Jardin du Luxembourg",
-      "Huitrerie Regis",
-      "Musée d’Orsay",
-      "Chez Gladines"
+      "9h00 Sainte Chapelle",
+      "9h45 Conciergerie",
+      "10h30 Notre Dame exterior",
+      "11h00 Pont Neuf & Pont des Arts",
+      "11h30 Jardin du Luxembourg",
+      "12h15 Huitrerie Régis",
+      "14h00 Musée d'Orsay",
+      "19h00 Chez Gladines"
     ],
     "Dec 4": [
-      "Louvre (19th c rooms)",
-      "Tuileries Garden",
-      "Chez Alain Miam Miam",
-      "Walk toward Passy",
-      "Maison de Balzac",
-      "Walk to Trocadéro",
-      "Le Temps des Cerises"
+      "9h00 Louvre nineteenth-century rooms",
+      "11h30 Tuileries Garden",
+      "12h15 Chez Alain Miam Miam",
+      "13h30 Walk toward Passy",
+      "14h30 Maison de Balzac",
+      "16h00 Walk to Trocadéro",
+      "19h00 Le Temps des Cerises"
     ],
     "Dec 5": [
-      "Metro → Opéra → Saint-Lazare",
-      "Train to Rouen",
-      "Taxi to Cathedral",
-      "Gros Horloge",
-      "Vegan and Cie",
-      "Musée Flaubert",
-      "Cimetière Monumental",
-      "Croisset",
-      "Train back",
+      "7h00 Metro to Opéra then walk to Gare Saint-Lazare",
+      "8h14 Train to Rouen",
+      "09h46 Taxi to Cathedral",
+      "10h00 Gros Horloge",
+      "12h00 Vegan & Cie",
+      "13h00 Musée Flaubert",
+      "14h00 Cimetière Monumental",
+      "14h30 Croisset",
+      "18h00 Train back",
       "Dinner at Brasserie Le Lazare"
     ],
     "Dec 6": [
-      "Belleville",
-      "Promenade Dora Bruder",
-      "Montmartre",
-      "Sacré-Cœur",
-      "Père-Lachaise",
-      "Pain Vin Fromages"
+      "9h00 Belleville",
+      "10h00 Promenade Dora Bruder",
+      "11h30 Montmartre",
+      "12h00 Sacré-Cœur",
+      "14h00 Père Lachaise",
+      "17h00 Pain Vin Fromages"
     ],
     "Dec 7": [
-      "Parc Montsouris",
-      "Covered passages",
-      "Tuileries Christmas Market",
-      "Galeries Lafayette",
-      "Carrefour Italie 2",
-      "Darkoum Cantine Marocaine"
+      "9h00 Parc Montsouris",
+      "10h15 Covered passages",
+      "12h00 Tuileries Christmas Market",
+      "14h15 Galeries Lafayette",
+      "16h00 Carrefour Italie 2",
+      "18h00 Darkoum Cantine Marocaine"
     ],
-    "Dec 8": [],
-    "Dec 9": []
+    "Dec 8": [
+      "6h15 Leave apartment",
+      "6h30 Metro then RER B to CDG",
+      "7h30 Arrive airport",
+      "10h30 Flight departs"
+    ],
+    "Dec 9": [] // left open in case of extension
   };
 
-  let data = loadLocal() || clone(defaultData);
-  let dragged = null; // { day, index, text }
-
-  // ---- Utilities ----
-
-  function clone(obj) {
+  function deepCopy(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
 
-  function loadLocal() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (!parsed["OPEN BIN"]) return null;
-      return parsed;
-    } catch {
-      return null;
-    }
+  let itinerary =
+    JSON.parse(localStorage.getItem("itinerary-v1")) || deepCopy(defaultDays);
+
+  let dragSource = null; // { day, index }
+
+  // ------------------ RENDERING ------------------
+
+  function renderAll() {
+    renderDays();
+    renderOpenBin();
+    saveLocal();
   }
 
-  function saveLocal() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
-
-  function setStatus(msg, color) {
-    if (!githubStatus) return;
-    githubStatus.textContent = msg || "";
-    if (color) githubStatus.style.color = color;
-  }
-
-  function loadTokenFromStorage() {
-    try {
-      const t = localStorage.getItem(TOKEN_KEY);
-      if (t) GITHUB_CONFIG.token = t;
-    } catch {
-      // ignore
-    }
-  }
-
-  function saveTokenToStorage(token) {
-    GITHUB_CONFIG.token = token;
-    try {
-      localStorage.setItem(TOKEN_KEY, token);
-    } catch {
-      // ignore
-    }
-  }
-
-  // ---- Rendering ----
-
-  function render() {
-    // Days (left)
+  function renderDays() {
     daysColumn.innerHTML = "";
-
-    const dayNames = Object.keys(data)
+    const keys = Object.keys(itinerary)
       .filter((k) => k !== "OPEN BIN")
       .sort((a, b) => {
-        const na = parseInt(a.replace(/[^\d]/g, ""), 10) || 0;
-        const nb = parseInt(b.replace(/[^\d]/g, ""), 10) || 0;
+        const na = parseInt(a.replace(/[^0-9]/g, ""), 10) || 0;
+        const nb = parseInt(b.replace(/[^0-9]/g, ""), 10) || 0;
         return na - nb;
       });
 
-    dayNames.forEach((day) => {
-      const dayCol = document.createElement("div");
-      dayCol.className = "day-column";
+    keys.forEach((dayKey) => {
+      const column = document.createElement("div");
+      column.className = "day-column";
 
       const header = document.createElement("div");
       header.className = "day-header";
 
       const title = document.createElement("h3");
-      title.textContent = day;
+      title.textContent = dayKey;
       header.appendChild(title);
 
-      const addWrap = document.createElement("div");
-      addWrap.className = "add-item-container";
+      const addContainer = document.createElement("div");
+      addContainer.className = "add-item-container";
 
       const input = document.createElement("input");
       input.type = "text";
       input.placeholder = "Add event…";
       input.className = "add-item-input";
 
-      const btn = document.createElement("button");
-      btn.className = "add-item-btn";
-      btn.textContent = "+";
+      const addBtn = document.createElement("button");
+      addBtn.textContent = "+";
+      addBtn.className = "add-item-btn";
 
-      function addFromInput() {
-        const val = input.value.trim();
-        if (!val) return;
-        data[day].push(val);
-        input.value = "";
-        saveLocal();
-        render();
-      }
-
-      input.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") addFromInput();
-      });
-      btn.addEventListener("click", addFromInput);
-
-      addWrap.appendChild(input);
-      addWrap.appendChild(btn);
-      header.appendChild(addWrap);
-      dayCol.appendChild(header);
+      addContainer.appendChild(input);
+      addContainer.appendChild(addBtn);
+      header.appendChild(addContainer);
 
       const list = document.createElement("div");
       list.className = "itinerary-list";
-      list.dataset.day = day;
+      list.dataset.day = dayKey;
 
-      attachDropHandlers(list);
+      attachListDnD(list);
 
-      data[day].forEach((item, index) => {
-        const card = buildCard(day, index, item);
+      (itinerary[dayKey] || []).forEach((item, index) => {
+        const card = buildCard(dayKey, index, item);
         list.appendChild(card);
       });
 
-      dayCol.appendChild(list);
-      daysColumn.appendChild(dayCol);
+      // Add item handlers
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && input.value.trim()) {
+          itinerary[dayKey].push(input.value.trim());
+          input.value = "";
+          renderAll();
+        }
+      });
+
+      addBtn.addEventListener("click", () => {
+        if (input.value.trim()) {
+          itinerary[dayKey].push(input.value.trim());
+          input.value = "";
+          renderAll();
+        }
+      });
+
+      column.appendChild(header);
+      column.appendChild(list);
+      daysColumn.appendChild(column);
     });
+  }
 
-    // Open Bin (right)
+  function renderOpenBin() {
     openBinList.innerHTML = "";
-    attachDropHandlers(openBinList);
+    const dayKey = "OPEN BIN";
 
-    data["OPEN BIN"].forEach((item, index) => {
-      const card = buildCard("OPEN BIN", index, item);
+    attachListDnD(openBinList);
+
+    (itinerary[dayKey] || []).forEach((item, index) => {
+      const card = buildCard(dayKey, index, item);
       openBinList.appendChild(card);
     });
   }
 
-  function buildCard(day, index, text) {
+  function buildCard(dayKey, index, text) {
     const card = document.createElement("div");
     card.className = "itinerary-card";
     card.draggable = true;
-    card.dataset.day = day;
-    card.dataset.index = index;
+    card.dataset.day = dayKey;
+    card.dataset.index = String(index);
 
     const span = document.createElement("span");
     span.className = "card-text";
@@ -242,22 +208,24 @@
 
     del.addEventListener("click", (e) => {
       e.stopPropagation();
-      data[day].splice(index, 1);
-      saveLocal();
-      render();
+      itinerary[dayKey].splice(index, 1);
+      renderAll();
     });
 
-    card.addEventListener("dragstart", () => {
-      dragged = { day, index, text };
+    card.addEventListener("dragstart", (e) => {
+      dragSource = { day: dayKey, index };
       card.classList.add("dragging");
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = "move";
+      }
     });
 
     card.addEventListener("dragend", () => {
+      dragSource = null;
       card.classList.remove("dragging");
-      dragged = null;
-      document
-        .querySelectorAll(".itinerary-list.drag-over")
-        .forEach((el) => el.classList.remove("drag-over"));
+      document.querySelectorAll(".itinerary-list.drag-over").forEach((el) => {
+        el.classList.remove("drag-over");
+      });
     });
 
     card.appendChild(span);
@@ -265,14 +233,14 @@
     return card;
   }
 
-  function attachDropHandlers(listEl) {
+  function attachListDnD(listEl) {
     listEl.addEventListener("dragover", (e) => {
       e.preventDefault();
       listEl.classList.add("drag-over");
     });
 
     listEl.addEventListener("dragleave", (e) => {
-      if (e.target === listEl) {
+      if (e.currentTarget === e.target) {
         listEl.classList.remove("drag-over");
       }
     });
@@ -280,205 +248,230 @@
     listEl.addEventListener("drop", (e) => {
       e.preventDefault();
       listEl.classList.remove("drag-over");
-      if (!dragged) return;
+      if (!dragSource) return;
 
       const targetDay = listEl.dataset.day;
-      if (!targetDay) return;
+      const { day: sourceDay, index: sourceIndex } = dragSource;
 
-      const { day: fromDay, index: fromIndex, text } = dragged;
+      if (!itinerary[sourceDay] || !itinerary[targetDay]) return;
+
+      const item = itinerary[sourceDay][sourceIndex];
+      if (item === undefined) return;
 
       // Remove from source
-      data[fromDay].splice(fromIndex, 1);
+      itinerary[sourceDay].splice(sourceIndex, 1);
       // Add to end of target
-      data[targetDay].push(text);
+      itinerary[targetDay].push(item);
 
-      saveLocal();
-      render();
+      dragSource = null;
+      renderAll();
     });
   }
 
-  // ---- Open bin input ----
+  // ------------------ LOCAL STORAGE ------------------
 
-  if (openBinAdd && openBinInput) {
-    function addToOpenBin() {
-      const val = openBinInput.value.trim();
-      if (!val) return;
-      data["OPEN BIN"].push(val);
-      openBinInput.value = "";
-      saveLocal();
-      render();
+  function saveLocal() {
+    localStorage.setItem("itinerary-v1", JSON.stringify(itinerary));
+  }
+
+  function resetToDefaults() {
+    if (
+      confirm(
+        "Reset itinerary to defaults? This will erase your current customizations."
+      )
+    ) {
+      itinerary = deepCopy(defaultDays);
+      renderAll();
     }
-
-    openBinAdd.addEventListener("click", addToOpenBin);
-    openBinInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") addToOpenBin();
-    });
   }
 
-  // ---- Reset to defaults ----
+  // ------------------ GITHUB SYNC (manual) ------------------
 
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      if (
-        confirm(
-          "Reset itinerary to the original plan (Day 1 in Open Bin, Dec 3–9 default)?"
-        )
-      ) {
-        data = clone(defaultData);
-        saveLocal();
-        setStatus("", "");
-        render();
-      }
-    });
-  }
+  const GITHUB_CONFIG = {
+    owner: "omatty123",
+    repo: "paris2025",
+    token: "",
+    filePath: "data/itinerary.json",
+    branch: "main"
+  };
 
-  // ---- GitHub integration ----
-
-  loadTokenFromStorage();
-
-  // Set token button
-  if (githubTokenBtn) {
-    githubTokenBtn.addEventListener("click", () => {
-      const current = GITHUB_CONFIG.token || "";
-      const token = prompt(
-        "Paste a GitHub personal access token (repo scope). This stays in this browser only:",
-        current
-      );
-      if (token && token.trim()) {
-        saveTokenToStorage(token.trim());
-        setStatus("GitHub token saved in this browser.", "#5c5247");
-      }
-    });
-  }
-
-  async function fetchWithAuth(url, options = {}) {
-    if (!GITHUB_CONFIG.token) {
-      throw new Error("No GitHub token configured.");
+  function loadGithubConfig() {
+    const saved = localStorage.getItem("itineraryGithubConfig");
+    if (!saved) return;
+    try {
+      const cfg = JSON.parse(saved);
+      Object.assign(GITHUB_CONFIG, cfg);
+    } catch (e) {
+      console.warn("Bad GitHub config in localStorage");
     }
-    const headers = options.headers || {};
-    headers["Authorization"] = `token ${GITHUB_CONFIG.token}`;
-    headers["Accept"] = "application/vnd.github.v3+json";
-    return fetch(url, { ...options, headers });
+  }
+
+  function saveGithubConfig() {
+    localStorage.setItem(
+      "itineraryGithubConfig",
+      JSON.stringify(GITHUB_CONFIG)
+    );
+  }
+
+  function setStatus(msg, color = "#7a7267") {
+    if (!githubStatus) return;
+    githubStatus.textContent = msg;
+    githubStatus.style.color = color;
+  }
+
+  function promptToken() {
+    const token = prompt(
+      "Enter GitHub Personal Access Token (with repo: write):",
+      GITHUB_CONFIG.token || ""
+    );
+    if (token) {
+      GITHUB_CONFIG.token = token.trim();
+      saveGithubConfig();
+      setStatus("GitHub token set.");
+    }
   }
 
   async function saveToGitHub() {
+    if (!GITHUB_CONFIG.token) {
+      promptToken();
+      if (!GITHUB_CONFIG.token) return;
+    }
+
+    const { owner, repo, token, filePath, branch } = GITHUB_CONFIG;
+
+    const content = JSON.stringify(itinerary, null, 2);
+    const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+    setStatus("Saving to GitHub...", "#555");
+
+    let sha = null;
     try {
-      if (!GITHUB_CONFIG.token) {
-        const token = prompt(
-          "Paste a GitHub personal access token (repo scope). This stays in this browser only:"
-        );
-        if (!token || !token.trim()) {
-          setStatus("GitHub token required to save.", "#b3493c");
-          return;
-        }
-        saveTokenToStorage(token.trim());
-      }
-
-      setStatus("Saving to GitHub…", "#7a7267");
-
-      const content = JSON.stringify(data, null, 2);
-      const encoded = btoa(unescape(encodeURIComponent(content)));
-
-      // Get existing file SHA if present
-      let sha = null;
-      try {
-        const getRes = await fetchWithAuth(
-          `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}?ref=${GITHUB_CONFIG.branch}`
-        );
-        if (getRes.ok) {
-          const json = await getRes.json();
-          sha = json.sha;
-        }
-      } catch (e) {
-        console.log("No existing itinerary.json, will create it.");
-      }
-
-      const payload = {
-        message: `Update itinerary (${new Date().toISOString()})`,
-        content: encoded,
-        branch: GITHUB_CONFIG.branch
-      };
-      if (sha) payload.sha = sha;
-
-      const putRes = await fetchWithAuth(
-        `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}`,
+      const getRes = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`,
         {
-          method: "PUT",
           headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
+            Authorization: `token ${token}`,
+            Accept: "application/vnd.github.v3+json"
+          }
         }
       );
-
-      if (!putRes.ok) {
-        const err = await putRes.json().catch(() => ({}));
-        throw new Error(err.message || "GitHub save failed");
+      if (getRes.ok) {
+        const data = await getRes.json();
+        sha = data.sha;
       }
+    } catch (e) {
+      console.log("No existing file on GitHub, will create new.");
+    }
 
-      setStatus("Saved to GitHub ✓", "#2a7a3b");
-      setTimeout(() => setStatus("", ""), 4000);
-    } catch (err) {
-      console.error(err);
-      setStatus("GitHub save error: " + err.message, "#b3493c");
-      alert("GitHub save failed: " + err.message);
+    const payload = {
+      message: `Update itinerary - ${new Date().toISOString()}`,
+      content: encodedContent,
+      branch
+    };
+    if (sha) payload.sha = sha;
+
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (res.ok) {
+      setStatus("Saved to GitHub.", "#208838");
+    } else {
+      const err = await res.json().catch(() => ({}));
+      setStatus(
+        "GitHub save failed: " + (err.message || res.statusText),
+        "#b03030"
+      );
     }
   }
 
   async function loadFromGitHub() {
-    try {
-      if (!GITHUB_CONFIG.token) {
-        const token = prompt(
-          "Paste a GitHub personal access token (repo scope). This stays in this browser only:"
-        );
-        if (!token || !token.trim()) {
-          setStatus("GitHub token required to load.", "#b3493c");
-          return;
+    if (!GITHUB_CONFIG.token) {
+      promptToken();
+      if (!GITHUB_CONFIG.token) return;
+    }
+
+    const { owner, repo, token, filePath, branch } = GITHUB_CONFIG;
+
+    setStatus("Loading from GitHub...", "#555");
+
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`,
+      {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: "application/vnd.github.v3+json"
         }
-        saveTokenToStorage(token.trim());
       }
+    );
 
-      setStatus("Loading from GitHub…", "#7a7267");
-
-      const res = await fetchWithAuth(
-        `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}?ref=${GITHUB_CONFIG.branch}`
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      setStatus(
+        "GitHub load failed: " + (err.message || res.statusText),
+        "#b03030"
       );
+      return;
+    }
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "GitHub load failed");
-      }
-
-      const json = await res.json();
-      const decoded = decodeURIComponent(escape(atob(json.content)));
+    const data = await res.json();
+    const decoded = decodeURIComponent(escape(atob(data.content)));
+    try {
       const parsed = JSON.parse(decoded);
-
-      // basic shape check
-      if (!parsed["OPEN BIN"]) {
-        throw new Error("GitHub file does not look like an itinerary object.");
-      }
-
-      data = parsed;
-      saveLocal();
-      render();
-
-      setStatus("Loaded from GitHub ✓", "#2a7a3b");
-      setTimeout(() => setStatus("", ""), 4000);
-    } catch (err) {
-      console.error(err);
-      setStatus("GitHub load error: " + err.message, "#b3493c");
-      alert("GitHub load failed: " + err.message);
+      itinerary = parsed;
+      renderAll();
+      setStatus("Loaded from GitHub.", "#208838");
+    } catch (e) {
+      setStatus("GitHub data is not valid JSON.", "#b03030");
     }
   }
 
+  // ------------------ WIRE UP EVENTS ------------------
+
+  loadGithubConfig();
+  renderAll();
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", resetToDefaults);
+  }
+
+  if (openBinAdd && openBinInput) {
+    openBinAdd.addEventListener("click", () => {
+      if (openBinInput.value.trim()) {
+        (itinerary["OPEN BIN"] = itinerary["OPEN BIN"] || []).push(
+          openBinInput.value.trim()
+        );
+        openBinInput.value = "";
+        renderAll();
+      }
+    });
+    openBinInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && openBinInput.value.trim()) {
+        (itinerary["OPEN BIN"] = itinerary["OPEN BIN"] || []).push(
+          openBinInput.value.trim()
+        );
+        openBinInput.value = "";
+        renderAll();
+      }
+    });
+  }
+
+  if (githubTokenBtn) {
+    githubTokenBtn.addEventListener("click", promptToken);
+  }
   if (githubSaveBtn) {
     githubSaveBtn.addEventListener("click", saveToGitHub);
   }
   if (githubLoadBtn) {
     githubLoadBtn.addEventListener("click", loadFromGitHub);
   }
-
-  // ---- Initial render ----
-
-  render();
 })();
