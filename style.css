@@ -1,166 +1,204 @@
-/* Global layout */
+/* ----------------------------------------------------
+   GLOBAL STYLE
+---------------------------------------------------- */
 body {
+  font-family: "Cormorant Garamond", serif;
   margin: 0;
   padding: 0;
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-  background: #f7f7f7;
-  color: #222;
+  background: #f5f4f2;
+  color: #2c2c2c;
 }
 
-header {
-  background: #ffffff;
-  padding: 12px 18px;
-  border-bottom: 1px solid #ccc;
+h1, h2, h3, summary {
+  font-weight: 600;
+}
+
+p, li, button, a {
+  font-family: "Cormorant Garamond", serif !important;
+}
+
+/* ----------------------------------------------------
+   HEADER
+---------------------------------------------------- */
+.main-header {
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-header a {
-  text-decoration: none;
-  color: #333;
-  margin-right: 16px;
+.subtitle {
+  font-size: 0.9rem;
+  margin-top: -4px;
+  opacity: 0.75;
+}
+
+.paris-time {
+  font-size: 0.9rem;
   font-weight: 500;
 }
 
-#parisTime {
-  font-size: 0.9rem;
-  color: #555;
-}
-
-/* Main page wrapper */
-.main {
+/* Header buttons */
+.header-buttons {
+  margin-top: 10px;
   display: flex;
-  flex-direction: row;
-  gap: 14px;
-  padding: 14px;
-  height: calc(100vh - 65px);
-  box-sizing: border-box;
-}
-
-/* ----------------------------------------
-   ITINERARY PANEL
----------------------------------------- */
-.itinerary-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 10px;
-  border: 1px solid #ddd;
-}
-
-/* Column layout: DAY | OPEN BIN */
-.itinerary-columns {
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  height: 100%;
-}
-
-/* DAY column — intentionally narrow */
-.day-column {
-  width: 185px;       /* <<< MUCH narrower now */
-  min-width: 185px;
-  background: #fafafa;
-  border-right: 1px solid #ddd;
-  padding: 8px;
-  overflow-y: auto;
-  border-radius: 6px;
-}
-
-.day-column details summary {
-  cursor: pointer;
-  padding: 6px 0;
-  font-weight: 600;
-  color: #333;
-}
-
-.day-column ul {
-  margin-top: 4px;
-  padding-left: 20px;
-}
-
-.day-column li {
-  margin: 3px 0;
-  font-size: 0.85rem;
-}
-
-/* OPEN BIN column — fixed + clean */
-.openbin-column {
-  flex: 1;
-  background: #ffffff;
-  border: 1px dashed #bbb;
-  border-radius: 6px;
-  padding: 10px;
-  overflow-y: auto;
-}
-
-.openbin-title {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #444;
-  margin-bottom: 6px;
-}
-
-/* DRAG-AND-DROP blocks */
-.task {
-  padding: 8px;
-  background: #e9f0ff;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  border: 1px solid #c0d4ff;
-  cursor: grab;
-  font-size: 0.85rem;
-}
-
-.task:active {
-  cursor: grabbing;
-}
-
-/* ----------------------------------------
-   WEATHER STRIP
----------------------------------------- */
-.weather-container {
-  width: 220px;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
   gap: 10px;
 }
 
-.weather-title {
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 4px;
+.header-btn {
+  background: #eceae7;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  text-decoration: none;
   color: #333;
-}
-
-#paris-weather-days {
-  display: flex;
-  flex-direction: column;
+  border: 1px solid #ddd;
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
 }
 
-.weather-day a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border-radius: 6px;
-  text-decoration: none;
-  background: #f1f4ff;
-  border: 1px solid #cbd8ff;
-  transition: background 0.15s;
-  color: #222;
+.header-btn:hover {
+  background: #e2dfda;
 }
 
-.weather-day a:hover {
-  background: #e6ecff;
+/* ----------------------------------------------------
+   CARD CONTAINERS
+---------------------------------------------------- */
+.card {
+  margin: 18px auto;
+  background: white;
+  width: 92%;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 1.15rem;
+  margin-bottom: 4px;
+}
+
+.section-subtitle {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: -2px;
+}
+
+/* ----------------------------------------------------
+   MAP
+---------------------------------------------------- */
+.map-container {
+  width: 100%;
+  height: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+/* ----------------------------------------------------
+   ITINERARY LAYOUT
+---------------------------------------------------- */
+.itinerary-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.itinerary-layout {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  min-height: 400px;
+}
+
+/* DAY COLUMN — now VERY narrow */
+.days-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.day-column {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  background: #fafafa;
+  border-right: 1px solid #ddd;
+  padding: 6px;
+  overflow-y: auto;
+  border-radius: 6px;
+}
+
+/* Day titles */
+.day-column summary {
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: 0.78rem;
+  line-height: 1.1em;
+}
+
+/* Day list */
+.day-column li {
+  font-size: 0.70rem;
+  line-height: 1.05em;
+  margin: 2px 0;
+}
+
+/* ----------------------------------------------------
+   OPEN BIN
+---------------------------------------------------- */
+.open-bin-column {
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.open-bin-title {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.open-bin-subtitle {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: -4px;
+}
+
+/* Tokens */
+li {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* ----------------------------------------------------
+   WEATHER
+---------------------------------------------------- */
+.weather-section {
+  margin-bottom: 30px;
+}
+
+.weather-grid {
+  margin-top: 14px;
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+}
+
+.weather-day {
+  flex: 0 0 auto;
+  width: 65px;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+  padding: 8px 4px;
 }
 
 .weather-emoji {
@@ -168,30 +206,21 @@ header a {
 }
 
 .weather-date {
-  width: 90px;
-  font-size: 0.85rem;
-  color: #333;
+  font-size: 0.75rem;
+  margin-top: 4px;
 }
 
 .weather-temps {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #333;
+  font-size: 0.75rem;
+  margin-top: 2px;
 }
 
-/* ----------------------------------------
-   Buttons (same font)
----------------------------------------- */
-button {
-  font-family: inherit;
-  font-size: 0.9rem;
-  padding: 6px 12px;
-  border-radius: 5px;
-  border: 1px solid #aaa;
-  background: #f5f5f5;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #ebebeb;
+/* ----------------------------------------------------
+   FOOTER
+---------------------------------------------------- */
+.page-footer {
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.65;
+  padding: 12px 0;
 }
