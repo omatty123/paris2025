@@ -1,134 +1,129 @@
 <div class="module-header">
   <h2><i class="fas fa-key"></i> Paris Itinerary</h2>
-  <p class="panel-subtitle">December 2–8 • Home base: Place d’Italie</p>
+  <p class="panel-subtitle">2 to 8 December 2025 • Home base: 7 Avenue Stephen Pichon, Bâtiment B</p>
 </div>
 
 <style>
-.itin-day {
-  padding: 0.35rem 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-.itin-header {
-  display:flex;
-  justify-content:space-between;
-  cursor:pointer;
-  font-weight:600;
-  font-size:1rem;
-  padding:0.4rem 0;
-}
-.itin-header:hover {
-  color:#2563eb;
-}
-.itin-body {
-  display:none;
-  margin:0.4rem 0 0.8rem 0;
-  font-size:0.9rem;
-  color:#374151;
-}
-.arrow {
-  transition:transform 0.2s;
-}
-.arrow.open {
-  transform:rotate(90deg);
-}
+  .itin-block details {
+    margin-bottom: 0.9rem;
+    background: rgba(255,255,255,0.6);
+    padding: 0.7rem 0.9rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+
+  .itin-block summary {
+    cursor: pointer;
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+
+  .itin-block ul {
+    margin-top: 0.5rem;
+    padding-left: 1.2rem;
+  }
+
+  .itin-block li {
+    margin-bottom: 0.3rem;
+    line-height: 1.3rem;
+    font-size: 0.9rem;
+  }
 </style>
 
-<div id="itin-list">
-  <div class="itin-day">
-    <div class="itin-header" onclick="toggleItin(1)">
-      <span>Day 1 — Tuesday 2 Dec</span>
-      <span class="arrow" id="arrow-1">▶</span>
-    </div>
-    <div class="itin-body" id="body-1">
-      11:05 — Land CDG<br>
-      RER B → Denfert-Rochereau → M6 Place d'Italie<br>
-      Check in<br>
-      Chinatown stroll + lunch<br>
-      Walk or metro to Bastille + Coulée Verte<br>
-      Pre-dinner drink at Le Train Bleu<br>
-      Dinner at Afrik'N'Fusion
-    </div>
-  </div>
+<div class="itin-block">
 
-  <div class="itin-day">
-    <div class="itin-header" onclick="toggleItin(2)">
-      <span>Day 2 — Wednesday 3 Dec</span>
-      <span class="arrow" id="arrow-2">▶</span>
-    </div>
-    <div class="itin-body" id="body-2">
-      Sainte-Chapelle → Notre-Dame → Pont des Arts<br>
-      Walk to Jardin du Luxembourg<br>
-      Lunch at Huitrerie Régis<br>
-      Musée d’Orsay
-    </div>
-  </div>
+  <details open>
+    <summary>Day 1 Tuesday 02 December</summary>
+    <ul>
+      <li>11h05 Arrive Charles de Gaulle Airport</li>
+      <li>12h15 RER B to Denfert Rochereau then Metro line 6 to Place d Italie</li>
+      <li>13h15 Arrive apartment at 7 Avenue Stephen Pichon Batiment B</li>
+      <li>14h00 Explore Chinatown</li>
+      <li>14h30 Lunch near Tang Freres</li>
+      <li>16h00 Metro to Bastille</li>
+      <li>16h15 Walk the Coulee Verte</li>
+      <li>17h30 Drink at Le Train Bleu</li>
+      <li>18h45 Dinner at Afrik N Fusion</li>
+      <li>20h30 Walk home</li>
+    </ul>
+  </details>
 
-  <div class="itin-day">
-    <div class="itin-header" onclick="toggleItin(3)">
-      <span>Day 3 — Thursday 4 Dec</span>
-      <span class="arrow" id="arrow-3">▶</span>
-    </div>
-    <div class="itin-body" id="body-3">
-      Explore Belleville<br>
-      Dinner at Le Temps des Cerises
-    </div>
-  </div>
+  <details>
+    <summary>Day 2 Wednesday 03 December</summary>
+    <ul>
+      <li>9h00 Sainte Chapelle</li>
+      <li>9h45 Conciergerie</li>
+      <li>10h30 Notre Dame exterior</li>
+      <li>11h00 Pont Neuf and Pont des Arts</li>
+      <li>11h30 Jardin du Luxembourg</li>
+      <li>12h15 Huitrerie Regis</li>
+      <li>14h00 Musee d Orsay</li>
+      <li>19h00 Chez Gladines</li>
+    </ul>
+  </details>
 
-  <div class="itin-day">
-    <div class="itin-header" onclick="toggleItin(4)">
-      <span>Day 4 — Friday 5 Dec (Rouen)</span>
-      <span class="arrow" id="arrow-4">▶</span>
-    </div>
-    <div class="itin-body" id="body-4">
-      Train 8:14 → Rouen<br>
-      Cathedral → Museum → Croisset Pavilion(optional)<br>
-      Local lunch<br>
-      Evening train back
-    </div>
-  </div>
+  <details>
+    <summary>Day 3 Thursday 04 December</summary>
+    <ul>
+      <li>9h00 Louvre nineteenth century rooms</li>
+      <li>11h30 Tuileries Garden</li>
+      <li>12h15 Chez Alain Miam Miam</li>
+      <li>13h30 Walk toward Passy</li>
+      <li>14h30 Maison de Balzac</li>
+      <li>16h00 Walk to Trocadero</li>
+      <li>19h00 Le Temps des Cerises</li>
+    </ul>
+  </details>
 
-  <div class="itin-day">
-    <div class="itin-header" onclick="toggleItin(5)">
-      <span>Day 5 — Saturday 6 Dec</span>
-      <span class="arrow" id="arrow-5">▶</span>
-    </div>
-    <div class="itin-body" id="body-5">
-      Free exploration<br>
-      Dinner at Les Tontons du Beaujolais
-    </div>
-  </div>
+  <details>
+    <summary>Day 4 Friday 05 December</summary>
+    <ul>
+      <li>7h00 Metro to Opera then walk to Gare Saint Lazare</li>
+      <li>8h14 Train to Rouen</li>
+      <li>09h46 Taxi to Cathedral</li>
+      <li>10h00 Gros Horloge</li>
+      <li>12h00 Vegan and Cie</li>
+      <li>13h00 Musee Flaubert</li>
+      <li>14h00 Cimetière Monumental</li>
+      <li>14h30 Croisset</li>
+      <li>18h00 Train back</li>
+      <li>Dinner at Brasserie Le Lazare</li>
+    </ul>
+  </details>
 
-  <div class="itin-day">
-    <div class="itin-header" onclick="toggleItin(6)">
-      <span>Day 6 — Sunday 7 Dec</span>
-      <span class="arrow" id="arrow-6">▶</span>
-    </div>
-    <div class="itin-body" id="body-6">
-      Louvre area → Maison de Balzac<br>
-      Dinner at Darkoum Cantine Marocaine<br>
-      Grocery stop at Carrefour Italie 2
-    </div>
-  </div>
+  <details>
+    <summary>Day 5 Saturday 06 December</summary>
+    <ul>
+      <li>9h00 Belleville</li>
+      <li>10h00 Promenade Dora Bruder</li>
+      <li>11h30 Montmartre</li>
+      <li>12h00 Sacre Coeur</li>
+      <li>14h00 Pere Lachaise</li>
+      <li>17h00 Pain Vin Fromages</li>
+    </ul>
+  </details>
 
-  <div class="itin-day">
-    <div class="itin-header" onclick="toggleItin(7)">
-      <span>Day 7 — Monday 8 Dec</span>
-      <span class="arrow" id="arrow-7">▶</span>
-    </div>
-    <div class="itin-body" id="body-7">
-      Christmas markets (Gare de l’Est + Tuileries)<br>
-      Relax and enjoy final day
-    </div>
-  </div>
+  <details>
+    <summary>Day 6 Sunday 07 December</summary>
+    <ul>
+      <li>9h00 Parc Montsouris</li>
+      <li>10h15 Covered passages</li>
+      <li>12h00 Tuileries Christmas Market</li>
+      <li>14h15 Galeries Lafayette</li>
+      <li>16h00 Carrefour Italie 2</li>
+      <li>18h00 Darkoum Cantine Marocaine</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Day 7 Monday 08 December</summary>
+    <ul>
+      <li>6h15 Leave apartment</li>
+      <li>6h30 Metro then RER B to CDG</li>
+      <li>7h30 Arrive airport</li>
+      <li>10h30 Flight departs</li>
+    </ul>
+  </details>
+
 </div>
-
-<script>
-function toggleItin(n) {
-  const body = document.getElementById("body-" + n);
-  const arrow = document.getElementById("arrow-" + n);
-
-  const isOpen = body.style.display === "block";
-  body.style.display = isOpen ? "none" : "block";
-  arrow.classList.toggle("open", !isOpen);
-}
-</script>
