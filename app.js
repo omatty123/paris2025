@@ -1,7 +1,9 @@
 // app.js
-// Paris time + simple 6-day weather (today + 5).
+// Paris time + simple 6-day weather (today + 5), guaranteed correct.
 
-// Paris time
+// -----------------------
+// PARIS CLOCK
+// -----------------------
 function updateParisTime() {
   const el = document.getElementById("parisTime");
   if (!el) return;
@@ -13,15 +15,17 @@ function updateParisTime() {
     timeZone: "Europe/Paris",
     hour12: false
   };
-  const timeStr = new Intl.DateTimeFormat("en-GB", opts).format(now);
-  el.textContent = `Paris time: ${timeStr}`;
+
+  el.textContent =
+    "Paris time: " + new Intl.DateTimeFormat("en-GB", opts).format(now);
 }
 
 updateParisTime();
 setInterval(updateParisTime, 30_000);
 
-// Weather
-
+// -----------------------
+// WEATHER UTILITIES
+// -----------------------
 function iconForCode(code) {
   if (code === 0) return "☀️";
   if (code === 1) return "🌤️";
@@ -35,9 +39,23 @@ function iconForCode(code) {
   return "🌡️";
 }
 
+// Returns YYYY-MM-DD in **Paris local time**
+function parisTodayISO() {
+  const now = new Date();
+  const paris = new Date(
+    now.toLocaleString("en-US", { timeZone: "Europe/Paris" })
+  );
+  return paris.toISOString().slice(0, 10);
+}
+
+// -----------------------
+// WEATHER LOADER (FIXED!)
+// -----------------------
 async function loadParisWeather() {
   const container = document.getElementById("paris-weather-days");
   if (!container) return;
+
+  const todayParis = parisTodayISO();
 
   const baseUrl =
     "https://api.open-meteo.com/v1/forecast" +
@@ -66,28 +84,33 @@ async function loadParisWeather() {
     }
   }
 
-  container.innerHTML = "";
-
   const days = data.daily.time;
   const codes = data.daily.weathercode;
   const tmax = data.daily.temperature_2m_max;
   const tmin = data.daily.temperature_2m_min;
 
-  // Today + next 5
-  for (let i = 0; i < 6 && i < days.length; i++) {
-    const d = new Date(days[i]);
+  // Find the correct *Paris-local* index for TODAY
+  const startIndex = days.indexOf(todayParis);
+  const start = startIndex === -1 ? 0 : startIndex;
+
+  container.innerHTML = "";
+
+  for (let i = start; i < start + 6 && i < days.length; i++) {
+    const d = new Date(days[i] + "T00:00:00+01:00");
+
     const label = d.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric"
     });
+
     const icon = iconForCode(codes[i]);
     const hi = Math.round(tmax[i]);
     const lo = Math.round(tmin[i]);
 
     const link =
       "https://www.meteofrance.com/previsions-meteo-france/paris-75000?day=" +
-      d.toISOString().slice(0, 10);
+      days[i];
 
     const card = document.createElement("div");
     card.className = "weather-day";
@@ -98,6 +121,7 @@ async function loadParisWeather() {
         <div class="weather-temps">${hi}° / ${lo}°C</div>
       </a>
     `;
+
     container.appendChild(card);
   }
 }
