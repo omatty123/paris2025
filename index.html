@@ -2,1162 +2,142 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Paris December 2025 - Trip Console</title>
+  <title>Paris December 2025</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- App icon and favicon -->
-  <link rel="apple-touch-icon" href="paris-christmas-markets.jpg">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇫🇷</text></svg>">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+  <!-- Background -->
   <style>
-    :root {
-      --card: rgba(255, 255, 255, 0.85);
-      --card-strong: rgba(255, 255, 255, 0.95);
-      --shadow-main: 0 18px 40px rgba(15, 23, 42, 0.28);
-      --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.22);
-      --text-main: #18243a;
-      --text-muted: #6b7280;
-      --accent-blue: #2563eb;
-      --border-soft: rgba(148, 163, 184, 0.35);
-      --tag-bg: #eff3ff;
-      --tag-text: #1d4ed8;
-      --good: #17a34a;
-      --bad: #d92c3c;
-      --wait: #6b7280;
-      --radius-shell: 24px;
-      --radius-card: 20px;
-      --radius-pill: 999px;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: var(--font-sans);
-      background: url("paris-christmas-markets.jpg") center/cover fixed no-repeat;
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 18px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+                  url("paris-christmas-markets.jpg") center/cover fixed;
+      color: #222;
     }
 
-    .shell {
-      width: 100%;
-      max-width: 1180px;
-      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.82));
-      border-radius: var(--radius-shell);
-      box-shadow: var(--shadow-main);
-      backdrop-filter: blur(16px);
-      padding: 22px 26px 26px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    #offline-banner {
-      display: none;
-      margin-bottom: 10px;
-      padding: 8px 12px;
-      border-radius: 10px;
-      background: rgba(220, 38, 38, 0.95);
-      color: white;
-      font-size: 0.8rem;
-      align-items: center;
-      gap: 8px;
-    }
-
-    #offline-banner i {
-      font-size: 0.9rem;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 18px;
-    }
-
-    .title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .title-block h1 {
-      font-size: 1.7rem;
-      letter-spacing: 0.03em;
-    }
-
-    .title-block .dates {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .route-breadcrumbs {
-      margin-top: 2px;
-      font-size: 0.83rem;
-      color: var(--text-muted);
-    }
-
-    .route-breadcrumbs span {
-      margin-right: 4px;
-    }
-
-    .route-breadcrumbs .sep {
-      margin: 0 2px;
-      opacity: 0.7;
-    }
-
-    .time-block {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
-    }
-
-    .time-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: var(--radius-pill);
-      padding: 4px 11px;
-      background: var(--card-strong);
-      box-shadow: var(--shadow-soft);
-      font-size: 0.83rem;
-    }
-
-    .time-pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--accent-blue);
-    }
-
-    .time-label {
-      font-weight: 500;
-    }
-
-    .time-value {
-      font-variant-numeric: tabular-nums;
-      color: var(--text-muted);
-    }
-
-    .action-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 12px;
-      border-radius: var(--radius-pill);
-      background: var(--card-strong);
-      box-shadow: var(--shadow-soft);
-      border: 1px solid var(--border-soft);
-      font-size: 0.8rem;
-      cursor: pointer;
-      color: var(--text-main);
-      text-decoration: none;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
-    }
-
-    .chip i {
-      font-size: 0.85rem;
-      color: var(--accent-blue);
-    }
-
-    .chip:hover {
-      transform: translateY(-1px);
-      background: #f4f7ff;
-      box-shadow: 0 10px 22px rgba(148, 163, 184, 0.38);
-    }
-
-    .chip:active {
-      transform: translateY(0);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .section-label {
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .map-card {
-      background: var(--card);
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-soft);
-      padding: 14px 14px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    #map {
-      width: 100%;
-      height: 330px;
+    /* Main wrapper */
+    #app {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.92);
       border-radius: 16px;
-      overflow: hidden;
+      padding: 1.5rem 2rem 3rem;
+      margin-top: 1.25rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
     }
 
-    .lower-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      gap: 14px;
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
     }
 
-    .card {
-      background: var(--card);
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-soft);
-      padding: 14px 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
-    }
-
-    .card-title {
-      font-size: 0.96rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .share-btn {
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border-soft);
-      background: var(--card-strong);
-      font-size: 0.76rem;
-      padding: 4px 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      color: var(--text-main);
-      transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
-    }
-
-    .share-btn i {
-      font-size: 0.78rem;
-      color: var(--accent-blue);
-    }
-
-    .share-btn:hover {
-      background: #edf2ff;
-      box-shadow: 0 8px 18px rgba(148, 163, 184, 0.6);
-      transform: translateY(-1px);
-    }
-
-    .share-btn:active {
-      transform: translateY(0);
-      box-shadow: none;
-    }
-
-    .right-column {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    /* Itinerary details */
-
-    .itin-intro {
+    .breadcrumbs {
+      margin-top: 0.25rem;
       font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
+      color: #4a4a4a;
     }
 
-    .itin-day {
+    /* TOP BUTTON BAR */
+    .top-buttons {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .top-buttons button {
+      background: #f0f3f7;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d3d9e2;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: background 0.15s;
+    }
+    .top-buttons button:hover {
+      background: #e2e8f0;
+    }
+
+    /* MODULE CONTAINER */
+    #module-container {
+      margin-top: 1.5rem;
+      background: #fff;
       border-radius: 12px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      background: rgba(255, 255, 255, 0.95);
-      margin-bottom: 6px;
-      padding: 2px 8px 6px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      min-height: 400px;
     }
 
-    .itin-day summary {
-      list-style: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      padding: 4px 2px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #111827;
+    /* Loading state */
+    #module-container.loading {
+      opacity: 0.3;
+      pointer-events: none;
     }
 
-    .itin-day summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .itin-day-title {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 6px;
-    }
-
-    .itin-day-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-    }
-
-    .itin-day-date {
-      font-size: 0.86rem;
-    }
-
-    .itin-arrow {
-      transition: transform 0.18s ease;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-    }
-
-    .itin-day[open] .itin-arrow {
-      transform: rotate(90deg);
-    }
-
-    .itin-day ul {
-      padding-left: 18px;
-      margin-top: 4px;
-      font-size: 0.88rem;
-      line-height: 1.4;
-    }
-
-    .itin-day li {
-      margin-bottom: 3px;
-    }
-
-    /* Paris weather */
-
-    #paris-conditions-card {
-      padding: 10px 12px 12px;
-    }
-
-    .paris-top-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 2px;
-    }
-
-    .big-temp {
-      font-size: 1.6rem;
-      font-variant-numeric: tabular-nums;
-      font-weight: 600;
-    }
-
-    .weather-icon-large {
-      font-size: 1.3rem;
-      color: var(--accent-blue);
-    }
-
-    .big-desc {
-      font-size: 0.86rem;
-      color: var(--text-muted);
-    }
-
-    .small-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .mini-forecast-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-      overflow-x: auto;
-      padding-bottom: 2px;
-    }
-
-    .mini-day {
-      flex: 0 0 auto;
-      min-width: 72px;
-      background: var(--tag-bg);
-      color: var(--tag-text);
-      border-radius: 14px;
-      padding: 5px 7px;
-      font-size: 0.76rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .mini-day-name {
-      font-weight: 600;
-    }
-
-    .mini-day-icon {
-      font-size: 0.9rem;
-      margin-top: 1px;
-    }
-
-    .mini-day-temp {
-      font-variant-numeric: tabular-nums;
-    }
-
-    .mini-day-desc {
-      font-size: 0.7rem;
-      color: #4b5563;
-    }
-
-    /* Flight weather */
-
-    .flight-card {
-      background: var(--card);
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-soft);
-      padding: 12px 12px 14px;
-    }
-
-    .flight-title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .flight-title-row h2 {
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-    }
-
-    .countdown {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .flight-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.78rem;
-      margin-top: 2px;
-    }
-
-    .flight-table thead th {
-      text-align: left;
-      padding: 4px 3px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.7);
-      font-weight: 600;
-      color: #4b5563;
-    }
-
-    .flight-table tbody td {
-      padding: 5px 3px;
-      border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-      vertical-align: top;
-    }
-
-    .seg-label {
-      font-weight: 600;
-    }
-
-    .seg-airport {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-    }
-
-    .weather-tag {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3px 7px;
-      border-radius: var(--radius-pill);
-      font-size: 0.72rem;
-      font-weight: 600;
-      min-width: 60px;
-    }
-
-    .weather-tag.good {
-      background: rgba(34, 197, 94, 0.12);
-      color: var(--good);
-      border: 1px solid rgba(34, 197, 94, 0.9);
-    }
-
-    .weather-tag.bad {
-      background: rgba(248, 113, 113, 0.12);
-      color: var(--bad);
-      border: 1px solid rgba(248, 113, 113, 0.9);
-    }
-
-    .weather-tag.wait {
-      background: rgba(148, 163, 184, 0.16);
-      color: var(--wait);
-      border: 1px solid rgba(148, 163, 184, 0.9);
-    }
-
-    .cond-icon {
-      margin-right: 4px;
-      font-size: 0.85rem;
-      color: var(--accent-blue);
-    }
-
-    .flight-summary {
-      font-size: 0.76rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    @media (max-width: 900px) {
-      .shell {
-        padding: 18px 14px 20px;
-      }
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .time-block {
-        align-items: flex-start;
-      }
-      .lower-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-      .shell {
-        border-radius: 18px;
-      }
-      #map {
-        height: 260px;
-      }
-    }
   </style>
 </head>
+
 <body>
-  <div class="shell">
-    <div id="offline-banner">
-      <i class="fas fa-wifi-slash"></i>
-      <span>Working offline. Live weather may be out of date.</span>
-    </div>
+<div id="app">
 
-    <header>
-      <div class="title-block">
-        <h1>Paris December 2025</h1>
-        <div class="dates">December 2 to 8, 2025</div>
-        <div class="route-breadcrumbs">
-          <span>Appleton</span><span class="sep">›</span>
-          <span>Detroit</span><span class="sep">›</span>
-          <span>Paris</span><span class="sep">›</span>
-          <span>Detroit</span><span class="sep">›</span>
-          <span>Appleton</span>
-        </div>
+  <!-- HEADER -->
+  <header>
+    <h1>Paris December 2025</h1>
+    <div class="breadcrumbs">December 2 → December 8 • Appleton → Detroit → Paris → Detroit → Appleton</div>
+  </header>
 
-        <div class="action-row">
-          <a id="btn-ratp" class="chip" href="https://www.ratp.fr/en/itineraires" target="_blank" rel="noopener">
-            <i class="fas fa-route"></i>
-            <span>RATP directions</span>
-          </a>
-          <a id="btn-maps" class="chip" href="https://www.google.com/maps/search/?api=1&query=7+avenue+stephen+pichon+75013+paris" target="_blank" rel="noopener">
-            <i class="fas fa-map-location-dot"></i>
-            <span>Open home in Maps</span>
-          </a>
-          <button class="chip" id="btn-scroll-paris" type="button">
-            <i class="fas fa-cloud-sun"></i>
-            <span>Paris weather</span>
-          </button>
-          <button class="chip" id="btn-scroll-flights" type="button">
-            <i class="fas fa-plane-departure"></i>
-            <span>Flight weather</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="time-block">
-        <div class="time-pill">
-          <div class="time-pill-dot"></div>
-          <span class="time-label">Paris time</span>
-          <span class="time-value" id="paris-time">--:--</span>
-        </div>
-      </div>
-    </header>
-
-    <section class="map-card">
-      <div class="section-label">Home base</div>
-      <div id="map"></div>
-    </section>
-
-    <section class="lower-grid">
-      <article class="card" id="itin-card">
-        <div class="card-header">
-          <div class="card-title">Itinerary</div>
-          <button class="share-btn" id="share-itin" type="button">
-            <i class="fas fa-share-nodes"></i>
-            <span>Share</span>
-          </button>
-        </div>
-        <div class="itin-intro">
-          Paris base: 7 Avenue Stephen Pichon, Bâtiment B, rez de chaussée, 75013.
-        </div>
-
-        <details class="itin-day" open>
-          <summary>
-            <div class="itin-day-title">
-              <span class="itin-day-label">Day 1</span>
-              <span class="itin-day-date">Tuesday 2 December</span>
-            </div>
-            <span class="itin-arrow"><i class="fas fa-chevron-right"></i></span>
-          </summary>
-          <ul>
-            <li>11:05 Land at CDG.</li>
-            <li>RER B to Denfert-Rochereau, then Métro 6 to Place d’Italie.</li>
-            <li>Check in at 7 Avenue Stephen Pichon, Bâtiment B.</li>
-            <li>Afternoon Chinatown stroll and lunch near Tang Frères or Bep Viet.</li>
-            <li>Walk or metro to Bastille, then Coulée Verte toward Gare de Lyon.</li>
-            <li>Early evening drink at Le Train Bleu (bar only).</li>
-            <li>Dinner at Afrik’N’Fusion in the 13th, walk home.</li>
-          </ul>
-        </details>
-
-        <details class="itin-day">
-          <summary>
-            <div class="itin-day-title">
-              <span class="itin-day-label">Day 2</span>
-              <span class="itin-day-date">Wednesday 3 December</span>
-            </div>
-            <span class="itin-arrow"><i class="fas fa-chevron-right"></i></span>
-          </summary>
-          <ul>
-            <li>Sainte-Chapelle, Conciergerie, and Notre-Dame exterior.</li>
-            <li>Pont Neuf and Pont des Arts.</li>
-            <li>Jardin du Luxembourg.</li>
-            <li>Lunch at Huîtrerie Régis.</li>
-            <li>Afternoon at Musée d’Orsay.</li>
-            <li>Dinner at Chez Gladines in Butte-aux-Cailles.</li>
-          </ul>
-        </details>
-
-        <details class="itin-day">
-          <summary>
-            <div class="itin-day-title">
-              <span class="itin-day-label">Day 3</span>
-              <span class="itin-day-date">Thursday 4 December</span>
-            </div>
-            <span class="itin-arrow"><i class="fas fa-chevron-right"></i></span>
-          </summary>
-          <ul>
-            <li>Louvre (nineteenth century rooms) and Tuileries area.</li>
-            <li>Lunch at Chez Alain Miam Miam.</li>
-            <li>Walk to Passy, visit Maison de Balzac, then Trocadéro and Eiffel views.</li>
-            <li>Dinner at Le Temps des Cerises in Butte-aux-Cailles.</li>
-          </ul>
-        </details>
-
-        <details class="itin-day">
-          <summary>
-            <div class="itin-day-title">
-              <span class="itin-day-label">Day 4</span>
-              <span class="itin-day-date">Friday 5 December (Rouen)</span>
-            </div>
-            <span class="itin-arrow"><i class="fas fa-chevron-right"></i></span>
-          </summary>
-          <ul>
-            <li>Métro to Saint-Lazare, 8:14 train to Rouen.</li>
-            <li>Rouen Cathedral and Gros Horloge.</li>
-            <li>Lunch in Rouen (brasserie or Vegan &amp; Cie).</li>
-            <li>Flaubert museum, cemetery, and Croisset pavilion if energy allows.</li>
-            <li>Evening train back and simple brasserie dinner near Saint-Lazare.</li>
-          </ul>
-        </details>
-
-        <details class="itin-day">
-          <summary>
-            <div class="itin-day-title">
-              <span class="itin-day-label">Day 5</span>
-              <span class="itin-day-date">Saturday 6 December</span>
-            </div>
-            <span class="itin-arrow"><i class="fas fa-chevron-right"></i></span>
-          </summary>
-          <ul>
-            <li>Belleville and Dora Bruder promenade.</li>
-            <li>Montmartre and Sacré-Cœur.</li>
-            <li>Afternoon at Père-Lachaise.</li>
-            <li>Dinner with aligot or raclette (Pain Vin Fromages or similar).</li>
-          </ul>
-        </details>
-
-        <details class="itin-day">
-          <summary>
-            <div class="itin-day-title">
-              <span class="itin-day-label">Day 6</span>
-              <span class="itin-day-date">Sunday 7 December</span>
-            </div>
-            <span class="itin-arrow"><i class="fas fa-chevron-right"></i></span>
-          </summary>
-          <ul>
-            <li>Parc Montsouris loop or neighborhood walk.</li>
-            <li>Covered passages and Tuileries Christmas market.</li>
-            <li>Galeries Lafayette.</li>
-            <li>Groceries at Carrefour Italie 2.</li>
-            <li>Dinner at Darkoum Cantine Marocaine near Denfert-Rochereau.</li>
-          </ul>
-        </details>
-
-        <details class="itin-day">
-          <summary>
-            <div class="itin-day-title">
-              <span class="itin-day-label">Day 7</span>
-              <span class="itin-day-date">Monday 8 December</span>
-            </div>
-            <span class="itin-arrow"><i class="fas fa-chevron-right"></i></span>
-          </summary>
-          <ul>
-            <li>Early metro and RER B to CDG.</li>
-            <li>10:30 departure to Detroit.</li>
-            <li>Connection to Appleton in the afternoon.</li>
-          </ul>
-        </details>
-      </article>
-
-      <div class="right-column">
-        <article class="card" id="paris-conditions-card">
-          <div class="card-header">
-            <div class="card-title">Paris conditions</div>
-          </div>
-          <div class="paris-top-row">
-            <div class="big-temp" id="paris-temp">--°F</div>
-            <div class="weather-icon-large" id="paris-icon"></div>
-          </div>
-          <div class="big-desc" id="paris-desc">Loading current conditions</div>
-          <div class="small-row">
-            <span>Today and next five days</span>
-            <span id="paris-area-label">CDG area</span>
-          </div>
-          <div class="mini-forecast-row" id="mini-forecast">
-            <!-- filled by JS -->
-          </div>
-        </article>
-
-        <section class="flight-card" id="flight-weather-card">
-          <div class="flight-title-row">
-            <h2>Flight weather</h2>
-            <div class="countdown" id="flight-countdown">Next flight loading</div>
-          </div>
-          <table class="flight-table">
-            <thead>
-              <tr>
-                <th>Segment</th>
-                <th>Local time</th>
-                <th>Conditions</th>
-                <th>Rating</th>
-              </tr>
-            </thead>
-            <tbody id="flight-rows">
-              <!-- filled by JS -->
-            </tbody>
-          </table>
-          <div class="flight-summary" id="flight-summary-text">
-            Weather data from Open-Meteo. Values refresh automatically.
-          </div>
-        </section>
-      </div>
-    </section>
+  <!-- TOP BUTTON BAR -->
+  <div class="top-buttons">
+    <button onclick="loadModule('itinerary')">🗂️ Itinerary</button>
+    <button onclick="loadModule('map')">📍 Map</button>
+    <button onclick="loadModule('paris-weather')">🌦️ Paris Weather</button>
+    <button onclick="loadModule('flight-weather')">✈️ Flight Weather</button>
+    <button onclick="loadModule('flight-status')">🛫 Flight Status</button>
   </div>
 
-  <script>
-    const airports = {
-      ATW: { code: "ATW", name: "Appleton ATW", lat: 44.2581, lon: -88.5191, tz: "America/Chicago" },
-      DTW: { code: "DTW", name: "Detroit DTW", lat: 42.2162, lon: -83.3554, tz: "America/Detroit" },
-      CDG: { code: "CDG", name: "Paris CDG", lat: 49.0097, lon: 2.5479, tz: "Europe/Paris" }
-    };
+  <!-- DYNAMIC MODULE CONTENT -->
+  <div id="module-container">
+    <!-- Loaded module content goes here -->
+  </div>
 
-    const flightEvents = [
-      { id: "ATW_TAKE", label: "ATW to DTW takeoff", airport: "ATW", iso: "2025-12-01T17:21:00-06:00" },
-      { id: "DTW_LAND1", label: "ATW to DTW landing", airport: "DTW", iso: "2025-12-01T19:43:00-05:00" },
-      { id: "DTW_TAKE", label: "DTW to CDG takeoff", airport: "DTW", iso: "2025-12-01T21:20:00-05:00" },
-      { id: "CDG_LAND", label: "DTW to CDG landing", airport: "CDG", iso: "2025-12-02T11:05:00+01:00" },
-      { id: "CDG_TAKE", label: "CDG to DTW takeoff", airport: "CDG", iso: "2025-12-08T10:30:00+01:00" },
-      { id: "DTW_LAND2", label: "CDG to DTW landing", airport: "DTW", iso: "2025-12-08T13:45:00-05:00" },
-      { id: "DTW_TAKE2", label: "DTW to ATW takeoff", airport: "DTW", iso: "2025-12-08T16:50:00-05:00" },
-      { id: "ATW_LAND", label: "DTW to ATW landing", airport: "ATW", iso: "2025-12-08T17:14:00-06:00" }
-    ];
+</div>
 
-    function formatLocal(date) {
-      return new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      }).format(date);
-    }
+<script>
+function loadModule(name) {
+  const container = document.getElementById("module-container");
+  container.classList.add("loading");
+  container.innerHTML = "Loading…";
 
-    function fahrenheit(c) {
-      return Math.round(c * 9 / 5 + 32);
-    }
+  fetch(`modules/${name}.html`)
+    .then(r => r.text())
+    .then(html => {
+      container.classList.remove("loading");
+      container.innerHTML = html;
 
-    function describeCode(code) {
-      const map = {
-        0: "Clear",
-        1: "Mainly clear",
-        2: "Partly cloudy",
-        3: "Overcast",
-        45: "Fog",
-        48: "Rime fog",
-        51: "Light drizzle",
-        53: "Drizzle",
-        55: "Heavy drizzle",
-        61: "Light rain",
-        63: "Moderate rain",
-        65: "Heavy rain",
-        71: "Light snow",
-        73: "Snow",
-        75: "Heavy snow",
-        80: "Showers",
-        81: "Showers",
-        82: "Heavy showers",
-        95: "Thunderstorm",
-        96: "Storm with hail",
-        99: "Severe hail"
-      };
-      return map[code] || "Weather";
-    }
-
-    function classify(code, wind, prec) {
-      const bad = [65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99];
-      if (bad.includes(code) || wind >= 45 || prec >= 4) return "BAD";
-      return "GOOD";
-    }
-
-    function nearestIndex(times, target) {
-      const t = target.getTime();
-      let best = 0;
-      let bestDiff = Math.abs(new Date(times[0]).getTime() - t);
-      for (let i = 1; i < times.length; i++) {
-        const diff = Math.abs(new Date(times[i]).getTime() - t);
-        if (diff < bestDiff) {
-          bestDiff = diff;
-          best = i;
-        }
-      }
-      return best;
-    }
-
-    function iconForCode(code) {
-      if (code === 0 || code === 1) {
-        return '<i class="fa-solid fa-sun"></i>';
-      }
-      if (code === 2) {
-        return '<i class="fa-solid fa-cloud-sun"></i>';
-      }
-      if (code === 3 || code === 45 || code === 48) {
-        return '<i class="fa-solid fa-cloud"></i>';
-      }
-      if (code === 51 || code === 53 || code === 55 || code === 61 || code === 63 || code === 65 || (code >= 80 && code <= 82)) {
-        return '<i class="fa-solid fa-cloud-rain"></i>';
-      }
-      if ((code >= 71 && code <= 75) || (code >= 85 && code <= 86)) {
-        return '<i class="fa-solid fa-snowflake"></i>';
-      }
-      if (code === 95 || code === 96 || code === 99) {
-        return '<i class="fa-solid fa-cloud-bolt"></i>';
-      }
-      return '<i class="fa-solid fa-cloud"></i>';
-    }
-
-    function initMap() {
-      const homeLat = 48.82796;
-      const homeLon = 2.35654;
-      const homeLatLng = [homeLat, homeLon];
-
-      const map = L.map("map").setView(homeLatLng, 17);
-
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-      }).addTo(map);
-
-      const homeMarker = L.circleMarker(homeLatLng, {
-        radius: 9,
-        color: "#c0392b",
-        weight: 3,
-        fillColor: "#e74c3c",
-        fillOpacity: 0.95
-      }).addTo(map);
-
-      homeMarker.bindPopup("<b>Home HQ</b><br>7 Avenue Stephen Pichon<br>Bât. B, rez de chaussée<br>75013 Paris").openPopup();
-    }
-
-    function updateParisTime() {
-      const now = new Date();
-      const parisString = now.toLocaleString("en-US", { timeZone: "Europe/Paris" });
-      const paris = new Date(parisString);
-      const hh = String(paris.getHours()).padStart(2, "0");
-      const mm = String(paris.getMinutes()).padStart(2, "0");
-      document.getElementById("paris-time").textContent = hh + ":" + mm;
-    }
-
-    function initOfflineBanner() {
-      const banner = document.getElementById("offline-banner");
-      function update() {
-        if (navigator.onLine) {
-          banner.style.display = "none";
+      // Re-run scripts inside module
+      container.querySelectorAll("script").forEach(oldScript => {
+        const newScript = document.createElement("script");
+        if (oldScript.src) {
+          newScript.src = oldScript.src;
         } else {
-          banner.style.display = "flex";
+          newScript.textContent = oldScript.textContent;
         }
-      }
-      window.addEventListener("online", update);
-      window.addEventListener("offline", update);
-      update();
-    }
-
-    async function loadParisWeather() {
-      const url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&timezone=Europe%2FParis&daily=temperature_2m_max,temperature_2m_min,weathercode&forecast_days=6";
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        const times = data.daily.time;
-        const tMax = data.daily.temperature_2m_max;
-        const tMin = data.daily.temperature_2m_min;
-        const codes = data.daily.weathercode;
-
-        if (!times || !times.length) return;
-
-        const todayMaxF = fahrenheit(tMax[0]);
-        const todayMinF = fahrenheit(tMin[0]);
-        const todayDesc = describeCode(codes[0]);
-
-        const bigTemp = document.getElementById("paris-temp");
-        const bigDesc = document.getElementById("paris-desc");
-        const bigIcon = document.getElementById("paris-icon");
-        const row = document.getElementById("mini-forecast");
-
-        bigTemp.textContent = todayMaxF + "°F";
-        bigDesc.textContent = todayDesc + " • " + todayMinF + "° / " + todayMaxF + "°";
-        bigIcon.innerHTML = iconForCode(codes[0]);
-
-        row.innerHTML = "";
-        const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-        for (let i = 0; i < times.length; i++) {
-          const date = new Date(times[i] + "T00:00:00+01:00");
-          const name = i === 0 ? "Today" : weekday[date.getDay()];
-          const maxF = fahrenheit(tMax[i]);
-          const minF = fahrenheit(tMin[i]);
-          const desc = describeCode(codes[i]);
-          const icon = iconForCode(codes[i]);
-
-          const el = document.createElement("div");
-          el.className = "mini-day";
-          el.innerHTML =
-            '<div class="mini-day-name">' + name + "</div>" +
-            '<div class="mini-day-icon">' + icon + "</div>" +
-            '<div class="mini-day-temp">' + minF + "° / " + maxF + "°</div>" +
-            '<div class="mini-day-desc">' + desc + "</div>";
-          row.appendChild(el);
-        }
-      } catch (err) {
-        console.error("Paris weather failed", err);
-      }
-    }
-
-    const weatherCache = new Map();
-
-    async function fetchAirportForecast(ap) {
-      if (weatherCache.has(ap.code)) {
-        const cached = weatherCache.get(ap.code);
-        const age = Date.now() - cached.timestamp;
-        if (age < 30 * 60 * 1000) return cached.data;
-      }
-      const url =
-        "https://api.open-meteo.com/v1/forecast?latitude=" +
-        ap.lat +
-        "&longitude=" +
-        ap.lon +
-        "&hourly=temperature_2m,weathercode,precipitation,windspeed_10m&timezone=" +
-        encodeURIComponent(ap.tz) +
-        "&forecast_days=16";
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        weatherCache.set(ap.code, { data, timestamp: Date.now() });
-        return data;
-      } catch (err) {
-        console.error("Airport forecast failed", ap.code, err);
-        return null;
-      }
-    }
-
-    function buildFlightRowsSkeleton() {
-      const tbody = document.getElementById("flight-rows");
-      tbody.innerHTML = "";
-      flightEvents.forEach(ev => {
-        const ap = airports[ev.airport];
-        const tr = document.createElement("tr");
-        const localDate = new Date(ev.iso);
-        tr.id = "row_" + ev.id;
-        tr.innerHTML =
-          '<td><div class="seg-label">' + ev.label + '</div><div class="seg-airport">' + ap.name + "</div></td>" +
-          "<td>" + formatLocal(localDate) + "</td>" +
-          '<td id="cond_' + ev.id + '">Loading</td>' +
-          '<td><span class="weather-tag wait">WAIT</span></td>';
-        tbody.appendChild(tr);
+        document.body.appendChild(newScript);
       });
-    }
+    })
+    .catch(err => {
+      container.classList.remove("loading");
+      container.innerHTML = "<p>Error loading module.</p>";
+      console.error(err);
+    });
+}
 
-    async function updateFlightWeather() {
-      buildFlightRowsSkeleton();
+// Load default module
+loadModule("itinerary");
+</script>
 
-      const grouped = {};
-      flightEvents.forEach(ev => {
-        if (!grouped[ev.airport]) grouped[ev.airport] = [];
-        grouped[ev.airport].push(ev);
-      });
-
-      for (const code of Object.keys(grouped)) {
-        const ap = airports[code];
-        const data = await fetchAirportForecast(ap);
-        if (!data) continue;
-        const hours = data.hourly;
-        const times = hours.time;
-
-        grouped[code].forEach(ev => {
-          const idx = nearestIndex(times, new Date(ev.iso));
-          const tC = hours.temperature_2m[idx];
-          const wCode = hours.weathercode[idx];
-          const wind = hours.windspeed_10m[idx];
-          const prec = hours.precipitation[idx];
-
-          const desc = describeCode(wCode);
-          const tempF = fahrenheit(tC);
-          const rating = classify(wCode, wind, prec);
-          const icon = iconForCode(wCode);
-
-          const condCell = document.getElementById("cond_" + ev.id);
-          if (condCell) {
-            condCell.innerHTML = '<span class="cond-icon">' + icon + "</span>" + tempF + "°F, " + desc + " (wind " + Math.round(wind) + " mph)";
-          }
-
-          const row = document.getElementById("row_" + ev.id);
-          if (row) {
-            const ratingCell = row.children[3];
-            const span = document.createElement("span");
-            span.className = "weather-tag " + (rating === "GOOD" ? "good" : "bad");
-            span.textContent = rating;
-            ratingCell.innerHTML = "";
-            ratingCell.appendChild(span);
-          }
-        });
-      }
-    }
-
-    function updateFlightCountdown() {
-      const now = Date.now();
-      const upcoming = flightEvents.filter(e => new Date(e.iso).getTime() > now);
-      const label = document.getElementById("flight-countdown");
-      if (!upcoming.length) {
-        label.textContent = "All flights completed";
-        return;
-      }
-      const next = upcoming[0];
-      const delta = new Date(next.iso).getTime() - now;
-      const d = Math.floor(delta / 86400000);
-      const h = Math.floor((delta % 86400000) / 3600000);
-      const m = Math.floor((delta % 3600000) / 60000);
-      label.textContent = next.label + " in " + d + "d " + h + "h " + m + "m";
-    }
-
-    function initShare() {
-      const btn = document.getElementById("share-itin");
-      if (!btn) return;
-      btn.addEventListener("click", async () => {
-        const text = "Paris December 2 to 8, 2025. Base at 7 Avenue Stephen Pichon, 75013 Paris.";
-        if (navigator.share) {
-          try {
-            await navigator.share({
-              title: "Paris December 2025 itinerary",
-              text,
-              url: window.location.href
-            });
-          } catch (err) {
-          }
-        } else if (navigator.clipboard) {
-          await navigator.clipboard.writeText(window.location.href);
-          const original = btn.innerHTML;
-          btn.innerHTML = '<i class="fas fa-check"></i><span>Copied</span>';
-          setTimeout(() => {
-            btn.innerHTML = original;
-          }, 1800);
-        }
-      });
-    }
-
-    function initScrollButtons() {
-      const parisBtn = document.getElementById("btn-scroll-paris");
-      const flightsBtn = document.getElementById("btn-scroll-flights");
-      const parisCard = document.getElementById("paris-conditions-card");
-      const flightCard = document.getElementById("flight-weather-card");
-
-      if (parisBtn) {
-        parisBtn.addEventListener("click", () => {
-          parisCard.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-      }
-      if (flightsBtn) {
-        flightsBtn.addEventListener("click", () => {
-          flightCard.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-      }
-    }
-
-    function init() {
-      initMap();
-      initOfflineBanner();
-      updateParisTime();
-      setInterval(updateParisTime, 60000);
-
-      loadParisWeather();
-      updateFlightWeather();
-      updateFlightCountdown();
-      setInterval(updateFlightCountdown, 60000);
-      setInterval(() => {
-        loadParisWeather();
-        updateFlightWeather();
-      }, 30 * 60 * 1000);
-
-      initShare();
-      initScrollButtons();
-    }
-
-    init();
-  </script>
 </body>
 </html>
