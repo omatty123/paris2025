@@ -1,28 +1,18 @@
+// Repo config
 const GITHUB_OWNER = "omatty123";
 const GITHUB_REPO = "paris2025";
-const GITHUB_BRANCH = "main"; // change to "master" if needed
+const GITHUB_BRANCH = "main"; // change to "master" if your default branch is master
 const GITHUB_FILE_PATH = "data/itinerary.json";
 
 const STORAGE_TOKEN_KEY = "paris25_github_token";
 const STORAGE_LOCAL_BACKUP = "paris25_itinerary_backup";
 
 const SAVE_STATUS_EL = document.getElementById("saveStatus");
+const BOARD_EL = document.getElementById("itineraryBoard");
+const DAY_NAV_EL = document.getElementById("dayNavList");
+const OPEN_BIN_EL = document.getElementById("openBinColumn");
 
-// Paris time
-function updateParisTime() {
-  const span = document.getElementById("parisTime");
-  if (!span) return;
-  const now = new Date().toLocaleTimeString("en-US", {
-    timeZone: "Europe/Paris",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-  span.textContent = "Paris time: " + now;
-}
-setInterval(updateParisTime, 30000);
-updateParisTime();
-
-// Hard backup for reset
+// Hard default (also used for Reset logic if you ever add it back)
 const INITIAL_BOARD = {
   columns: [
     {
@@ -113,18 +103,27 @@ const INITIAL_BOARD = {
       ]
     },
     {
-      id: "last",
-      title: "Last day",
-      meta: "Open end",
+      id: "dec8",
+      title: "Day 6",
+      meta: "Mon Dec 8",
+      items: []
+    },
+    {
+      id: "dec9",
+      title: "Day 7",
+      meta: "Tue Dec 9",
       items: []
     }
   ]
 };
 
+const DAY_ORDER = ["dec3", "dec4", "dec5", "dec6", "dec7", "dec8", "dec9"];
+
 let boardState = null;
 let currentSha = null;
 let dragging = null;
 
+// Utilities
 function cloneBoard(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -133,7 +132,21 @@ function setStatus(text) {
   if (SAVE_STATUS_EL) SAVE_STATUS_EL.textContent = text;
 }
 
-// GitHub API
+// Paris time
+function updateParisTime() {
+  const span = document.getElementById("parisTime");
+  if (!span) return;
+  const now = new Date().toLocaleTimeString("en-US", {
+    timeZone: "Europe/Paris",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  span.textContent = "Paris time: " + now;
+}
+setInterval(updateParisTime, 30000);
+updateParisTime();
+
+// GitHub helpers
 
 async function fetchItineraryFromGitHub() {
   const url =
@@ -165,12 +178,12 @@ async function fetchItineraryFromGitHub() {
 }
 
 async function saveItineraryToGitHub() {
-  const token = localStorage.getItem(STORAGE_TOKEN_KEY);
-
   if (!boardState) return;
 
+  // Always keep local backup in case GitHub goes away
   localStorage.setItem(STORAGE_LOCAL_BACKUP, JSON.stringify(boardState));
 
+  const token = localStorage.getItem(STORAGE_TOKEN_KEY);
   if (!token) {
     setStatus("Local only (no GitHub key)");
     return;
@@ -179,7 +192,9 @@ async function saveItineraryToGitHub() {
   if (!currentSha) {
     try {
       await fetchItineraryFromGitHub();
-    } catch (e) {}
+    } catch (e) {
+      // ignore, we still have boardState
+    }
   }
 
   const url =
@@ -255,16 +270,66 @@ if (githubModeBtn) {
   });
 }
 
-// Board rendering
+// Rendering
 
-const boardEl = document.getElementById("itineraryBoard");
+function renderDayNav() {
+  if (!DAY_NAV_EL || !boardState) return;
+  DAY_NAV_EL.innerHTML = "";
+
+  const dayColumns = boardState.columns.filter((c) => c.id !== "open");
+  const sorted = DAY_ORDER.map((id) => dayColumns.find((c) => c.id === id)).filter(
+    Boolean
+  );
+
+  sorted.forEach((col, index) => {
+    const li = document.createElement("li");
+    li.className = "day-nav-item";
+
+    const btn = document.createElement("button");
+    btn.className = "day-nav-button";
+    btn.textContent = col.title;
+    const metaSpan = document.createElement("span");
+    metaSpan.textContent = col.meta || "";
+    btn.appendChild(metaSpan);
+
+    btn.addEventListener("click", () => {
+      const colEl = BOARD_EL.querySelector(
+        '.itinerary-column[data-column-id="' + col.id + '"]'
+      );
+      if (colEl) {
+        colEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      }
+      // simple active state
+      Array.from(DAY_NAV_EL.querySelectorAll(".day-nav-button")).forEach((b) =>
+        b.classList.remove("active")
+      );
+      btn.classList.add("active");
+    });
+
+    if (index === 0) {
+      btn.classList.add("active");
+    }
+
+    li.appendChild(btn);
+    DAY_NAV_EL.appendChild(li);
+  });
+}
 
 function renderBoard() {
-  if (!boardEl || !boardState) return;
+  if (!BOARD_EL || !OPEN_BIN_EL || !boardState) return;
 
-  boardEl.innerHTML = "";
+  BOARD_EL.innerHTML = "";
+  OPEN_BIN_EL.innerHTML = "";
 
-  boardState.columns.forEach((col) => {
+  const openCol = boardState.columns.find((c) => c.id === "open");
+  const dayColumns = boardState.columns.filter((c) => c.id !== "open");
+
+  // Sort days in fixed order
+  const sortedDays = DAY_ORDER.map((id) => dayColumns.find((c) => c.id === id)).filter(
+    Boolean
+  );
+
+  sortedDays.forEach((col) => {
     const colEl = document.createElement("div");
     colEl.className = "itinerary-column";
     colEl.dataset.columnId = col.id;
@@ -273,7 +338,6 @@ function renderBoard() {
     headerEl.className = "itinerary-column-header";
 
     const titleWrap = document.createElement("div");
-
     const titleEl = document.createElement("h3");
     titleEl.className = "itinerary-column-title";
     titleEl.textContent = col.title;
@@ -334,11 +398,59 @@ function renderBoard() {
 
     colEl.appendChild(headerEl);
     colEl.appendChild(bodyEl);
-    boardEl.appendChild(colEl);
+    BOARD_EL.appendChild(colEl);
   });
+
+  // Open bin rendering
+  if (openCol) {
+    const bodyEl = OPEN_BIN_EL;
+    bodyEl.dataset.columnId = openCol.id;
+
+    bodyEl.addEventListener("dragover", handleDragOver);
+    bodyEl.addEventListener("dragleave", handleDragLeave);
+    bodyEl.addEventListener("drop", handleDrop);
+
+    openCol.items.forEach((itemText, itemIndex) => {
+      const itemEl = document.createElement("div");
+      itemEl.className = "itinerary-item";
+      itemEl.textContent = itemText;
+      itemEl.draggable = true;
+      itemEl.dataset.columnId = openCol.id;
+      itemEl.dataset.index = String(itemIndex);
+
+      itemEl.addEventListener("dragstart", handleDragStart);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "itinerary-item-delete";
+      delBtn.textContent = "×";
+      delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openCol.items.splice(itemIndex, 1);
+        saveItineraryToGitHub();
+        renderBoard();
+      });
+
+      itemEl.appendChild(delBtn);
+      bodyEl.appendChild(itemEl);
+    });
+
+    // plus add item for open bin
+    const addOpenItemBtn = document.createElement("button");
+    addOpenItemBtn.className = "itinerary-add-item";
+    addOpenItemBtn.textContent = "+ add item";
+    addOpenItemBtn.addEventListener("click", () => {
+      const text = prompt("New item for Open bin:");
+      if (text && text.trim()) {
+        openCol.items.push(text.trim());
+        saveItineraryToGitHub();
+        renderBoard();
+      }
+    });
+    bodyEl.appendChild(addOpenItemBtn);
+  }
 }
 
-// Drag and drop
+// Drag handlers
 
 function handleDragStart(e) {
   const target = e.currentTarget;
@@ -388,42 +500,13 @@ function handleDrop(e) {
   renderBoard();
 }
 
-// Add day and reset
-
-const addDayBtn = document.getElementById("addDayBtn");
-const resetBtn = document.getElementById("resetItineraryBtn");
-
-if (addDayBtn) {
-  addDayBtn.addEventListener("click", () => {
-    const name = prompt("New day title (for example Dec 8 or Last day):");
-    if (!name || !name.trim()) return;
-    const id = "day_" + Date.now();
-    boardState.columns.push({
-      id,
-      title: name.trim(),
-      meta: "",
-      items: []
-    });
-    saveItineraryToGitHub();
-    renderBoard();
-  });
-}
-
-if (resetBtn) {
-  resetBtn.addEventListener("click", () => {
-    if (!confirm("Reset itinerary to the built in default and overwrite GitHub file?")) return;
-    boardState = cloneBoard(INITIAL_BOARD);
-    saveItineraryToGitHub();
-    renderBoard();
-  });
-}
-
-// Init
+// Init board
 
 async function initBoard() {
   setStatus("Loading from GitHub…");
   try {
     await fetchItineraryFromGitHub();
+    renderDayNav();
     renderBoard();
   } catch (e) {
     console.error(e);
@@ -435,8 +518,91 @@ async function initBoard() {
       boardState = cloneBoard(INITIAL_BOARD);
       setStatus("Using built in default (GitHub fetch failed)");
     }
+    renderDayNav();
     renderBoard();
   }
 }
 
 initBoard();
+
+// WEATHER
+
+function parisWeatherIcon(code) {
+  if (code === 0) return "☀️";
+  if (code === 1) return "🌤️";
+  if (code === 2) return "⛅";
+  if (code === 3) return "☁️";
+  if (code === 45 || code === 48) return "🌫️";
+  if ([51, 53, 55].includes(code)) return "🌦️";
+  if ([61, 63, 65, 80, 81, 82].includes(code)) return "🌧️";
+  if ([71, 73, 75, 85, 86].includes(code)) return "❄️";
+  if ([95, 96, 99].includes(code)) return "⛈️";
+  return "🌡️";
+}
+
+async function loadParisWeather() {
+  const container = document.getElementById("paris-weather-days");
+  if (!container) return;
+
+  const base =
+    "https://api.open-meteo.com/v1/forecast" +
+    "?latitude=48.8566&longitude=2.3522" +
+    "&daily=weathercode,temperature_2m_max,temperature_2m_min" +
+    "&timezone=Europe%2FParis";
+
+  let data;
+  try {
+    const res = await fetch(base, { cache: "no-store" });
+    data = await res.json();
+  } catch (e) {
+    const proxy =
+      "https://cors-proxy.api.exponential-hub.workers.dev/?" + encodeURIComponent(base);
+    const res = await fetch(proxy);
+    data = await res.json();
+  }
+
+  if (!data || !data.daily) {
+    container.innerHTML = "<p>Weather unavailable.</p>";
+    return;
+  }
+
+  container.innerHTML = "";
+
+  const days = data.daily.time;
+  const codes = data.daily.weathercode;
+  const tmax = data.daily.temperature_2m_max;
+  const tmin = data.daily.temperature_2m_min;
+
+  // Today + next 5 days = up to 6
+  const limit = Math.min(6, days.length);
+
+  for (let i = 0; i < limit; i++) {
+    const d = new Date(days[i]);
+    const pretty = d.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric"
+    });
+
+    const icon = parisWeatherIcon(codes[i]);
+    const hi = Math.round(tmax[i]);
+    const lo = Math.round(tmin[i]);
+
+    const link =
+      "https://www.meteofrance.com/previsions-meteo-france/paris-75000?day=" +
+      d.toISOString().slice(0, 10);
+
+    const card = document.createElement("div");
+    card.className = "weather-day";
+    card.innerHTML = `
+      <a href="${link}" target="_blank">
+        <div class="weather-emoji">${icon}</div>
+        <div class="weather-date">${pretty}</div>
+        <div class="weather-temps">${hi}° / ${lo}°C</div>
+      </a>
+    `;
+    container.appendChild(card);
+  }
+}
+
+loadParisWeather();
