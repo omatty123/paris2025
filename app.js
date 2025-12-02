@@ -1,4 +1,4 @@
-// -------- MODULE LOADER -------- //
+// Load external modules into <div class="module-box">
 async function loadModules() {
   const modules = document.querySelectorAll(".module-box");
 
@@ -22,27 +22,14 @@ async function loadModules() {
       });
 
     } catch (err) {
-      console.error(`Failed loading module: ${url}`, err);
-      box.innerHTML = `<p style="color:red;">Error loading module: ${url}</p>`;
+      console.error(`Module failed: ${url}`, err);
+      box.innerHTML = `<p style="color:red;">Error loading ${url}</p>`;
     }
   }
 }
 
-// -------- INITIALIZE EVERYTHING AFTER MODULES LOAD -------- //
-async function init() {
-  await loadModules();
 
-  updateParisTime();
-  setInterval(updateParisTime, 15000);
-
-  if (typeof loadParisWeather === "function") loadParisWeather();
-  if (typeof loadFlightWeather === "function") loadFlightWeather();
-  if (typeof initItinerary === "function") initItinerary();
-}
-
-document.addEventListener("DOMContentLoaded", init);
-
-// -------- SCROLL TO MODULE -------- //
+// Scroll to section
 function scrollToModule(id) {
   document.getElementById(id).scrollIntoView({
     behavior: "smooth",
@@ -50,7 +37,8 @@ function scrollToModule(id) {
   });
 }
 
-// -------- PARIS CLOCK -------- //
+
+// Update Paris time
 function updateParisTime() {
   const now = new Date().toLocaleString("en-US", {
     timeZone: "Europe/Paris",
@@ -60,51 +48,11 @@ function updateParisTime() {
   document.getElementById("parisTime").textContent = `Paris time: ${now}`;
 }
 
-// -------- PARIS WEATHER (ICONS + CLICKABLE LINKS) -------- //
-async function loadParisWeather() {
-  const url =
-    "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
+setInterval(updateParisTime, 15000);
 
-  try {
-    const data = await fetch(url).then(r => r.json());
 
-    const container = document.getElementById("paris-weather-days");
-    if (!container) return;
-    container.innerHTML = "";
-
-    const days = data.daily.time;
-    const icons = data.daily.weathercode;
-    const tmax = data.daily.temperature_2m_max;
-    const tmin = data.daily.temperature_2m_min;
-
-    const iconURL = (code) =>
-      `https://www.open-meteo.com/images/weather-icons/${code}.png`;
-
-    days.forEach((day, i) => {
-      const pretty = new Date(day).toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric"
-      });
-
-      // Link to weather.com
-      const link = `https://weather.com/weather/tenday/l/Paris+France?day=${i}`;
-
-      const div = document.createElement("div");
-      div.className = "weather-day";
-
-      div.innerHTML = `
-        <a href="${link}" target="_blank" rel="noopener noreferrer">
-          <img src="${iconURL(icons[i])}" alt="weather icon">
-          <div style="font-weight:600; margin-bottom:4px;">${pretty}</div>
-          <div>${Math.round(tmax[i])}° / ${Math.round(tmin[i])}°C</div>
-        </a>
-      `;
-
-      container.appendChild(div);
-    });
-
-  } catch (err) {
-    console.error("Weather load error", err);
-  }
-}
+// Initialize after DOM loads
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadModules();
+  updateParisTime();
+});
