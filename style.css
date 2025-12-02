@@ -2,6 +2,13 @@
 /*     BASE        */
 /* =============== */
 
+/* Import the correct font — the REAL one you're using */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
+
+/* Apply globally */
+html, body, button, input, select, textarea, .token, .day-column {
+  font-family: 'Cormorant Garamond', serif !important;
+}
 *,
 *::before,
 *::after {
