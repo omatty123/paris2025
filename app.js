@@ -1,26 +1,29 @@
 // app.js
-// Paris time + simple 6-day weather (today + 5).
+// Paris time + weather (today + 5 days) for Paris.
 
-// Paris time
+/* Paris time */
+
 function updateParisTime() {
   const el = document.getElementById("parisTime");
   if (!el) return;
 
   const now = new Date();
-  const opts = {
+
+  const options = {
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "Europe/Paris",
     hour12: false
   };
-  const timeStr = new Intl.DateTimeFormat("en-GB", opts).format(now);
-  el.textContent = `Paris time: ${timeStr}`;
+
+  const timeStr = new Intl.DateTimeFormat("en-GB", options).format(now);
+  el.textContent = "Paris time: " + timeStr;
 }
 
 updateParisTime();
-setInterval(updateParisTime, 30_000);
+setInterval(updateParisTime, 30000);
 
-// Weather helpers
+/* Weather */
 
 function iconForCode(code) {
   if (code === 0) return "☀️";
@@ -35,15 +38,30 @@ function iconForCode(code) {
   return "🌡️";
 }
 
+function parisDateISO(offsetDays) {
+  const now = new Date();
+  const parisNow = new Date(
+    now.toLocaleString("en-US", { timeZone: "Europe/Paris" })
+  );
+  parisNow.setHours(0, 0, 0, 0);
+  parisNow.setDate(parisNow.getDate() + offsetDays);
+  return parisNow.toISOString().slice(0, 10);
+}
+
 async function loadParisWeather() {
   const container = document.getElementById("paris-weather-days");
   if (!container) return;
+
+  const startDate = parisDateISO(0);
+  const endDate = parisDateISO(5);
 
   const baseUrl =
     "https://api.open-meteo.com/v1/forecast" +
     "?latitude=48.8566&longitude=2.3522" +
     "&daily=weathercode,temperature_2m_max,temperature_2m_min" +
-    "&timezone=Europe%2FParis";
+    "&timezone=Europe%2FParis" +
+    "&start_date=" + startDate +
+    "&end_date=" + endDate;
 
   async function fetchWeather(url) {
     const res = await fetch(url, { cache: "no-store" });
@@ -60,8 +78,8 @@ async function loadParisWeather() {
     try {
       data = await fetchWeather(proxy);
     } catch (err) {
-      container.textContent = "Could not load weather.";
       console.error(err);
+      container.textContent = "Could not load weather.";
       return;
     }
   }
@@ -73,28 +91,14 @@ async function loadParisWeather() {
   const tmax = data.daily.temperature_2m_max;
   const tmin = data.daily.temperature_2m_min;
 
-  // Compute today's date in Europe/Paris and start from there
-  const todayStr = new Date().toLocaleDateString("en-CA", {
-    timeZone: "Europe/Paris"
-  }); // YYYY-MM-DD
-
-  let startIndex = 0;
-  for (let i = 0; i < days.length; i++) {
-    if (days[i] >= todayStr) {
-      startIndex = i;
-      break;
-    }
-  }
-
-  // Today + next 5
-  let count = 0;
-  for (let i = startIndex; i < days.length && count < 6; i++, count++) {
+  for (let i = 0; i < days.length && i < 6; i++) {
     const d = new Date(days[i]);
     const label = d.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric"
     });
+
     const icon = iconForCode(codes[i]);
     const hi = Math.round(tmax[i]);
     const lo = Math.round(tmin[i]);
