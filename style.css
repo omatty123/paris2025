@@ -1,8 +1,8 @@
-/* LOAD CORMORANT GARAMOND */
+/* LOAD CORMORANT GAR. */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
 
-/* SYSTEM FONT STACK (default everywhere) */
-body, button, input, p, a, li, h2, h3 {
+/* DEFAULT SYSTEM FONT STACK (ALL BODY TEXT) */
+body, button, input, p, a, li {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -16,25 +16,7 @@ body {
   color: #222;
 }
 
-/* HEADER TITLE — CORMORANT GAR. */
-.main-header h1 {
-  font-family: "Cormorant Garamond", serif;
-  font-weight: 700;
-  font-size: 3rem;
-  letter-spacing: -0.4px;
-  margin-bottom: 0.4rem;
-}
-
-/* Subtitle also in Cormorant (matches screenshot look) */
-.subtitle {
-  margin-top: -8px;
-  opacity: 0.8;
-  font-family: "Cormorant Garamond", serif;
-  font-size: 1.25rem;
-  font-weight: 400;
-}
-
-/* HEADER container */
+/* MAIN HEADER */
 .main-header {
   padding: 20px 40px;
   background: rgba(255,255,255,0.85);
@@ -43,6 +25,25 @@ body {
   backdrop-filter: blur(12px);
 }
 
+/* MAIN TITLE — CORMORANT GAR. */
+.main-header h1 {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 700;
+  font-size: 3rem;
+  letter-spacing: -0.3px;
+  margin-bottom: 0.4rem;
+}
+
+/* SUBTITLE — CORMORANT GAR. */
+.subtitle {
+  margin-top: -8px;
+  opacity: 0.8;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+/* HEADER BUTTONS */
 .header-buttons {
   margin-top: 12px;
   display: flex;
@@ -74,7 +75,7 @@ body {
   align-items: center;
 }
 
-/* CARD STYLE */
+/* CARD */
 .card {
   background: rgba(255, 255, 255, 0.87);
   padding: 20px;
@@ -95,7 +96,7 @@ body {
   margin-top: 10px;
 }
 
-/* ROWS */
+/* ROW LAYOUT */
 .row {
   display: flex;
   gap: 20px;
@@ -107,7 +108,7 @@ body {
   min-height: 200px;
 }
 
-/* Module titles also in Cormorant */
+/* MODULE TITLES — CORMORANT GAR. */
 .module-title {
   margin: 0 0 10px 0;
   font-weight: 600;
