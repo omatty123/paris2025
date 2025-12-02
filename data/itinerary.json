@@ -25,7 +25,7 @@
         "Sainte Chapelle",
         "Conciergerie",
         "Notre Dame exterior",
-        "Pont Neuf and Pont des Arts",
+          "Pont Neuf and Pont des Arts",
         "Jardin du Luxembourg",
         "Huitrerie Regis",
         "Musée d’Orsay",
@@ -43,8 +43,7 @@
         "Walk toward Passy",
         "Maison de Balzac",
         "Walk to Trocadéro",
-        "Le Temps des Cerises",
-        "Taxi to Cathedral and Gros Horloge"
+        "Le Temps des Cerises"
       ]
     },
     {
@@ -54,6 +53,7 @@
       "items": [
         "Metro to Opéra then walk to Gare Saint Lazare",
         "Train to Rouen",
+        "Taxi to Cathedral and Gros Horloge",
         "Lunch at Vegan & Cie",
         "Musée Flaubert",
         "Cimetière Monumental",
@@ -88,9 +88,15 @@
       ]
     },
     {
-      "id": "last",
-      "title": "Last day",
-      "meta": "Open end",
+      "id": "dec8",
+      "title": "Day 6",
+      "meta": "Mon Dec 8",
+      "items": []
+    },
+    {
+      "id": "dec9",
+      "title": "Day 7",
+      "meta": "Tue Dec 9",
       "items": []
     }
   ]
