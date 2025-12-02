@@ -120,81 +120,59 @@
   </section>
 
   <!-- WEATHER -->
- <div id="weather-bar" style="
-  margin-top: 6px;
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-  font-size: 0.85rem;
-">
+ <div id="weather">
+  <strong>Paris weather</strong><br>
+  Today + next 5 days<br>
   <span id="weather-loading">Loading…</span>
 </div>
 
 <script>
-async function loadWeatherRow() {
-  const loadingEl = document.getElementById("weather-loading");
-  const container = document.getElementById("weather-bar");
-  if (!container) return;
-
+async function loadWeather() {
+  const lat = 48.8566, lon = 2.3522;
   try {
-    const url =
-      "https://api.open-meteo.com/v1/forecast" +
-      "?latitude=48.8566&longitude=2.3522" +
-      "&daily=weathercode,temperature_2m_max,temperature_2m_min" +
-      "&timezone=Europe/Paris&forecast_days=6";
+    const response = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis&forecast_days=7`
+    );
+    const data = await response.json();
 
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("Weather HTTP " + res.status);
+    const loadingEl = document.getElementById('weather-loading');
+    loadingEl.textContent = '';
 
-    const data = await res.json();
-    container.innerHTML = ""; // clear loading text
+    // Paris "today"
+    const todayParis = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
 
-    const icons = {
-      0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
-      45: "🌫️", 48: "🌫️",
-      51: "🌦️", 53: "🌦️", 55: "🌦️",
-      61: "🌧️", 63: "🌧️", 65: "🌧️",
-      80: "🌧️", 81: "🌧️", 82: "🌧️",
-      71: "❄️", 73: "❄️", 75: "❄️",
-      85: "❄️", 86: "❄️",
-      95: "⛈️", 96: "⛈️", 99: "⛈️"
-    };
+    const container = document.createElement('div');
 
-    data.daily.time.slice(0, 6).forEach((date, i) => {
-      const d = new Date(date);
-      const day = d.toLocaleDateString("en-US", { weekday: "short" });
-      const icon = icons[data.daily.weathercode[i]] || "🌡️";
-      const hi = Math.round(data.daily.temperature_2m_max[i]);
-      const lo = Math.round(data.daily.temperature_2m_min[i]);
+    let shown = 0;
+    for (let i = 0; i < data.daily.time.length; i++) {
+      const dateISO = data.daily.time[i];
+      if (dateISO < todayParis) continue;     // ensures NEVER Dec 1 again
 
-      const box = document.createElement("div");
-      box.style.textAlign = "center";
-      box.style.flex = "1";
-      box.style.cursor = "pointer";
+      const d = new Date(dateISO + 'T00:00:00+01:00');
 
-      box.innerHTML = `
-        <div style="font-size: 1.4rem;">${icon}</div>
-        <div>${day}</div>
-        <div style="font-size: 0.7rem; color: #6a6157;">${hi}° / ${lo}°C</div>
-      `;
+      const el = document.createElement('div');
+      el.style.cursor = 'pointer';
+      el.onclick = () => window.open("https://meteofrance.com", "_blank");
 
-      box.onclick = () =>
-        window.open(
-          "https://meteofrance.com/previsions-meteo-france/paris-75000?day=" +
-          date,
-          "_blank"
-        );
+      el.textContent =
+        d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+        + `: ${data.daily.temperature_2m_max[i]}°C / ${data.daily.temperature_2m_min[i]}°C`;
 
-      container.appendChild(box);
-    });
+      container.appendChild(el);
+
+      shown++;
+      if (shown === 6) break;   // today + next 5 days
+    }
+
+    loadingEl.parentNode.appendChild(container);
 
   } catch (err) {
-    console.error(err);
-    loadingEl.textContent = "Weather unavailable";
+    document.getElementById('weather-loading').textContent =
+      `Error loading weather: ${err.message}`;
   }
 }
 
-loadWeatherRow();
+loadWeather();
 </script>
 
   <!-- Scripts -->
