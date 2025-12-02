@@ -1,9 +1,7 @@
 // app.js
 // Paris time + simple 6-day weather (today + 5).
 
-// ----------------------
-// PARIS TIME
-// ----------------------
+// Paris time
 function updateParisTime() {
   const el = document.getElementById("parisTime");
   if (!el) return;
@@ -22,9 +20,7 @@ function updateParisTime() {
 updateParisTime();
 setInterval(updateParisTime, 30_000);
 
-// ----------------------
-// WEATHER
-// ----------------------
+// Weather helpers
 
 function iconForCode(code) {
   if (code === 0) return "☀️";
@@ -77,7 +73,22 @@ async function loadParisWeather() {
   const tmax = data.daily.temperature_2m_max;
   const tmin = data.daily.temperature_2m_min;
 
-  for (let i = 0; i < 6 && i < days.length; i++) {
+  // Compute today's date in Europe/Paris and start from there
+  const todayStr = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Europe/Paris"
+  }); // YYYY-MM-DD
+
+  let startIndex = 0;
+  for (let i = 0; i < days.length; i++) {
+    if (days[i] >= todayStr) {
+      startIndex = i;
+      break;
+    }
+  }
+
+  // Today + next 5
+  let count = 0;
+  for (let i = startIndex; i < days.length && count < 6; i++, count++) {
     const d = new Date(days[i]);
     const label = d.toLocaleDateString("en-US", {
       weekday: "short",
