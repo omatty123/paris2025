@@ -8,7 +8,7 @@
   <!-- Cormorant Garamond -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Font Awesome (no integrity so it doesn't block) -->
+  <!-- Font Awesome (no integrity to avoid blocking issues) -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -33,12 +33,12 @@
     </div>
 
     <div class="header-buttons">
-      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
+      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank" rel="noopener noreferrer">
         <i class="fas fa-route"></i> RATP directions
       </a>
       <a class="header-btn"
          href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
-         target="_blank">
+         target="_blank" rel="noopener noreferrer">
         <i class="fas fa-map-pin"></i> Open home in Maps
       </a>
     </div>
@@ -73,35 +73,32 @@
           <i class="fas fa-suitcase-rolling"></i> Itinerary planner
         </h2>
         <p class="section-subtitle">
-          Drag items between days and the Open Bin · Add or delete freely · Automatically saved in this browser, optional GitHub sync
+          Drag items between days and the Open Bin · Add or delete freely · Saved in this browser
         </p>
       </div>
       <div class="itinerary-header-right">
         <button class="secondary-btn" id="resetBtn">
           Reset to defaults
         </button>
-        <div class="github-controls">
-          <button class="small-btn" id="githubToken">Set GitHub token</button>
-          <button class="small-btn" id="githubSave">Save to GitHub</button>
-          <button class="small-btn" id="githubLoad">Load from GitHub</button>
-        </div>
-        <div id="githubStatus" class="github-status"></div>
+        <button class="secondary-btn" id="exportBtn">
+          Export JSON
+        </button>
       </div>
     </div>
 
     <div class="itinerary-layout">
-      <!-- Narrow days column -->
+      <!-- Days stacked vertically (narrow) -->
       <div id="daysColumn" class="days-column">
-        <!-- itinerary.js will populate day columns here -->
+        <!-- itinerary.js will populate -->
       </div>
 
-      <!-- Open Bin -->
+      <!-- Open Bin on the right (fixed width, sticky) -->
       <aside class="open-bin-column">
         <h3 class="open-bin-title">
           <i class="fas fa-inbox"></i> Open Bin
         </h3>
         <p class="open-bin-subtitle">
-          Day 1 (Dec 2) and extra ideas live here. Drag into any day, or back again.
+          Day 1 (Dec 2) and spare ideas live here. Drag into any day, or back again.
         </p>
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
