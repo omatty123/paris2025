@@ -117,61 +117,23 @@ body {
   letter-spacing: 0.03em;
 }
 
-/* MAIN LAYOUT: 3 COLUMNS */
+/* MAIN LAYOUT: 2 COLUMNS BALANCED */
 
 .layout {
   max-width: 1100px;
   margin: 0 auto 18px;
   padding: 0 12px;
   display: grid;
-  grid-template-columns: minmax(120px, 150px) minmax(0, 1.6fr) minmax(220px, 260px);
+  grid-template-columns: 1fr 1fr; /* balanced */
   gap: 10px;
 }
 
-/* DAY NAV */
+/* ITINERARY SECTION (LEFT) */
 
-.day-nav {
-  padding: 10px;
-}
-
-.day-nav-list {
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-}
-
-.day-nav-item {
-  margin-bottom: 4px;
-}
-
-.day-nav-button {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--border-soft);
-  background: #faf6ef;
-  font-size: 13px;
-  text-align: left;
-  padding: 6px 8px;
-  cursor: pointer;
-  color: var(--text-main);
-}
-
-.day-nav-button span {
-  display: block;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.day-nav-button.active {
-  background: #efe4d5;
-  border-color: #ccb79a;
-}
-
-/* ITINERARY BOARD */
-
-.board-section {
+.itinerary-section {
   display: flex;
   flex-direction: column;
+  max-height: 520px;
 }
 
 .board-header {
@@ -185,16 +147,17 @@ body {
 }
 
 .itinerary-board {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
 }
 
+/* DAY COLUMNS STACKED VERTICALLY */
+
 .itinerary-column {
-  min-width: 220px;
-  max-width: 260px;
   background: #faf6ef;
   border-radius: 12px;
   padding: 8px;
@@ -226,6 +189,8 @@ body {
   flex: 1;
   min-height: 40px;
 }
+
+/* ITEMS */
 
 .itinerary-item {
   background: #ffffff;
@@ -267,19 +232,12 @@ body {
   color: var(--accent);
 }
 
-/* Drag target highlight */
-
-.itinerary-column-body.drag-over,
-.open-bin-body.drag-over {
-  outline: 2px dashed rgba(120, 91, 71, 0.7);
-  outline-offset: 2px;
-}
-
-/* OPEN BIN */
+/* OPEN BIN (RIGHT) */
 
 .open-bin-section {
   display: flex;
   flex-direction: column;
+  max-height: 520px;
 }
 
 .open-bin-subtitle {
@@ -289,7 +247,17 @@ body {
 }
 
 .open-bin-body {
+  flex: 1;
+  overflow-y: auto;
   min-height: 60px;
+}
+
+/* Drag target highlight */
+
+.itinerary-column-body.drag-over,
+.open-bin-body.drag-over {
+  outline: 2px dashed rgba(120, 91, 71, 0.7);
+  outline-offset: 2px;
 }
 
 /* WEATHER */
@@ -363,7 +331,14 @@ body {
     margin-left: 0;
   }
 
-  .itinerary-board {
-    margin-top: 6px;
+  .itinerary-section,
+  .open-bin-section {
+    max-height: none;
+  }
+
+  .itinerary-board,
+  .open-bin-body {
+    max-height: none;
+    overflow: visible;
   }
 }
