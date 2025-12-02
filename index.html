@@ -2,22 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Paris December 2025</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Global Styles -->
+  <link rel="stylesheet" href="style.css" charset="UTF-8" />
+
+  <!-- FORCE UTF-8 on all linked resources -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("script, link").forEach(t => {
+        if (!t.getAttribute("charset")) t.setAttribute("charset", "UTF-8");
+      });
+    });
+  </script>
 </head>
 
 <body>
+
+  <!-- HEADER -->
   <header class="main-header">
     <h1>Paris December 2025</h1>
-    <p class="subtitle">Trip in flux, live itinerary with open bin</p>
+    <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
 
     <div class="header-buttons">
+
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
         <i class="fas fa-route"></i> RATP directions
       </a>
@@ -26,22 +43,26 @@
         <i class="fas fa-map-pin"></i> Open home in Maps
       </a>
 
-      <button class="header-btn" id="githubModeBtn">
-        <i class="fas fa-key"></i> GitHub edit key
+      <button class="header-btn" onclick="scrollToModule('paris-weather-module')">
+        <i class="fas fa-cloud-sun"></i> Paris weather
       </button>
 
-      <span id="saveStatus" class="save-status">Loading…</span>
+      <button class="header-btn" onclick="scrollToModule('flight-weather-module')">
+        <i class="fas fa-plane-departure"></i> Flight weather
+      </button>
 
       <div class="paris-time">
         <i class="fas fa-clock"></i>
         <span id="parisTime">Paris time: --:--</span>
       </div>
+
     </div>
   </header>
 
-  <!-- MAP -->
+
+  <!-- GOOGLE MAP -->
   <section class="map-wrapper card">
-    <h2 class="module-title">Home base</h2>
+    <h2 class="module-title">Home Base</h2>
     <div class="map-container">
       <iframe
         width="100%"
@@ -55,48 +76,48 @@
     </div>
   </section>
 
-  <!-- MAIN LAYOUT: LEFT = DAYS, RIGHT = OPEN BIN -->
-  <main class="layout">
-    <!-- LEFT: ALL DAYS STACKED VERTICALLY -->
-    <section class="card itinerary-section">
-      <div class="board-header">
-        <h2 class="module-title">Itinerary by day</h2>
-        <p class="itinerary-subtitle">
-          Each day is expanded by default. Drag items in and out of the Open bin on the right.
-        </p>
-      </div>
-      <div id="itineraryBoard" class="itinerary-board">
-        <!-- Day columns injected by app.js -->
-      </div>
-    </section>
 
-    <!-- RIGHT: OPEN BIN -->
-    <aside class="card open-bin-section">
-      <h2 class="module-title">Open bin</h2>
-      <p class="open-bin-subtitle">
-        Tokens from the lost day plus any new possibilities. Drag in or out freely.
-      </p>
-      <div id="openBinColumn" class="open-bin-body">
-        <!-- Open bin items injected by app.js -->
-      </div>
-    </aside>
-  </main>
+  <!-- MAIN LAYOUT -->
+  <section class="row">
 
-  <!-- BOTTOM: WEATHER -->
-  <section class="card weather-section">
-    <div class="weather-header">
-      <h2 class="module-title">
-        <i class="fas fa-cloud-sun-rain"></i> Paris weather
-      </h2>
-      <p class="weather-subtitle">
-        Today and next five days. Tap any card for a detailed forecast.
-      </p>
+    <!-- LEFT SIDE: ITINERARY -->
+    <div class="col-large">
+      <div id="itinerary-module"
+        class="card module-box"
+        data-module="modules/itinerary.html">
+      </div>
+
+      <div id="flight-weather-module"
+        class="card module-box"
+        data-module="modules/flight-weather.html">
+      </div>
     </div>
-    <div id="paris-weather-days" class="weather-grid">
-      <p>Loading weather…</p>
+
+    <!-- RIGHT SIDE: WEATHER + FLIGHT STATUS -->
+    <div class="col-small sidebar-stack">
+
+      <div id="paris-weather-module"
+        class="card module-box"
+        data-module="modules/paris-weather.html">
+      </div>
+
+      <div id="flight-status-module"
+        class="card module-box"
+        data-module="modules/flight-status.html">
+      </div>
+
     </div>
+
   </section>
 
-  <script src="app.js"></script>
+  <script src="app.js" charset="UTF-8"></script>
+
+  <script>
+    function scrollToModule(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
+  </script>
+
 </body>
 </html>
