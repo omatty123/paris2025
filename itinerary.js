@@ -1,8 +1,17 @@
 // itinerary.js
-// Simple drag-and-drop itinerary with Open Bin (Day 1) and Dec 3–9.
+// Drag-and-drop itinerary with Open Bin and GitHub save/load to itinerary.json in repo root.
 
 (function () {
   const STORAGE_KEY = "paris-itinerary-v1";
+  const TOKEN_KEY = "paris2025-github-token";
+
+  const GITHUB_CONFIG = {
+    owner: "omatty123",
+    repo: "paris2025",
+    filePath: "itinerary.json",
+    branch: "main",
+    token: null
+  };
 
   const daysColumn = document.getElementById("daysColumn");
   const openBinList = document.getElementById("openBinList");
@@ -10,12 +19,17 @@
   const openBinAdd = document.getElementById("openBinAdd");
   const resetBtn = document.getElementById("resetBtn");
 
+  const githubTokenBtn = document.getElementById("githubToken");
+  const githubSaveBtn = document.getElementById("githubSave");
+  const githubLoadBtn = document.getElementById("githubLoad");
+  const githubStatus = document.getElementById("githubStatus");
+
   if (!daysColumn || !openBinList) {
     console.warn("Itinerary containers missing.");
     return;
   }
 
-  // Default data
+  // Default data: Day 1 in OPEN BIN, Dec 3–7 filled, Dec 8–9 empty.
 
   const defaultData = {
     "OPEN BIN": [
@@ -81,20 +95,20 @@
     "Dec 9": []
   };
 
-  let data = load() || structuredClone(defaultData);
+  let data = loadLocal() || clone(defaultData);
+  let dragged = null; // { day, index, text }
 
-  let dragged = null; // { day, index }
+  // ---- Utilities ----
 
-  function structuredClone(obj) {
+  function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
 
-  function load() {
+  function loadLocal() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      // Basic sanity check
       if (!parsed["OPEN BIN"]) return null;
       return parsed;
     } catch {
@@ -102,11 +116,35 @@
     }
   }
 
-  function save() {
+  function saveLocal() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
 
-  // Rendering
+  function setStatus(msg, color) {
+    if (!githubStatus) return;
+    githubStatus.textContent = msg || "";
+    if (color) githubStatus.style.color = color;
+  }
+
+  function loadTokenFromStorage() {
+    try {
+      const t = localStorage.getItem(TOKEN_KEY);
+      if (t) GITHUB_CONFIG.token = t;
+    } catch {
+      // ignore
+    }
+  }
+
+  function saveTokenToStorage(token) {
+    GITHUB_CONFIG.token = token;
+    try {
+      localStorage.setItem(TOKEN_KEY, token);
+    } catch {
+      // ignore
+    }
+  }
+
+  // ---- Rendering ----
 
   function render() {
     // Days (left)
@@ -148,7 +186,7 @@
         if (!val) return;
         data[day].push(val);
         input.value = "";
-        save();
+        saveLocal();
         render();
       }
 
@@ -205,7 +243,7 @@
     del.addEventListener("click", (e) => {
       e.stopPropagation();
       data[day].splice(index, 1);
-      save();
+      saveLocal();
       render();
     });
 
@@ -245,21 +283,21 @@
       if (!dragged) return;
 
       const targetDay = listEl.dataset.day;
-      const { day: fromDay, index: fromIndex, text } = dragged;
-
       if (!targetDay) return;
+
+      const { day: fromDay, index: fromIndex, text } = dragged;
 
       // Remove from source
       data[fromDay].splice(fromIndex, 1);
       // Add to end of target
       data[targetDay].push(text);
 
-      save();
+      saveLocal();
       render();
     });
   }
 
-  // Open bin input
+  // ---- Open bin input ----
 
   if (openBinAdd && openBinInput) {
     function addToOpenBin() {
@@ -267,7 +305,7 @@
       if (!val) return;
       data["OPEN BIN"].push(val);
       openBinInput.value = "";
-      save();
+      saveLocal();
       render();
     }
 
@@ -277,7 +315,7 @@
     });
   }
 
-  // Reset button
+  // ---- Reset to defaults ----
 
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
@@ -286,13 +324,161 @@
           "Reset itinerary to the original plan (Day 1 in Open Bin, Dec 3–9 default)?"
         )
       ) {
-        data = structuredClone(defaultData);
-        save();
+        data = clone(defaultData);
+        saveLocal();
+        setStatus("", "");
         render();
       }
     });
   }
 
-  // Initial render
+  // ---- GitHub integration ----
+
+  loadTokenFromStorage();
+
+  // Set token button
+  if (githubTokenBtn) {
+    githubTokenBtn.addEventListener("click", () => {
+      const current = GITHUB_CONFIG.token || "";
+      const token = prompt(
+        "Paste a GitHub personal access token (repo scope). This stays in this browser only:",
+        current
+      );
+      if (token && token.trim()) {
+        saveTokenToStorage(token.trim());
+        setStatus("GitHub token saved in this browser.", "#5c5247");
+      }
+    });
+  }
+
+  async function fetchWithAuth(url, options = {}) {
+    if (!GITHUB_CONFIG.token) {
+      throw new Error("No GitHub token configured.");
+    }
+    const headers = options.headers || {};
+    headers["Authorization"] = `token ${GITHUB_CONFIG.token}`;
+    headers["Accept"] = "application/vnd.github.v3+json";
+    return fetch(url, { ...options, headers });
+  }
+
+  async function saveToGitHub() {
+    try {
+      if (!GITHUB_CONFIG.token) {
+        const token = prompt(
+          "Paste a GitHub personal access token (repo scope). This stays in this browser only:"
+        );
+        if (!token || !token.trim()) {
+          setStatus("GitHub token required to save.", "#b3493c");
+          return;
+        }
+        saveTokenToStorage(token.trim());
+      }
+
+      setStatus("Saving to GitHub…", "#7a7267");
+
+      const content = JSON.stringify(data, null, 2);
+      const encoded = btoa(unescape(encodeURIComponent(content)));
+
+      // Get existing file SHA if present
+      let sha = null;
+      try {
+        const getRes = await fetchWithAuth(
+          `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}?ref=${GITHUB_CONFIG.branch}`
+        );
+        if (getRes.ok) {
+          const json = await getRes.json();
+          sha = json.sha;
+        }
+      } catch (e) {
+        console.log("No existing itinerary.json, will create it.");
+      }
+
+      const payload = {
+        message: `Update itinerary (${new Date().toISOString()})`,
+        content: encoded,
+        branch: GITHUB_CONFIG.branch
+      };
+      if (sha) payload.sha = sha;
+
+      const putRes = await fetchWithAuth(
+        `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      if (!putRes.ok) {
+        const err = await putRes.json().catch(() => ({}));
+        throw new Error(err.message || "GitHub save failed");
+      }
+
+      setStatus("Saved to GitHub ✓", "#2a7a3b");
+      setTimeout(() => setStatus("", ""), 4000);
+    } catch (err) {
+      console.error(err);
+      setStatus("GitHub save error: " + err.message, "#b3493c");
+      alert("GitHub save failed: " + err.message);
+    }
+  }
+
+  async function loadFromGitHub() {
+    try {
+      if (!GITHUB_CONFIG.token) {
+        const token = prompt(
+          "Paste a GitHub personal access token (repo scope). This stays in this browser only:"
+        );
+        if (!token || !token.trim()) {
+          setStatus("GitHub token required to load.", "#b3493c");
+          return;
+        }
+        saveTokenToStorage(token.trim());
+      }
+
+      setStatus("Loading from GitHub…", "#7a7267");
+
+      const res = await fetchWithAuth(
+        `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}?ref=${GITHUB_CONFIG.branch}`
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "GitHub load failed");
+      }
+
+      const json = await res.json();
+      const decoded = decodeURIComponent(escape(atob(json.content)));
+      const parsed = JSON.parse(decoded);
+
+      // basic shape check
+      if (!parsed["OPEN BIN"]) {
+        throw new Error("GitHub file does not look like an itinerary object.");
+      }
+
+      data = parsed;
+      saveLocal();
+      render();
+
+      setStatus("Loaded from GitHub ✓", "#2a7a3b");
+      setTimeout(() => setStatus("", ""), 4000);
+    } catch (err) {
+      console.error(err);
+      setStatus("GitHub load error: " + err.message, "#b3493c");
+      alert("GitHub load failed: " + err.message);
+    }
+  }
+
+  if (githubSaveBtn) {
+    githubSaveBtn.addEventListener("click", saveToGitHub);
+  }
+  if (githubLoadBtn) {
+    githubLoadBtn.addEventListener("click", loadFromGitHub);
+  }
+
+  // ---- Initial render ----
+
   render();
 })();
