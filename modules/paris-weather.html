@@ -1,26 +1,68 @@
+<!-- PARIS WEATHER MODULE — FINAL CLEAN VERSION -->
+
 <div class="module-header">
-  <h2><i class="fas fa-cloud-sun-rain"></i> Paris weather</h2>
+  <h2><i class="fas fa-cloud-sun-rain"></i> Paris Weather</h2>
   <p class="panel-subtitle">
-    Today and next five days · Data from Open-Meteo · Central Paris
+    Today + next 5 days · Data: Open-Meteo · Tap for full forecast
   </p>
 </div>
 
 <div id="paris-weather-days" class="weather-grid">
-  <p>Loading forecast…</p>
+  <p>Loading…</p>
 </div>
 
+<style>
+  .weather-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .weather-day {
+    background: rgba(255,255,255,0.85);
+    border-radius: 12px;
+    padding: 8px 0;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.2;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  .weather-day a {
+    text-decoration: none;
+    color: #222;
+    display: block;
+    padding: 4px;
+  }
+
+  .weather-emoji {
+    font-size: 26px;
+    margin-bottom: 2px;
+  }
+
+  .weather-date {
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .weather-temps {
+    font-size: 13px;
+    opacity: 0.85;
+  }
+</style>
+
 <script>
-  // Map Open-Meteo weather codes → simple emoji icon
   function parisWeatherIcon(code) {
-    if (code === 0) return "☀️";                 // clear
-    if (code === 1) return "🌤️";                 // mainly clear
-    if (code === 2) return "⛅";                  // partly cloudy
-    if (code === 3) return "☁️";                 // overcast
-    if (code === 45 || code === 48) return "🌫️"; // fog
-    if ([51, 53, 55].includes(code)) return "🌦️"; // drizzle
-    if ([61, 63, 65, 80, 81, 82].includes(code)) return "🌧️"; // rain
-    if ([71, 73, 75, 85, 86].includes(code)) return "❄️";      // snow
-    if ([95, 96, 99].includes(code)) return "⛈️";              // storm
+    if (code === 0) return "☀️";
+    if (code === 1) return "🌤️";
+    if (code === 2) return "⛅";
+    if (code === 3) return "☁️";
+    if (code === 45 || code === 48) return "🌫️";
+    if ([51, 53, 55].includes(code)) return "🌦️";
+    if ([61, 63, 65, 80, 81, 82].includes(code)) return "🌧️";
+    if ([71, 73, 75, 85, 86].includes(code)) return "❄️";
+    if ([95, 96, 99].includes(code)) return "⛈️";
     return "🌡️";
   }
 
@@ -37,7 +79,6 @@
       const res = await fetch(url, { cache: "no-store" });
       data = await res.json();
     } catch (e) {
-      console.warn("Open-Meteo blocked, retrying with proxy…");
       const proxy =
         "https://cors-proxy.api.exponential-hub.workers.dev/?" + url;
       const res = await fetch(proxy);
@@ -45,8 +86,6 @@
     }
 
     const container = document.getElementById("paris-weather-days");
-    if (!container) return;
-
     container.innerHTML = "";
 
     const days = data.daily.time;
@@ -54,10 +93,9 @@
     const tmax = data.daily.temperature_2m_max;
     const tmin = data.daily.temperature_2m_min;
 
-    // First 6 days: today + next 5
-    for (let i = 0; i < Math.min(6, days.length); i++) {
-      const dateObj = new Date(days[i]);
-      const pretty = dateObj.toLocaleDateString("en-US", {
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(days[i]);
+      const pretty = d.toLocaleDateString("en-US", {
         weekday: "short",
         month: "short",
         day: "numeric"
@@ -67,24 +105,22 @@
       const hi = Math.round(tmax[i]);
       const lo = Math.round(tmin[i]);
 
-      // Link out to a real forecast page for that date
-      const iso = dateObj.toISOString().slice(0, 10); // YYYY-MM-DD
       const link =
         "https://www.meteofrance.com/previsions-meteo-france/paris-75000?day=" +
-        encodeURIComponent(iso);
+        d.toISOString().slice(0, 10);
 
       const card = document.createElement("div");
       card.className = "weather-day";
-
       card.innerHTML = `
-        <a href="${link}" target="_blank" rel="noopener noreferrer">
+        <a href="${link}" target="_blank">
           <div class="weather-emoji">${icon}</div>
           <div class="weather-date">${pretty}</div>
           <div class="weather-temps">${hi}° / ${lo}°C</div>
         </a>
       `;
-
       container.appendChild(card);
     }
   }
+
+  loadParisWeather();
 </script>
