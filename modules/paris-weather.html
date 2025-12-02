@@ -1,22 +1,37 @@
 <div class="module-header">
   <h2><i class="fas fa-cloud-sun-rain"></i> Paris weather</h2>
-  <p class="panel-subtitle">Today and next 5 days • Central Paris</p>
+  <p class="panel-subtitle">Today + next 5 days • Central Paris</p>
 </div>
 
-<p style="text-align:center;margin-bottom:1rem;">
-  Data from Open-Meteo (48.8566 N, 2.3522 E). Times are local Paris time.
-</p>
+<div id="paris-weather-days" style="padding-top:0.5rem;">Loading weather…</div>
 
-<div id="paris-weather-days">Loading weather…</div>
+<style>
+.forecast-row {
+  display: grid;
+  grid-template-columns: 95px 40px 1fr;
+  align-items: center;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+}
+.forecast-row:hover {
+  background: #f3f4f6;
+  cursor: pointer;
+}
+.forecast-date {
+  font-weight: 600;
+}
+</style>
 
 <script>
-// --- PARIS WEATHER MODULE ---
+// --- PARIS WEATHER (compact version with links) ---
 
 async function loadParisWeather() {
   const container = document.getElementById("paris-weather-days");
   container.textContent = "Loading…";
 
-  const url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
+  const url =
+    "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
 
   try {
     const res = await fetch(url);
@@ -35,10 +50,29 @@ async function loadParisWeather() {
       return "🌩️";
     };
 
+    // Convert YYYY-MM-DD → "Tue 2 Dec"
+    const fmt = iso => {
+      const d = new Date(iso);
+      return d.toLocaleDateString("en-US", {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
+      });
+    };
+
     for (let i = 0; i < 6; i++) {
+      const raw = days.time[i];
+      const searchDate = new Date(raw);
+      const googleDate =
+        `${searchDate.toLocaleString("default",{month:"short"})}+`
+        + `${searchDate.getDate()}+`
+        + `${searchDate.getFullYear()}`;
+
+      const link = `https://www.google.com/search?q=paris+weather+${googleDate}`;
+
       out.push(`
-        <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #ddd;">
-          <div><strong>${days.time[i]}</strong></div>
+        <div class="forecast-row" onclick="window.open('${link}','_blank')">
+          <div class="forecast-date">${fmt(raw)}</div>
           <div>${icon(days.weathercode[i])}</div>
           <div>${Math.round(days.temperature_2m_min[i])}°F / ${Math.round(days.temperature_2m_max[i])}°F</div>
         </div>
