@@ -43,7 +43,8 @@
         "Walk toward Passy",
         "Maison de Balzac",
         "Walk to Trocadéro",
-        "Le Temps des Cerises"
+        "Le Temps des Cerises",
+        "Taxi to Cathedral and Gros Horloge"
       ]
     },
     {
@@ -53,7 +54,6 @@
       "items": [
         "Metro to Opéra then walk to Gare Saint Lazare",
         "Train to Rouen",
-        "Taxi to Cathedral and Gros Horloge",
         "Lunch at Vegan & Cie",
         "Musée Flaubert",
         "Cimetière Monumental",
