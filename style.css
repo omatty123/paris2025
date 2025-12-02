@@ -1,6 +1,12 @@
 /* ----------------------------------------------------
-   GLOBAL STYLE
+   GLOBAL
 ---------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "Cormorant Garamond", serif;
   margin: 0;
@@ -9,11 +15,12 @@ body {
   color: #2c2c2c;
 }
 
-h1, h2, h3, summary {
+h1, h2, h3, h4, summary {
   font-weight: 600;
+  margin: 0;
 }
 
-p, li, button, a {
+p, li, button, a, span {
   font-family: "Cormorant Garamond", serif !important;
 }
 
@@ -22,7 +29,7 @@ p, li, button, a {
 ---------------------------------------------------- */
 .main-header {
   padding: 16px;
-  background: white;
+  background: #ffffff;
   border-bottom: 1px solid #ddd;
 }
 
@@ -30,30 +37,39 @@ p, li, button, a {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+}
+
+.main-header h1 {
+  font-size: 1.9rem;
 }
 
 .subtitle {
   font-size: 0.9rem;
-  margin-top: -4px;
+  margin-top: 2px;
   opacity: 0.75;
 }
 
 .paris-time {
   font-size: 0.9rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Header buttons */
 .header-buttons {
   margin-top: 10px;
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
 .header-btn {
   background: #eceae7;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 0.85rem;
   text-decoration: none;
   color: #333;
@@ -61,6 +77,7 @@ p, li, button, a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
 }
 
 .header-btn:hover {
@@ -72,22 +89,25 @@ p, li, button, a {
 ---------------------------------------------------- */
 .card {
   margin: 18px auto;
-  background: white;
+  background: #ffffff;
   width: 92%;
-  padding: 16px;
+  max-width: 1100px;
+  padding: 16px 18px 18px;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .section-title {
   font-size: 1.15rem;
-  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .section-subtitle {
   font-size: 0.85rem;
   opacity: 0.7;
-  margin-top: -2px;
+  margin-top: 2px;
 }
 
 /* ----------------------------------------------------
@@ -102,22 +122,76 @@ p, li, button, a {
 }
 
 /* ----------------------------------------------------
-   ITINERARY LAYOUT
+   ITINERARY
 ---------------------------------------------------- */
-.itinerary-shell {
+.itinerary-section {
+  margin-top: 10px;
+}
+
+.itinerary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.itinerary-header-right {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: flex-end;
+  gap: 6px;
 }
 
+/* Buttons */
+.secondary-btn {
+  border-radius: 999px;
+  border: 1px solid #d3cdc4;
+  background: #faf7f3;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background: #f0e9e0;
+}
+
+.github-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.small-btn {
+  border-radius: 999px;
+  border: 1px solid #d3cdc4;
+  background: #f8f3eb;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.small-btn:hover {
+  background: #eee0d1;
+}
+
+.github-status {
+  font-size: 0.78rem;
+  color: #7a7267;
+  min-height: 1em;
+}
+
+/* Layout: narrow days + wide Open Bin */
 .itinerary-layout {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 120px minmax(0, 1fr);
   gap: 16px;
-  min-height: 400px;
+  align-items: flex-start;
 }
 
-/* DAY COLUMN — now VERY narrow */
+/* Days column (left) */
 .days-column {
   display: flex;
   flex-direction: column;
@@ -129,98 +203,218 @@ p, li, button, a {
   min-width: 120px;
   max-width: 120px;
   background: #fafafa;
-  border-right: 1px solid #ddd;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   padding: 6px;
   overflow-y: auto;
-  border-radius: 6px;
 }
 
-/* Day titles */
-.day-column summary {
-  cursor: pointer;
-  padding: 4px 0;
+/* Day header */
+.day-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.day-header h3,
+.day-header h4 {
   font-size: 0.78rem;
-  line-height: 1.1em;
 }
 
-/* Day list */
-.day-column li {
-  font-size: 0.70rem;
-  line-height: 1.05em;
-  margin: 2px 0;
+/* Add item */
+.add-item-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-/* ----------------------------------------------------
-   OPEN BIN
----------------------------------------------------- */
+.add-item-input {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid #dacfbf;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  background: #fff;
+}
+
+.add-item-btn {
+  border-radius: 999px;
+  border: 1px solid #dacfbf;
+  background: #f2e9dd;
+  padding: 0 8px;
+  height: 22px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+/* Lists & cards */
+.itinerary-list {
+  margin-top: 4px;
+}
+
+.itinerary-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  margin-bottom: 4px;
+  font-size: 0.7rem;
+  cursor: grab;
+}
+
+.itinerary-card.dragging {
+  opacity: 0.6;
+}
+
+.card-text {
+  flex: 1;
+  padding-right: 6px;
+}
+
+/* Delete button */
+.delete-btn {
+  border: none;
+  border-radius: 999px;
+  background: #f3ddd8;
+  width: 18px;
+  height: 18px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 18px;
+  text-align: center;
+}
+
+.delete-btn:hover {
+  background: #e8c6be;
+}
+
+.itinerary-list.drag-over {
+  outline: 2px dashed #c9b39a;
+  outline-offset: 3px;
+}
+
+/* Open Bin (right) */
 .open-bin-column {
   background: #fafafa;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
   border: 1px solid #ddd;
 }
 
 .open-bin-title {
-  font-size: 1rem;
-  margin-bottom: 4px;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
 }
 
 .open-bin-subtitle {
   font-size: 0.8rem;
   opacity: 0.7;
-  margin-top: -4px;
+  margin-bottom: 6px;
 }
 
-/* Tokens */
-li {
+.open-bin-wrapper {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+/* Remove bullets globally from itinerary lists */
+.itinerary-list ul,
+.itinerary-list li,
+.day-column li {
   list-style: none;
   padding-left: 0;
+  margin-left: 0;
 }
 
 /* ----------------------------------------------------
    WEATHER
 ---------------------------------------------------- */
 .weather-section {
-  margin-bottom: 30px;
+  margin-top: 16px;
+  margin-bottom: 26px;
+}
+
+.weather-header {
+  margin-bottom: 8px;
 }
 
 .weather-grid {
-  margin-top: 14px;
   display: flex;
-  gap: 14px;
+  gap: 10px;
   overflow-x: auto;
+  margin-top: 8px;
 }
 
 .weather-day {
   flex: 0 0 auto;
-  width: 65px;
-  background: #fafafa;
+  width: 70px;
+  background: #fbf9f6;
   border-radius: 10px;
-  border: 1px solid #ddd;
-  text-align: center;
   padding: 8px 4px;
+  text-align: center;
+  font-size: 0.75rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2d8cc;
+}
+
+.weather-day a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .weather-emoji {
   font-size: 1.4rem;
+  margin-bottom: 2px;
 }
 
 .weather-date {
-  font-size: 0.75rem;
-  margin-top: 4px;
+  font-weight: 600;
+  margin-bottom: 2px;
 }
 
 .weather-temps {
-  font-size: 0.75rem;
-  margin-top: 2px;
+  font-size: 0.72rem;
+  color: #5c5247;
 }
 
 /* ----------------------------------------------------
    FOOTER
 ---------------------------------------------------- */
 .page-footer {
-  text-align: center;
+  max-width: 1100px;
+  margin: 8px auto 24px;
   font-size: 0.8rem;
-  opacity: 0.65;
-  padding: 12px 0;
+  color: #91857a;
+  text-align: center;
+}
+
+/* ----------------------------------------------------
+   RESPONSIVE
+---------------------------------------------------- */
+@media (max-width: 900px) {
+  .itinerary-layout {
+    grid-template-columns: 1fr;
+  }
+  .open-bin-column {
+    margin-top: 10px;
+  }
+  .day-column {
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-header h1 {
+    font-size: 1.6rem;
+  }
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
