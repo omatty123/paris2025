@@ -1,21 +1,10 @@
-<div class="section-label">Paris conditions</div>
-<section class="panel" aria-label="Paris weather">
-  <div class="paris-weather-header">
-    <h2>Paris weather</h2>
-    <span>Today and next five days</span>
-  </div>
+<div class="module-header">
+  <h2><i class="fas fa-cloud-sun-rain"></i> Paris weather</h2>
+  <p class="panel-subtitle">Today and next 5 days • Central Paris</p>
+</div>
 
-  <div class="paris-current-line">
-    <div class="paris-current-main">
-      <span id="paris-current-temp">–</span>
-      <span id="paris-current-desc">Loading…</span>
-    </div>
-    <span style="font-size:0.8rem;color:var(--text-muted);">
-      CDG area
-    </span>
-  </div>
+<p style="text-align:center;margin-bottom:1rem;">
+  Data from Open-Meteo (48.8566 N, 2.3522 E). Times are local Paris time.
+</p>
 
-  <div id="paris-forecast-days" class="paris-forecast-row">
-    <!-- filled by JS -->
-  </div>
-</section>
+<div id="paris-weather-days"></div>
