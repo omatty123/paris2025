@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Paris December 2025</title>
 
+  <!-- Main styles -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <!-- Leaflet -->
@@ -15,12 +18,13 @@
 
 <body>
 
+  <!-- HEADER -->
   <header class="main-header">
     <h1>Paris December 2025</h1>
     <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
 
-    <div class="header-buttons">
-      <a class="header-btn" href="https://www.ratp.fr/en" target="_blank">
+    <nav class="header-buttons">
+      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
         <i class="fas fa-route"></i> RATP directions
       </a>
 
@@ -40,7 +44,7 @@
         <i class="fas fa-clock"></i>
         <span id="parisTime">Paris time: --:--</span>
       </div>
-    </div>
+    </nav>
   </header>
 
   <!-- MAP -->
@@ -49,16 +53,30 @@
     <div id="map" class="map-container"></div>
   </section>
 
-  <!-- ROW: itinerary + paris weather -->
+  <!-- ITINERARY + PARIS WEATHER -->
   <section class="row">
-    <div id="itinerary-module" class="card module-box" data-module="modules/itinerary.html"></div>
-    <div id="paris-weather-module" class="card module-box" data-module="modules/paris-weather.html"></div>
+    <div id="itinerary-module"
+         class="card module-box"
+         data-module="modules/itinerary.html">
+    </div>
+
+    <div id="paris-weather-module"
+         class="card module-box"
+         data-module="modules/paris-weather.html">
+    </div>
   </section>
 
-  <!-- ROW: flight weather + flight status -->
+  <!-- FLIGHT WEATHER + FLIGHT STATUS -->
   <section class="row">
-    <div id="flight-weather-module" class="card module-box" data-module="modules/flight-weather.html"></div>
-    <div id="flight-status-module" class="card module-box" data-module="modules/flight-status.html"></div>
+    <div id="flight-weather-module"
+         class="card module-box"
+         data-module="modules/flight-weather.html">
+    </div>
+
+    <div id="flight-status-module"
+         class="card module-box"
+         data-module="modules/flight-status.html">
+    </div>
   </section>
 
   <script src="app.js"></script>
