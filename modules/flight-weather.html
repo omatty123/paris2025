@@ -1,1 +1,23 @@
+<div class="module-header">
+  <h2><i class="fas fa-cloud"></i> Flight weather</h2>
+  <p class="panel-subtitle">Conditions at departure and arrival for all segments</p>
+</div>
 
+<div id="countdown" aria-live="polite">
+  <i class="fas fa-hourglass-half"></i>
+  <span id="flight-countdown">Loading countdown…</span>
+</div>
+
+<div class="table-wrapper">
+  <table aria-live="polite">
+    <thead>
+      <tr>
+        <th scope="col">Segment</th>
+        <th scope="col">Local time</th>
+        <th scope="col">Summary</th>
+        <th scope="col">Weather</th>
+      </tr>
+    </thead>
+    <tbody id="flight-weather-rows"></tbody>
+  </table>
+</div>
