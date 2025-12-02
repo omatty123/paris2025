@@ -2,11 +2,12 @@
   --bg: #f4f1ec;
   --card-bg: #ffffff;
   --accent: #2f4858;
-  --accent-soft: #e0d6c8;
   --border-soft: #ddd3c5;
   --text-main: #222222;
   --text-muted: #5f5b52;
 }
+
+/* GLOBAL */
 
 * {
   box-sizing: border-box;
@@ -98,16 +99,7 @@ body {
   overflow: hidden;
 }
 
-/* LAYOUT */
-
-.layout {
-  max-width: 1100px;
-  margin: 0 auto 24px;
-  padding: 0 12px 12px;
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(260px, 1fr);
-  gap: 14px;
-}
+/* CARD BASE */
 
 .card {
   background: var(--card-bg);
@@ -125,19 +117,64 @@ body {
   letter-spacing: 0.03em;
 }
 
-/* ITINERARY */
+/* MAIN LAYOUT: 3 COLUMNS */
 
-.itinerary-section {
-  min-height: 360px;
+.layout {
+  max-width: 1100px;
+  margin: 0 auto 18px;
+  padding: 0 12px;
+  display: grid;
+  grid-template-columns: minmax(120px, 150px) minmax(0, 1.6fr) minmax(220px, 260px);
+  gap: 10px;
+}
+
+/* DAY NAV */
+
+.day-nav {
+  padding: 10px;
+}
+
+.day-nav-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.day-nav-item {
+  margin-bottom: 4px;
+}
+
+.day-nav-button {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: #faf6ef;
+  font-size: 13px;
+  text-align: left;
+  padding: 6px 8px;
+  cursor: pointer;
+  color: var(--text-main);
+}
+
+.day-nav-button span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.day-nav-button.active {
+  background: #efe4d5;
+  border-color: #ccb79a;
+}
+
+/* ITINERARY BOARD */
+
+.board-section {
   display: flex;
   flex-direction: column;
 }
 
-.itinerary-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
+.board-header {
   margin-bottom: 8px;
 }
 
@@ -147,29 +184,9 @@ body {
   color: var(--text-muted);
 }
 
-.itinerary-controls {
-  display: flex;
-  gap: 6px;
-}
-
-.small-btn {
-  border-radius: 999px;
-  border: 1px solid var(--border-soft);
-  background: #f7f2ea;
-  font-size: 12px;
-  padding: 4px 10px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.small-btn:hover {
-  background: #efe4d5;
-}
-
 .itinerary-board {
   display: flex;
+  flex-direction: row;
   gap: 10px;
   overflow-x: auto;
   padding-bottom: 4px;
@@ -250,36 +267,94 @@ body {
   color: var(--accent);
 }
 
-.itinerary-column-body.drag-over {
+/* Drag target highlight */
+
+.itinerary-column-body.drag-over,
+.open-bin-body.drag-over {
   outline: 2px dashed rgba(120, 91, 71, 0.7);
   outline-offset: 2px;
 }
 
-/* SIDE PANEL */
+/* OPEN BIN */
 
-.side-panel {
-  font-size: 13px;
+.open-bin-section {
+  display: flex;
+  flex-direction: column;
 }
 
-.side-note {
-  margin-top: 0;
-  font-size: 13px;
+.open-bin-subtitle {
+  margin: 0 0 6px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
-.side-list {
-  padding-left: 18px;
-  margin-top: 6px;
-  color: var(--text-main);
+.open-bin-body {
+  min-height: 60px;
 }
 
-.side-list li {
-  margin-bottom: 4px;
+/* WEATHER */
+
+.weather-section {
+  max-width: 1100px;
+  margin: 0 auto 20px;
 }
 
-/* MOBILE */
+.weather-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
 
-@media (max-width: 800px) {
+.weather-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.weather-day {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.weather-day a {
+  text-decoration: none;
+  color: #222;
+  display: block;
+  padding: 4px;
+}
+
+.weather-emoji {
+  font-size: 24px;
+  margin-bottom: 2px;
+}
+
+.weather-date {
+  font-weight: 600;
+  margin-bottom: 2px;
+  font-size: 13px;
+}
+
+.weather-temps {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -288,7 +363,7 @@ body {
     margin-left: 0;
   }
 
-  .header-buttons {
-    gap: 6px;
+  .itinerary-board {
+    margin-top: 6px;
   }
 }
