@@ -1,73 +1,60 @@
-// Helper to load a module HTML file into a container
-function loadModule(containerId, path) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
+// Load external module HTML into each module-box
+async function loadModules() {
+  const modules = document.querySelectorAll(".module-box");
 
-  fetch(path)
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error("HTTP " + res.status);
-      }
-      return res.text();
-    })
-    .then((html) => {
-      container.innerHTML = html;
-      container.classList.remove("module-loading");
+  for (const box of modules) {
+    const url = box.dataset.module;
 
-      // Reactivate any <script> tags inside the loaded module
-      const scripts = container.querySelectorAll("script");
-      scripts.forEach((oldScript) => {
-        const newScript = document.createElement("script");
+    const html = await fetch(url).then(r => r.text());
+    box.innerHTML = html;
 
-        // Copy attributes (like src, type)
-        Array.from(oldScript.attributes).forEach((attr) => {
-          newScript.setAttribute(attr.name, attr.value);
-        });
-
-        // Inline script content
+    // Execute scripts inside loaded module
+    const scripts = box.querySelectorAll("script");
+    scripts.forEach(oldScript => {
+      const newScript = document.createElement("script");
+      if (oldScript.src) {
+        newScript.src = oldScript.src;
+      } else {
         newScript.textContent = oldScript.textContent;
-
-        // Replace the old script
-        oldScript.replaceWith(newScript);
-      });
-    })
-    .catch((err) => {
-      console.error("Failed to load module:", path, err);
-      container.classList.remove("module-loading");
-      container.innerHTML =
-        '<p style="color:#b91c1c;font-size:0.9rem;">Error loading this section.</p>';
+      }
+      oldScript.replaceWith(newScript);
     });
-}
-
-// Update the Paris time badge
-function startParisClock() {
-  const el = document.getElementById("paris-time");
-  if (!el) return;
-
-  function update() {
-    const now = new Date();
-    const opts = {
-      timeZone: "Europe/Paris",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
-    };
-    const fmt = new Intl.DateTimeFormat("en-GB", opts);
-    el.textContent = fmt.format(now);
   }
-
-  update();
-  setInterval(update, 60000);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Load all modules into their cards
-  loadModule("map-section", "modules/map.html");
-  loadModule("itinerary-section", "modules/itinerary.html");
-  loadModule("paris-weather-section", "modules/paris-weather.html");
-  loadModule("flight-weather-section", "modules/flight-weather.html");
-  loadModule("flight-status-section", "modules/flight-status.html");
+loadModules();
 
-  // Start the Paris clock
-  startParisClock();
+// Smooth scroll
+function scrollToModule(id) {
+  document.getElementById(id).scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+// Paris time updater
+function updateParisTime() {
+  const now = new Date().toLocaleString("en-US", {
+    timeZone: "Europe/Paris",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  document.getElementById("parisTime").textContent = `Paris time: ${now}`;
+}
+
+setInterval(updateParisTime, 15000);
+updateParisTime();
+
+// Leaflet map
+document.addEventListener("DOMContentLoaded", () => {
+  const map = L.map("map").setView([48.83055, 2.35582], 17);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors"
+  }).addTo(map);
+
+  const marker = L.marker([48.83055, 2.35582]).addTo(map);
+  marker.bindPopup(
+    `<b>Home HQ</b><br>7 Avenue Stephen Pichon<br>Bât. B, rez de chaussée<br>75013 Paris`
+  ).openPopup();
 });
