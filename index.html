@@ -5,92 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Paris December 2025</title>
 
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Core CSS -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
 
-<header class="main-header">
-  <h1>Paris December 2025</h1>
-  <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
+  <!-- HEADER -->
+  <header class="main-header">
+    <h1>Paris December 2025</h1>
+    <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
 
-  <div class="header-buttons">
+    <div class="header-buttons">
 
-    <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
-      <i class="fas fa-route"></i> RATP directions
-    </a>
+      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
+        <i class="fas fa-route"></i> RATP directions
+      </a>
 
-    <a class="header-btn" href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris" target="_blank">
-      <i class="fas fa-map-pin"></i> Open home in Maps
-    </a>
+      <a class="header-btn" href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris" target="_blank">
+        <i class="fas fa-map-pin"></i> Open home in Maps
+      </a>
 
-    <button class="header-btn" onclick="scrollToModule('paris-weather-module')">
-      <i class="fas fa-cloud-sun"></i> Paris weather
-    </button>
+      <button class="header-btn" onclick="document.getElementById('paris-weather-card').scrollIntoView({behavior:'smooth'})">
+        <i class="fas fa-cloud-sun"></i> Paris weather
+      </button>
 
-    <button class="header-btn" onclick="scrollToModule('flight-weather-module')">
-      <i class="fas fa-plane-departure"></i> Flight weather
-    </button>
+      <button class="header-btn" onclick="document.getElementById('flight-weather-card').scrollIntoView({behavior:'smooth'})">
+        <i class="fas fa-plane-departure"></i> Flight weather
+      </button>
 
-    <div class="paris-time">
-      <i class="fas fa-clock"></i>
-      <span id="parisTime">Paris time: --:--</span>
+      <div class="paris-time">
+        <i class="fas fa-clock"></i>
+        <span id="parisTime">Paris time: --:--</span>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- MAP -->
+  <section class="map-wrapper card">
+    <h2 class="module-title">Home Base</h2>
+    <div class="map-container">
+      <iframe
+        width="100%"
+        height="100%"
+        style="border:0; border-radius:12px;"
+        loading="lazy"
+        allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2759.6629974250623!2d2.357184576428085!3d48.83348360245892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6718b7ec95f99%3A0x6eaf265702e5e619!2s7%20Av.%20Stephen%20Pichon%2C%2075013%20Paris%2C%20France!5e1!3m2!1sen!2sus!4v1764636856567!5m2!1sen!2sus">
+      </iframe>
+    </div>
+  </section>
+
+
+  <!-- MAIN CONTENT -->
+  <section class="row">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-large">
+
+      <!-- ITINERARY CARD -->
+      <div class="card module-box">
+        <h2 class="module-title">Itinerary Planner</h2>
+        <div id="itinerary-board-container"></div>
+      </div>
+
+      <!-- FLIGHT WEATHER -->
+      <div id="flight-weather-card" class="card module-box">
+        <h2>Flight Weather</h2>
+        <div id="flight-weather-container"></div>
+      </div>
+
     </div>
 
-  </div>
-</header>
+    <!-- RIGHT COLUMN -->
+    <div class="col-small sidebar-stack">
 
-<section class="map-wrapper card">
-  <h2 class="module-title">Home Base</h2>
-  <div class="map-container">
-    <iframe
-      width="100%" height="100%"
-      style="border:0; border-radius:12px;"
-      loading="lazy" allowfullscreen
-      referrerpolicy="no-referrer-when-downgrade"
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2759.6629974250623!2d2.357184576428085!3d48.83348360245892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6718b7ec95f99%3A0x6eaf265702e5e619!2s7%20Av.%20Stephen%20Pichon%2C%2075013%20Paris%2C%20France!5e1!3m2!1sen!2sus!4v1764636856567!5m2!1sen!2sus">
-    </iframe>
-  </div>
-</section>
+      <!-- PARIS WEATHER -->
+      <div id="paris-weather-card" class="card module-box">
+        <h2>Paris Weather</h2>
+        <div id="paris-weather-container"></div>
+      </div>
 
-<section class="row">
+      <!-- FLIGHT STATUS -->
+      <div id="flight-status-card" class="card module-box">
+        <h2>Flight Status & Itinerary</h2>
+        <div id="flight-status-container"></div>
+      </div>
 
-  <!-- LEFT -->
-  <div class="col-large">
-
-   <div class="card module-box">
-  <div id="itinerary-board-container"></div>
-</div>
-
-<script src="itinerary.js"></script>
-
-    <div id="flight-weather-module"
-      class="card module-box"
-      data-module="modules/flight-weather.html">
     </div>
 
-  </div>
+  </section>
 
-  <!-- RIGHT -->
-  <div class="col-small sidebar-stack">
 
-    <div id="paris-weather-module"
-      class="card module-box"
-      data-module="modules/paris-weather.html">
-    </div>
-
-    <div id="flight-status-module"
-      class="card module-box"
-      data-module="modules/flight-status.html">
-    </div>
-
-  </div>
-
-</section>
-
-<script src="app.js"></script>
+  <!-- JS FILES LOADED DIRECTLY (NO FETCHING) -->
+  <script src="itinerary.js"></script>
+  <script src="paris-weather.js"></script>
+  <script src="flight-weather.js"></script>
+  <script src="flight-status.js"></script>
+  <script src="paris-time.js"></script>
 
 </body>
 </html>
