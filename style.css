@@ -1,45 +1,36 @@
-/* GLOBAL ----------------------------------------------------- */
+/* ---------------------------------------------------------
+   GENERAL
+--------------------------------------------------------- */
 
 body {
   margin: 0;
   padding: 0;
   font-family: "Cormorant Garamond", serif;
-  background: #f7f7f7;
-  color: #222;
+  background: #f6f4f1;
+  color: #2a2a2a;
 }
 
 h1, h2, h3 {
   margin: 0;
-  padding: 0;
+  font-weight: 600;
 }
 
 .card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 16px;
   padding: 20px;
   margin: 20px auto;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 900px;
+  width: min(1100px, 92%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
-.section-title {
-  font-size: 24px;
-  margin-bottom: 6px;
-}
-
-.section-subtitle {
-  font-size: 15px;
-  opacity: 0.75;
-  margin-bottom: 12px;
-}
-
-/* HEADER ------------------------------------------------------ */
+/* ---------------------------------------------------------
+   HEADER
+--------------------------------------------------------- */
 
 .main-header {
-  padding: 20px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  width: min(1100px, 92%);
+  margin: 20px auto;
 }
 
 .header-top {
@@ -49,219 +40,143 @@ h1, h2, h3 {
 }
 
 .subtitle {
-  font-size: 15px;
-  opacity: 0.75;
+  margin-top: 4px;
+  font-size: 1.1rem;
+  opacity: 0.7;
 }
 
 .header-buttons {
-  margin-top: 15px;
+  margin-top: 12px;
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.header-btn {
-  background: #e8e8e8;
-  padding: 8px 12px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #222;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.header-btn:hover {
-  background: #dcdcdc;
-}
-
-/* MAP --------------------------------------------------------- */
-
-.map-container {
-  height: 300px;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 16px;
-}
-
-/* ITINERARY SHELL -------------------------------------------- */
-
-.itinerary-shell {
-  max-width: 900px;
-  margin: 40px auto;
-}
-
-.itinerary-layout {
-  display: grid;
-  grid-template-columns: 320px 320px;
-  justify-content: center;
-  gap: 25px;
-  width: 100%;
-}
-
-/* LEFT COLUMN = DAYS ----------------------------------------- */
-
-.days-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* Day section rendered by itinerary.js */
-
-.itinerary-column {
-  background: #ffffffee;
-  border-radius: 14px;
-  padding: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.column-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.column-header h3 {
-  font-size: 18px;
-}
-
-/* Add item UI */
-
-.add-item-container {
-  display: flex;
-  gap: 6px;
-}
-
-.add-item-input {
-  flex: 1;
-  padding: 4px 6px;
-  font-size: 14px;
-}
-
-.add-item-btn {
-  padding: 4px 8px;
-  font-size: 14px;
-}
-
-/* Cards inside days */
-
-.itinerary-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.itinerary-card {
-  background: #fafafa;
-  border-radius: 10px;
-  padding: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: grab;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-.itinerary-card:active {
-  cursor: grabbing;
-}
-
-.card-text {
-  font-size: 15px;
-}
-
-.delete-btn {
-  border: none;
-  background: transparent;
-  font-size: 18px;
-  cursor: pointer;
-  opacity: 0.6;
-}
-
-.delete-btn:hover {
-  opacity: 1;
-}
-
-.drag-over {
-  background: #e4f0ff;
-}
-
-/* RIGHT COLUMN = OPEN BIN ------------------------------------- */
-
-.open-bin-column {
-  background: #ffffffee;
-  border-radius: 14px;
-  padding: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  height: fit-content;
-}
-
-.open-bin-title {
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.open-bin-subtitle {
-  font-size: 14px;
-  opacity: 0.75;
-  margin-bottom: 10px;
-}
-
-.open-bin-body {
-  background: #f3f3f3;
-  border-radius: 10px;
-  padding: 10px;
-  min-height: 200px;
-  display: flex;
-  flex-direction: column;
   gap: 10px;
 }
 
-/* WEATHER ------------------------------------------------------ */
+.header-btn {
+  padding: 8px 14px;
+  background: #2b2b2b;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.header-btn:hover {
+  background: #444;
+}
+
+/* ---------------------------------------------------------
+   MAP
+--------------------------------------------------------- */
+
+.map-container {
+  margin-top: 10px;
+  height: 360px;
+}
+
+/* ---------------------------------------------------------
+   ITINERARY LAYOUT 70/30
+--------------------------------------------------------- */
+
+.itinerary-shell {
+  display: grid;
+  grid-template-columns: 7fr 3fr;
+  gap: 20px;
+  min-height: 480px;
+}
+
+/* LEFT SIDE — DAYS (scrolls) */
+.days-column {
+  padding-right: 10px;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+}
+
+/* DAY BOX */
+.day-box {
+  background: #fafafa;
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.day-box h3 {
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+}
+
+/* TOKENS */
+.token {
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin: 6px 0;
+  cursor: grab;
+}
+
+/* RIGHT SIDE — OPEN BIN (fixed) */
+.open-bin-column {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e5e5;
+  padding: 16px;
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+
+.open-bin-title {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+.open-bin-body .token {
+  margin-bottom: 10px;
+}
+
+/* ---------------------------------------------------------
+   WEATHER
+--------------------------------------------------------- */
+
+.weather-section {
+  margin-top: 40px;
+}
 
 .weather-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 12px;
-  margin-top: 15px;
+  margin-top: 12px;
 }
 
 .weather-day {
-  background: #ffffffcc;
-  padding: 12px;
+  background: #fafafa;
+  border: 1px solid #ddd;
   border-radius: 12px;
+  padding: 12px;
   text-align: center;
-  font-size: 15px;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
 
 .weather-day:hover {
-  background: #f1f1f1;
+  background: #f0efed;
 }
 
-.weather-emoji {
-  font-size: 26px;
-  margin-bottom: 4px;
+.weather-icon {
+  width: 48px;
+  height: 48px;
+  margin: 6px auto;
 }
 
-.weather-date {
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-
-.weather-temps {
-  opacity: 0.75;
-}
-
-/* FOOTER ------------------------------------------------------- */
+/* ---------------------------------------------------------
+   FOOTER
+--------------------------------------------------------- */
 
 .page-footer {
   text-align: center;
-  padding: 20px;
-  font-size: 14px;
-  opacity: 0.6;
+  opacity: 0.7;
+  padding: 30px 0;
 }
