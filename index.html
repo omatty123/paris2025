@@ -120,23 +120,82 @@
   </section>
 
   <!-- WEATHER -->
-  <section class="card weather-section">
-    <div class="weather-header">
-      <h2 class="section-title">
-        <i class="fas fa-cloud-sun-rain"></i> Paris weather
-      </h2>
-      <p class="section-subtitle">
-        Today + next 5 days · Open-Meteo · Tap a day for full forecast on Météo-France
-      </p>
-    </div>
-    <div id="paris-weather-days" class="weather-grid">
-      <p>Loading…</p>
-    </div>
-  </section>
+ <div id="weather-bar" style="
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.85rem;
+">
+  <span id="weather-loading">Loading…</span>
+</div>
 
-  <footer class="page-footer">
-    <p>Built for Dominica’s Paris 2025 trip.</p>
-  </footer>
+<script>
+async function loadWeatherRow() {
+  const loadingEl = document.getElementById("weather-loading");
+  const container = document.getElementById("weather-bar");
+  if (!container) return;
+
+  try {
+    const url =
+      "https://api.open-meteo.com/v1/forecast" +
+      "?latitude=48.8566&longitude=2.3522" +
+      "&daily=weathercode,temperature_2m_max,temperature_2m_min" +
+      "&timezone=Europe/Paris&forecast_days=6";
+
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("Weather HTTP " + res.status);
+
+    const data = await res.json();
+    container.innerHTML = ""; // clear loading text
+
+    const icons = {
+      0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
+      45: "🌫️", 48: "🌫️",
+      51: "🌦️", 53: "🌦️", 55: "🌦️",
+      61: "🌧️", 63: "🌧️", 65: "🌧️",
+      80: "🌧️", 81: "🌧️", 82: "🌧️",
+      71: "❄️", 73: "❄️", 75: "❄️",
+      85: "❄️", 86: "❄️",
+      95: "⛈️", 96: "⛈️", 99: "⛈️"
+    };
+
+    data.daily.time.slice(0, 6).forEach((date, i) => {
+      const d = new Date(date);
+      const day = d.toLocaleDateString("en-US", { weekday: "short" });
+      const icon = icons[data.daily.weathercode[i]] || "🌡️";
+      const hi = Math.round(data.daily.temperature_2m_max[i]);
+      const lo = Math.round(data.daily.temperature_2m_min[i]);
+
+      const box = document.createElement("div");
+      box.style.textAlign = "center";
+      box.style.flex = "1";
+      box.style.cursor = "pointer";
+
+      box.innerHTML = `
+        <div style="font-size: 1.4rem;">${icon}</div>
+        <div>${day}</div>
+        <div style="font-size: 0.7rem; color: #6a6157;">${hi}° / ${lo}°C</div>
+      `;
+
+      box.onclick = () =>
+        window.open(
+          "https://meteofrance.com/previsions-meteo-france/paris-75000?day=" +
+          date,
+          "_blank"
+        );
+
+      container.appendChild(box);
+    });
+
+  } catch (err) {
+    console.error(err);
+    loadingEl.textContent = "Weather unavailable";
+  }
+}
+
+loadWeatherRow();
+</script>
 
   <!-- Scripts -->
   <script src="app.js"></script>
