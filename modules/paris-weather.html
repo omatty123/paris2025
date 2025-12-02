@@ -1,9 +1,38 @@
 <div class="module-header">
-  <h2><i class="fas fa-cloud-sun-rain"></i> Paris weather</h2>
-  <p class="panel-subtitle">Today and next five days · Data from Open-Meteo · Central Paris</p>
+  <h2><i class="fas fa-cloud-sun"></i> Paris weather</h2>
+  <p>Today and next five days · Data from Open-Meteo · Central Paris</p>
 </div>
 
-<div id="paris-weather-days" class="weather-grid"></div>
+<style>
+  #paris-weather-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 15px;
+  }
+
+  .weather-day {
+    flex: 1 1 140px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .weather-day a {
+    text-decoration: none;
+    color: #222;
+  }
+
+  .weather-day img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+  }
+</style>
+
+<div id="paris-weather-days">Loading…</div>
 
 <script>
 async function loadParisWeather() {
@@ -13,54 +42,51 @@ async function loadParisWeather() {
   let data;
 
   try {
-    const res = await fetch(url, { cache: "no-store" });
-    data = await res.json();
+    const r = await fetch(url, { cache: "no-store" });
+    data = await r.json();
   } catch (e) {
     const proxy =
       "https://cors-proxy.api.exponential-hub.workers.dev/?" + url;
-    const res = await fetch(proxy);
-    data = await res.json();
+    const r = await fetch(proxy);
+    data = await r.json();
   }
 
-  const container = document.getElementById("paris-weather-days");
-  if (!container) return;
-
-  container.innerHTML = "";
+  const wrap = document.getElementById("paris-weather-days");
+  wrap.innerHTML = "";
 
   const days = data.daily.time;
   const icons = data.daily.weathercode;
   const tmax = data.daily.temperature_2m_max;
   const tmin = data.daily.temperature_2m_min;
 
-  // ✅ Correct icon path
+  // WORKING ICON SOURCE
   const iconURL = code =>
-    `https://api.open-meteo.com/v1/weather/icon/${code}.png`;
+    `https://www.dwd.de/DWD/wetter/wv_allg/svg/${code}.svg`;
 
-  days.forEach((day, i) => {
+  days.slice(0, 7).forEach((day, i) => {
     const pretty = new Date(day).toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric"
     });
 
-    const link = `https://weather.com/weather/tenday/l/Paris+France?day=${i}`;
+    const link =
+      `https://weather.com/weather/tenday/l/Paris+France?day=${i}`;
 
     const div = document.createElement("div");
     div.className = "weather-day";
 
     div.innerHTML = `
-      <a href="${link}" target="_blank" style="text-decoration:none;color:inherit;">
-        <img src="${iconURL(icons[i])}" width="42" height="42" />
-        <div class="weather-date">${pretty}</div>
-        <div class="weather-temp">${Math.round(tmax[i])}° / ${Math.round(tmin[i])}°C</div>
+      <a href="${link}" target="_blank">
+        <img src="${iconURL(icons[i])}" />
+        <div style="font-weight:600;">${pretty}</div>
+        <div>${Math.round(tmax[i])}° / ${Math.round(tmin[i])}°C</div>
       </a>
     `;
 
-    container.appendChild(div);
+    wrap.appendChild(div);
   });
 }
 
 loadParisWeather();
 </script>
-
-  
