@@ -8,8 +8,6 @@
   --text-muted: #5f5b52;
 }
 
-/* GLOBAL */
-
 * {
   box-sizing: border-box;
 }
@@ -251,8 +249,6 @@ body {
 .itinerary-add-item:hover {
   color: var(--accent);
 }
-
-/* Drag targets */
 
 .itinerary-column-body.drag-over {
   outline: 2px dashed rgba(120, 91, 71, 0.7);
