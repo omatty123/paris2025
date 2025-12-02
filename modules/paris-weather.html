@@ -7,4 +7,49 @@
   Data from Open-Meteo (48.8566 N, 2.3522 E). Times are local Paris time.
 </p>
 
-<div id="paris-weather-days"></div>
+<div id="paris-weather-days">Loading weather…</div>
+
+<script>
+// --- PARIS WEATHER MODULE ---
+
+async function loadParisWeather() {
+  const container = document.getElementById("paris-weather-days");
+  container.textContent = "Loading…";
+
+  const url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const days = data.daily;
+    const out = [];
+
+    const icon = code => {
+      if (code === 0) return "☀️";
+      if (code <= 3) return "⛅";
+      if (code <= 48) return "🌫️";
+      if (code <= 65) return "🌧️";
+      if (code <= 82) return "🌦️";
+      if (code <= 95) return "⛈️";
+      return "🌩️";
+    };
+
+    for (let i = 0; i < 6; i++) {
+      out.push(`
+        <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #ddd;">
+          <div><strong>${days.time[i]}</strong></div>
+          <div>${icon(days.weathercode[i])}</div>
+          <div>${Math.round(days.temperature_2m_min[i])}°F / ${Math.round(days.temperature_2m_max[i])}°F</div>
+        </div>
+      `);
+    }
+
+    container.innerHTML = out.join("");
+  } catch (err) {
+    container.textContent = "Error loading Paris weather.";
+  }
+}
+
+loadParisWeather();
+</script>
