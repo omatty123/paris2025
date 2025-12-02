@@ -1,7 +1,7 @@
 /* LOAD CORMORANT GAR. */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
 
-/* DEFAULT SYSTEM FONT STACK (ALL BODY TEXT) */
+/* SYSTEM FONT STACK */
 body, button, input, p, a, li {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -16,7 +16,7 @@ body {
   color: #222;
 }
 
-/* MAIN HEADER */
+/* MAIN HEADER PANEL */
 .main-header {
   padding: 20px 40px;
   background: rgba(255,255,255,0.85);
@@ -31,7 +31,7 @@ body {
   font-weight: 700;
   font-size: 3rem;
   letter-spacing: -0.3px;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.3rem;
 }
 
 /* SUBTITLE — CORMORANT GAR. */
@@ -40,7 +40,6 @@ body {
   opacity: 0.8;
   font-family: "Cormorant Garamond", serif;
   font-size: 1.25rem;
-  font-weight: 400;
 }
 
 /* HEADER BUTTONS */
@@ -75,7 +74,7 @@ body {
   align-items: center;
 }
 
-/* CARD */
+/* CARDS */
 .card {
   background: rgba(255, 255, 255, 0.87);
   padding: 20px;
@@ -89,6 +88,7 @@ body {
 .map-wrapper {
   margin-top: 10px;
 }
+
 .map-container {
   width: 100%;
   height: 350px;
@@ -96,7 +96,7 @@ body {
   margin-top: 10px;
 }
 
-/* ROW LAYOUT */
+/* ROWS */
 .row {
   display: flex;
   gap: 20px;
@@ -111,7 +111,7 @@ body {
 /* MODULE TITLES — CORMORANT GAR. */
 .module-title {
   margin: 0 0 10px 0;
+  font-family: "Cormorant Garamond", serif;
   font-weight: 600;
   font-size: 1.6rem;
-  font-family: "Cormorant Garamond", serif;
 }
