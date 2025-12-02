@@ -22,7 +22,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <!-- Offline Message -->
   <div id="offline-message" class="no-print">
     <i class="fas fa-wifi"></i> Working offline, some data may be outdated
@@ -39,31 +38,16 @@
       <div class="local-time">
         <i class="fas fa-plane-departure"></i> Next flight: <span id="next-flight-short">Loading…</span>
       </div>
+      <div class="ratp-link">
+        <a href="https://www.ratp.fr/itineraires" class="ratp-icon" target="_blank" rel="noopener noreferrer" style="font-size:1.7em;margin-top:.25em;color:#0955a4;vertical-align:middle;" title="RATP Trip Planner">
+          <i class="fas fa-subway"></i>
+        </a>
+      </div>
     </div>
   </header>
 
-  <!-- Trip Summary Cards -->
+  <!-- Trip Summary Cards (Only Home HQ and Paris Weather) -->
   <section id="trip-summary" class="no-print">
-    <div class="summary-card">
-      <div class="summary-icon">
-        <i class="fas fa-calendar-alt"></i>
-      </div>
-      <div class="summary-text">
-        <h3>Trip Duration</h3>
-        <p>7 days</p>
-      </div>
-    </div>
-
-    <div class="summary-card">
-      <div class="summary-icon">
-        <i class="fas fa-plane"></i>
-      </div>
-      <div class="summary-text">
-        <h3>Total Flights</h3>
-        <p>4 segments</p>
-      </div>
-    </div>
-
     <div class="summary-card">
       <div class="summary-icon">
         <i class="fas fa-city"></i>
@@ -73,7 +57,6 @@
         <p>7 Av. Stephen Pichon</p>
       </div>
     </div>
-
     <div class="summary-card">
       <div class="summary-icon">
         <i class="fas fa-cloud-sun"></i>
@@ -85,32 +68,45 @@
     </div>
   </section>
 
-  <!-- Navigation -->
-  <nav id="main-nav" class="no-print" aria-label="Main">
-    <button class="nav-btn active" data-route="itinerary">
-      <i class="fas fa-route"></i> Itinerary
-    </button>
-    <button class="nav-btn" data-route="flight-weather">
-      <i class="fas fa-cloud"></i> Flight weather
-    </button>
-    <button class="nav-btn" data-route="paris-weather">
-      <i class="fas fa-cloud-sun-rain"></i> Paris weather
-    </button>
-    <button class="nav-btn" data-route="map">
-      <i class="fas fa-map-marked-alt"></i> Map & RATP
-    </button>
-    <button class="nav-btn" data-route="flight-status">
-      <i class="fas fa-ticket-alt"></i> Flight status
-    </button>
-  </nav>
-
-  <!-- Main content area where modules will load -->
+  <!-- Main Content: All Modules Stacked -->
   <main id="main">
-    <section id="module-container" aria-live="polite">
-      <!-- modules/*.html will be injected here -->
-      <div class="loading-placeholder">
-        <i class="fas fa-spinner fa-spin"></i> Loading module…
+    <!-- Map at top and center -->
+    <section id="module-map" aria-label="Map & RATP" style="display:flex;flex-direction:column;align-items:center;">
+      <!-- Insert map.html directly -->
+      <div style="width:100%;max-width:700px;">
+        <!-- MAP MODULE -->
+        <div class="module-header">
+          <h2><i class="fas fa-map-marked-alt"></i> Map & RATP</h2>
+          <p class="panel-subtitle">Home HQ at 7 Av. Stephen Pichon, Bât. B, rez-de-chaussée, 75013 Paris</p>
+        </div>
+        <div id="map"></div>
+        <p style="margin-top:1rem;font-size:0.9rem;">
+          <strong>Home HQ:</strong> red dot at 7 Avenue Stephen Pichon, Bâtiment B, rez-de-chaussée. Nearest major hub is <em>Place d’Italie</em> (M5, M6, M7, and large bus hub).
+        </p>
+        <p style="margin-top:0.5rem;font-size:0.9rem;">
+          <a href="https://www.ratp.fr/itineraires" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-external-link-alt"></i> Open RATP itinerary planner
+          </a>
+        </p>
       </div>
+    </section>
+
+    <!-- Modules stacked below map -->
+    <section id="module-itinerary" aria-label="Itinerary">
+      <!-- ITINERARY MODULE -->
+      <div id="itinerary-module"></div>
+    </section>
+    <section id="module-flight-status" aria-label="Flight Status">
+      <!-- FLIGHT STATUS MODULE -->
+      <div id="flight-status-module"></div>
+    </section>
+    <section id="module-paris-weather" aria-label="Paris Weather">
+      <!-- PARIS WEATHER MODULE -->
+      <div id="paris-weather-module"></div>
+    </section>
+    <section id="module-flight-weather" aria-label="Flight Weather">
+      <!-- FLIGHT WEATHER MODULE -->
+      <div id="flight-weather-module"></div>
     </section>
   </main>
 
@@ -124,7 +120,23 @@
     </div>
   </footer>
 
-  <!-- Main app logic -->
+  <!-- Main app logic: Load each module statically to their containers -->
+  <script>
+    const moduleConfigs = [
+      { id: "itinerary-module", file: "modules/itinerary.html" },
+      { id: "flight-status-module", file: "modules/flight-status.html" },
+      { id: "paris-weather-module", file: "modules/paris-weather.html" },
+      { id: "flight-weather-module", file: "modules/flight-weather.html" }
+    ];
+
+    moduleConfigs.forEach(cfg => {
+      fetch(cfg.file)
+        .then(res => res.text())
+        .then(html => { document.getElementById(cfg.id).innerHTML = html; });
+    });
+  </script>
+
+  <!-- App logic (original) -->
   <script src="app.js"></script>
 </body>
 </html>
