@@ -105,5 +105,26 @@
   </section>
 
   <script src="app.js"></script>
+  <!-- LOAD itinerary JS when itinerary module is loaded -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const itBox = document.getElementById("itinerary-module");
+
+  // When the HTML content finishes loading
+  const observer = new MutationObserver(() => {
+    // check if the module's inner HTML is present
+    if (itBox.innerHTML.trim().length > 0) {
+      // load the JS file associated with itinerary
+      const script = document.createElement("script");
+      script.src = "modules/itinerary.js";
+      script.type = "text/javascript";
+      document.body.appendChild(script);
+      observer.disconnect(); // stop watching
+    }
+  });
+
+  observer.observe(itBox, { childList: true });
+});
+</script>
 </body>
 </html>
