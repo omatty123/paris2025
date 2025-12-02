@@ -1,58 +1,70 @@
-// Load external modules into <div class="module-box">
-async function loadModules() {
-  const modules = document.querySelectorAll(".module-box");
+// ===============================
+//   Modular loader for the site
+// ===============================
 
-  for (const box of modules) {
-    const url = box.dataset.module;
+// This function loads an HTML fragment into the main content area
+async function loadModule(moduleName) {
+  const container = document.getElementById("content");
+  if (!container) {
+    console.error("No #content container found in index.html");
+    return;
+  }
 
-    try {
-      const html = await fetch(url).then(r => r.text());
-      box.innerHTML = html;
+  try {
+    const response = await fetch(`modules/${moduleName}.html`);
+    const html = await response.text();
+    container.innerHTML = html;
 
-      // Execute any scripts inside the loaded module
-      const scripts = box.querySelectorAll("script");
-      scripts.forEach(oldScript => {
-        const newScript = document.createElement("script");
-        if (oldScript.src) {
-          newScript.src = oldScript.src;
-        } else {
-          newScript.textContent = oldScript.textContent;
-        }
-        document.body.appendChild(newScript);
-      });
+    // After inserting module HTML into the page,
+    // We now check whether we must load a JS module
 
-    } catch (err) {
-      console.error(`Module failed: ${url}`, err);
-      box.innerHTML = `<p style="color:red;">Error loading ${url}</p>`;
+    if (moduleName === "itinerary") {
+      // Load Trello style itinerary board logic
+      import("./modules/itinerary.js");
+    }
+
+    if (moduleName === "map") {
+      // If you add map JS later, load it here
+      // import("./modules/map.js");
+    }
+
+    if (moduleName === "paris-weather") {
+      // If you add weather logic, load it here
+      // import("./modules/paris-weather.js");
+    }
+
+    if (moduleName === "flight-weather") {
+      // If needed
+      // import("./modules/flight-weather.js");
+    }
+
+    if (moduleName === "flight-status") {
+      // If needed
+      // import("./modules/flight-status.js");
+    }
+
+  } catch (err) {
+    console.error("Error loading module:", moduleName, err);
+    if (container) {
+      container.innerHTML = `<p>Could not load module: ${moduleName}</p>`;
     }
   }
 }
 
+// ========================================
+//   NAVIGATION HANDLING
+// ========================================
 
-// Scroll to section
-function scrollToModule(id) {
-  document.getElementById(id).scrollIntoView({
-    behavior: "smooth",
-    block: "start"
+// Attach click handlers for navigation links if present
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-module]").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const mod = link.dataset.module;
+      loadModule(mod);
+    });
   });
-}
 
-
-// Update Paris time
-function updateParisTime() {
-  const now = new Date().toLocaleString("en-US", {
-    timeZone: "Europe/Paris",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-  document.getElementById("parisTime").textContent = `Paris time: ${now}`;
-}
-
-setInterval(updateParisTime, 15000);
-
-
-// Initialize after DOM loads
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadModules();
-  updateParisTime();
+  // Load default module on first page load
+  loadModule("itinerary");
 });
