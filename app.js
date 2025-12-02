@@ -1,24 +1,32 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const moduleBoxes = document.querySelectorAll(".module-box");
+console.log("App JS loaded.");
 
-  moduleBoxes.forEach(box => {
-    const url = box.dataset.module;
-    if (!url) return;
+/* MODULE LOADER */
+document.querySelectorAll(".module-box").forEach(box => {
+  const url = box.dataset.module;
 
-    fetch(url)
-      .then(res => res.text())
-      .then(html => {
-        box.innerHTML = html;
-
-        // If this is the itinerary module, load its JS after HTML inserted
-        if (url.includes("itinerary.html")) {
-          const script = document.createElement("script");
-          script.src = "modules/itinerary.js";
-          document.body.appendChild(script);
-        }
-      })
-      .catch(err => {
-        box.innerHTML = `<p style="color:red;">Module failed to load.</p>`;
-      });
-  });
+  fetch(url)
+    .then(res => res.text())
+    .then(html => (box.innerHTML = html))
+    .catch(err => {
+      box.innerHTML =
+        "<p style='color:red;'>Module failed to load: " + url + "</p>";
+    });
 });
+
+/* PARIS CLOCK */
+function updateParisTime() {
+  const now = new Date().toLocaleTimeString("en-US", {
+    timeZone: "Europe/Paris",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  document.getElementById("parisTime").textContent = "Paris time: " + now;
+}
+setInterval(updateParisTime, 1000);
+updateParisTime();
+
+/* SMOOTH SCROLL */
+function scrollToModule(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth" });
+}
