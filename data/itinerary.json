@@ -1,0 +1,97 @@
+{
+  "columns": [
+    {
+      "id": "open",
+      "title": "Open bin",
+      "meta": "Unassigned items",
+      "items": [
+        "Arrive CDG",
+        "RER B → Denfert Rochereau → Metro 6",
+        "Arrive apartment",
+        "Explore Chinatown",
+        "Lunch near Tang Frères",
+        "Metro to Bastille",
+        "Walk the Coulée Verte",
+        "Drink at Le Train Bleu",
+        "Dinner at Afrik’N’Fusion",
+        "Walk home"
+      ]
+    },
+    {
+      "id": "dec3",
+      "title": "Day 1",
+      "meta": "Wed Dec 3",
+      "items": [
+        "Sainte Chapelle",
+        "Conciergerie",
+        "Notre Dame exterior",
+        "Pont Neuf and Pont des Arts",
+        "Jardin du Luxembourg",
+        "Huitrerie Regis",
+        "Musée d’Orsay",
+        "Chez Gladines"
+      ]
+    },
+    {
+      "id": "dec4",
+      "title": "Day 2",
+      "meta": "Thu Dec 4",
+      "items": [
+        "Louvre nineteenth century rooms",
+        "Tuileries Garden",
+        "Chez Alain Miam Miam",
+        "Walk toward Passy",
+        "Maison de Balzac",
+        "Walk to Trocadéro",
+        "Le Temps des Cerises"
+      ]
+    },
+    {
+      "id": "dec5",
+      "title": "Day 3",
+      "meta": "Fri Dec 5",
+      "items": [
+        "Metro to Opéra then walk to Gare Saint Lazare",
+        "Train to Rouen",
+        "Taxi to Cathedral and Gros Horloge",
+        "Lunch at Vegan & Cie",
+        "Musée Flaubert",
+        "Cimetière Monumental",
+        "Croisset",
+        "Train back",
+        "Dinner at Brasserie Le Lazare"
+      ]
+    },
+    {
+      "id": "dec6",
+      "title": "Day 4",
+      "meta": "Sat Dec 6",
+      "items": [
+        "Belleville",
+        "Promenade Dora Bruder",
+        "Montmartre and Sacré Coeur",
+        "Père Lachaise",
+        "Pain Vin Fromages"
+      ]
+    },
+    {
+      "id": "dec7",
+      "title": "Day 5",
+      "meta": "Sun Dec 7",
+      "items": [
+        "Parc Montsouris",
+        "Covered passages",
+        "Tuileries Christmas market",
+        "Galeries Lafayette",
+        "Carrefour Italie 2",
+        "Darkoum Cantine Marocaine"
+      ]
+    },
+    {
+      "id": "last",
+      "title": "Last day",
+      "meta": "Open end",
+      "items": []
+    }
+  ]
+}
