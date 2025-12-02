@@ -55,7 +55,6 @@ async function loadParisWeather() {
   try {
     data = await fetchWeather(baseUrl);
   } catch (e) {
-    // Simple proxy fallback (may or may not be needed depending on network)
     const proxy =
       "https://cors-proxy.api.exponential-hub.workers.dev/?" + baseUrl;
     try {
