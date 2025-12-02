@@ -82,10 +82,222 @@
 
     <!-- LEFT SIDE: ITINERARY -->
     <div class="col-large">
-      <div id="itinerary-module"
-        class="card module-box"
-        data-module="modules/itinerary.html">
+      <!-- Replace the itinerary-module div with this: -->
+<div id="itinerary-module" class="card module-box">
+  <h2 class="module-title">
+    <i class="fas fa-calendar-days"></i> Travel Itinerary
+  </h2>
+  
+  <div class="itinerary-controls">
+    <button id="githubModeBtn" class="control-btn github-btn">
+      <i class="fab fa-github"></i> Setup GitHub Token
+    </button>
+    <span id="saveStatus" style="color: #666; font-size: 0.9em; margin-left: 10px;">Loading...</span>
+  </div>
+
+  <div class="itinerary-layout">
+    <!-- Left: Day columns stacked vertically -->
+    <div class="itinerary-days-stack">
+      <div id="itineraryBoard"></div>
+    </div>
+    
+    <!-- Right: Open bin -->
+    <div class="itinerary-open-bin-wrapper">
+      <div class="itinerary-column-header">
+        <h3 class="itinerary-column-title">Open Bin</h3>
+        <p class="itinerary-column-meta">Unassigned items</p>
       </div>
+      <div id="openBinColumn" class="itinerary-column-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add this CSS for the itinerary layout -->
+<style>
+.itinerary-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.control-btn.github-btn {
+  background: linear-gradient(135deg, #24292e 0%, #444d56 100%);
+}
+
+.control-btn.github-btn:hover {
+  box-shadow: 0 4px 12px rgba(36, 41, 46, 0.4);
+}
+
+.itinerary-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+}
+
+.itinerary-days-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#itineraryBoard {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.itinerary-column {
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.itinerary-column-header {
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itinerary-column-title {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: 600;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.itinerary-column-meta {
+  margin: 4px 0 0 0;
+  font-size: 0.85em;
+  opacity: 0.9;
+}
+
+.itinerary-column-body {
+  padding: 12px;
+  min-height: 80px;
+  transition: background 0.3s;
+}
+
+.itinerary-column-body.drag-over {
+  background: rgba(102, 126, 234, 0.1);
+  border: 2px dashed #667eea;
+}
+
+.itinerary-item {
+  background: white;
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: move;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.itinerary-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  transform: translateX(2px);
+}
+
+.itinerary-item-delete {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: #ff6b6b;
+  color: white;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+.itinerary-item-delete:hover {
+  background: #ff5252;
+  transform: scale(1.15);
+}
+
+.itinerary-add-item {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  background: white;
+  color: #667eea;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.itinerary-add-item:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.itinerary-open-bin-wrapper {
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+#openBinColumn {
+  overflow-y: auto;
+  flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .itinerary-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .itinerary-open-bin-wrapper {
+    max-height: 400px;
+  }
+}
+</style>
 
       <div id="flight-weather-module"
         class="card module-box"
