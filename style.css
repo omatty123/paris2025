@@ -23,21 +23,21 @@ a {
   color: inherit;
 }
 
-/* Layout */
+/* Card container */
 
 .card {
   background: #ffffff;
   border-radius: 18px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  padding: 20px 24px 24px;
+  padding: 18px 20px 20px;
   margin: 16px auto;
-  max-width: 1100px;
+  max-width: 980px; /* narrower overall */
 }
 
 /* Header */
 
 .main-header {
-  max-width: 1100px;
+  max-width: 980px;
   margin: 20px auto 8px;
   padding: 8px 4px 0;
 }
@@ -50,7 +50,7 @@ a {
 }
 
 .main-header h1 {
-  font-size: 2.3rem;
+  font-size: 2.2rem;
   letter-spacing: 0.03em;
 }
 
@@ -96,13 +96,13 @@ a {
 
 .map-section .map-container {
   margin-top: 10px;
-  height: 320px;
+  height: 300px;
   border-radius: 16px;
   overflow: hidden;
 }
 
 .section-title {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -125,7 +125,7 @@ a {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .itinerary-header-right {
@@ -139,8 +139,8 @@ a {
   border-radius: 999px;
   border: 1px solid #d3cdc4;
   background: #faf7f3;
-  padding: 6px 14px;
-  font-size: 0.9rem;
+  padding: 6px 12px;
+  font-size: 0.88rem;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -163,8 +163,8 @@ a {
   border-radius: 999px;
   border: 1px solid #d3cdc4;
   background: #f8f3eb;
-  padding: 4px 10px;
-  font-size: 0.8rem;
+  padding: 3px 8px;
+  font-size: 0.78rem;
   cursor: pointer;
 }
 
@@ -182,39 +182,39 @@ a {
 
 .itinerary-layout {
   display: flex;
-  gap: 24px;
+  gap: 18px;
 }
 
-/* Left: days column (narrow, stacked) */
+/* Left: days column (narrower) */
 
 .days-column {
-  flex: 0 0 55%;
-  max-width: 560px;
+  flex: 0 0 50%;
+  max-width: 460px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 /* Day block */
 
 .day-column {
-  background: #fbf9f6;
-  border-radius: 16px;
-  padding: 12px 14px 10px;
-  box-shadow: inset 0 0 0 1px #efe7dd;
+  background: #fdf8f2;
+  border-radius: 14px;
+  padding: 10px 12px 8px;
+  box-shadow: inset 0 0 0 1px #efe1cf;
 }
 
 .day-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .day-header h3,
 .day-header h4 {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   margin: 0;
 }
 
@@ -230,41 +230,47 @@ a {
   min-width: 0;
   border-radius: 999px;
   border: 1px solid #dacfbf;
-  padding: 6px 10px;
-  font-size: 0.9rem;
+  padding: 5px 9px;
+  font-size: 0.85rem;
   background: #fff;
 }
 
 .add-item-btn {
   border-radius: 999px;
   border: 1px solid #dacfbf;
-  background: #f2e9dd;
-  padding: 0 10px;
-  height: 28px;
+  background: #f2e3d0;
+  padding: 0 9px;
+  height: 26px;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 /* Lists & cards */
 
 .itinerary-list {
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .itinerary-card {
   background: #ffffff;
-  border-radius: 14px;
-  padding: 9px 11px;
+  border-radius: 12px;
+  padding: 7px 9px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-  margin-bottom: 6px;
-  font-size: 0.94rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 5px;
+  font-size: 0.9rem;
   cursor: grab;
+  border-left: 3px solid #e0c9a6; /* subtle color accent */
 }
 
 .itinerary-card.dragging {
   opacity: 0.6;
+}
+
+.itinerary-card:hover {
+  background: #fff7ec;
 }
 
 .card-text {
@@ -276,8 +282,8 @@ a {
   border: none;
   border-radius: 999px;
   background: #f3ddd8;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   font-size: 0.9rem;
   cursor: pointer;
   flex-shrink: 0;
@@ -295,27 +301,28 @@ a {
 /* Right: Open Bin */
 
 .open-bin-column {
-  flex: 0 0 40%;
-  max-width: 420px;
+  flex: 0 0 32%;
+  max-width: 340px;
   align-self: flex-start;
   position: sticky;
   top: 16px;
 }
 
 .open-bin-title {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   margin-bottom: 2px;
 }
 
 .open-bin-subtitle {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #7d7166;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .open-bin-wrapper {
-  max-height: 520px;
+  max-height: 480px;
   overflow-y: auto;
+  background: #f9f1e4;
 }
 
 /* Weather */
@@ -325,19 +332,19 @@ a {
 }
 
 .weather-header {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .weather-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .weather-day {
   background: #fbf9f6;
-  border-radius: 14px;
-  padding: 8px 6px;
+  border-radius: 12px;
+  padding: 6px 4px;
   text-align: center;
   font-size: 0.9rem;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
@@ -350,7 +357,7 @@ a {
 }
 
 .weather-emoji {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   margin-bottom: 2px;
 }
 
@@ -367,7 +374,7 @@ a {
 /* Footer */
 
 .page-footer {
-  max-width: 1100px;
+  max-width: 980px;
   margin: 12px auto 30px;
   font-size: 0.85rem;
   color: #91857a;
