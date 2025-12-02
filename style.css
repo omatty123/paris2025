@@ -142,3 +142,42 @@ body {
   text-decoration: none;
   color: inherit;
 }
+/* --- Paris weather cards --- */
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.weather-day {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 10px 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.weather-day a {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.weather-emoji {
+  font-size: 1.9rem;
+}
+
+.weather-date {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.weather-temps {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
