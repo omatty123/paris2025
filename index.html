@@ -1,114 +1,428 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Paris December 2025</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Dominica Flight Weather Dashboard and Paris Itinerary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="apple-touch-icon" href="paris-christmas-markets.jpg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
   <style>
-    /* clean two-column dashboard layout */
     body {
-      font-family: system-ui, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+      background:
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        url("paris-christmas-markets.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #f5f5f5;
       margin: 0;
-      background: #f7f7f7;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
     }
 
-    header {
-      padding: 20px 25px 10px 25px;
-      background: white;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 350px;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .module-box {
-      background: white;
-      padding: 10px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
-    iframe {
+    #cols {
+      display: flex;
+      flex-direction: row;
       width: 100%;
-      border: none;
-      border-radius: 12px;
+      max-width: 1500px;
+      gap: 1.5rem;
+    }
+
+    #itin {
+      flex: 1;
+      background: rgba(20, 27, 51, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 1rem 1.3rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      overflow-y: auto;
+      max-height: 95vh;
+    }
+
+    #weather {
+      flex: 0 0 42%;
+      background: rgba(20, 27, 51, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 1rem 1.3rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      overflow-y: auto;
+      max-height: 95vh;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0 0 0.7rem 0;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1rem;
+      opacity: 0.9;
+      text-align: center;
+      margin-bottom: 0.8rem;
+    }
+
+    details {
+      margin-bottom: 1rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.2rem 0;
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(20, 27, 51, 0.9);
+      border-radius: 6px;
       overflow: hidden;
     }
 
-    .auto {
-      height: 420px;
+    th, td {
+      padding: 0.45rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.82rem;
     }
+
+    th {
+      background: rgba(28, 36, 64, 0.95);
+      font-weight: 600;
+    }
+
+    th:nth-child(1), td:nth-child(1) { width: 34%; }
+    th:nth-child(2), td:nth-child(2) { width: 23%; }
+    th:nth-child(3), td:nth-child(3) { width: 23%; }
+    th:nth-child(4), td:nth-child(4) { width: 20%; text-align: center; }
+
+    .tag {
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 0.8rem;
+    }
+
+    .good { background: #133a20; color: #61e27b; border: 1px solid #61e27b; }
+    .bad { background: #3a1414; color: #ff6b6b; border: 1px solid #ff6b6b; }
+    .wait { background: #33384f; color: #d3d6f5; border: 1px solid #5e668f; }
+
+    .small { font-size: 0.75rem; opacity: 0.8; }
+
+    #footer {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    /* MOBILE FIX */
+    @media (max-width: 800px) {
+
+      body {
+        padding: 0.5rem;
+        display: block;
+      }
+
+      #cols {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      #itin, #weather {
+        max-height: none;
+        width: 100%;
+      }
+
+      #weather {
+        flex: none;
+      }
+    }
+
   </style>
 </head>
 
+
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <h1>Paris December 2025</h1>
-    <p>December 2 → December 8 · Appleton → Detroit → Paris → Detroit → Appleton</p>
-    <p>
-      <a href="https://www.ratp.fr" target="_blank">🚇 RATP directions</a> ·
-      <a href="https://maps.app.goo.gl" target="_blank">📍 Open in Maps</a>
-    </p>
-    <div id="paris-time"></div>
-  </header>
+<div id="cols">
 
-  <!-- MAIN LAYOUT -->
-  <div class="layout">
+  <div id="itin">
+    <h1>Paris Itinerary</h1>
+    <h2>2 to 8 December 2025</h2>
 
-    <!-- LEFT COLUMN = MAP + ITINERARY -->
-    <div>
-      <div class="module-box">
-        <h2>Home Base</h2>
-        <iframe src="modules/map.html" height="300"></iframe>
-      </div>
+    <details open>
+      <summary>Day 1 Tuesday 02 December</summary>
+      <ul>
+        <li>11h05 Arrive Charles de Gaulle Airport</li>
+        <li>12h15 RER B to Denfert Rochereau then Metro line 6 to Place d Italie</li>
+        <li>13h15 Arrive apartment at 7 Avenue Stephen Pichon Batiment B</li>
+        <li>14h00 Explore Chinatown</li>
+        <li>14h30 Lunch near Tang Freres</li>
+        <li>16h00 Metro to Bastille</li>
+        <li>16h15 Walk the Coulee Verte</li>
+        <li>17h30 Drink at Le Train Bleu</li>
+        <li>18h45 Dinner at Afrik N Fusion</li>
+        <li>20h30 Walk home</li>
+      </ul>
+    </details>
 
-      <div class="module-box">
-        <h2>Itinerary Planner</h2>
-        <iframe src="modules/itinerary.html" class="auto"></iframe>
-      </div>
-    </div>
+    <details>
+      <summary>Day 2 Wednesday 03 December</summary>
+      <ul>
+        <li>9h00 Sainte Chapelle</li>
+        <li>9h45 Conciergerie</li>
+        <li>10h30 Notre Dame exterior</li>
+        <li>11h00 Pont Neuf and Pont des Arts</li>
+        <li>11h30 Jardin du Luxembourg</li>
+        <li>12h15 Huitrerie Regis</li>
+        <li>14h00 Musee d Orsay</li>
+        <li>19h00 Chez Gladines</li>
+      </ul>
+    </details>
 
+    <details>
+      <summary>Day 3 Thursday 04 December</summary>
+      <ul>
+        <li>9h00 Louvre nineteenth century rooms</li>
+        <li>11h30 Tuileries Garden</li>
+        <li>12h15 Chez Alain Miam Miam</li>
+        <li>13h30 Walk toward Passy</li>
+        <li>14h30 Maison de Balzac</li>
+        <li>16h00 Walk to Trocadero</li>
+        <li>19h00 Le Temps des Cerises</li>
+      </ul>
+    </details>
 
-    <!-- RIGHT COLUMN = WEATHER + FLIGHT STATUS -->
-    <div>
-      <div class="module-box">
-        <h2>Paris Weather</h2>
-        <iframe src="modules/paris-weather.html" class="auto"></iframe>
-      </div>
+    <details>
+      <summary>Day 4 Friday 05 December</summary>
+      <ul>
+        <li>7h00 Metro to Opera then walk to Gare Saint Lazare</li>
+        <li>8h14 Train to Rouen</li>
+        <li>09h46 Taxi to Cathedral</li>
+        <li>10h00 Gros Horloge</li>
+        <li>12h00 Vegan and Cie</li>
+        <li>13h00 Musee Flaubert</li>
+        <li>14h00 Cimetière Monumental</li>
+        <li>14h30 Croisset</li>
+        <li>18h00 Train back</li>
+        <li>Dinner at Brasserie Le Lazare</li>
+      </ul>
+    </details>
 
-      <div class="module-box">
-        <h2>Flight Weather</h2>
-        <iframe src="modules/flight-weather.html" class="auto"></iframe>
-      </div>
+    <details>
+      <summary>Day 5 Saturday 06 December</summary>
+      <ul>
+        <li>9h00 Belleville</li>
+        <li>10h00 Promenade Dora Bruder</li>
+        <li>11h30 Montmartre</li>
+        <li>12h00 Sacre Coeur</li>
+        <li>14h00 Pere Lachaise</li>
+        <li>17h00 Pain Vin Fromages</li>
+      </ul>
+    </details>
 
-      <div class="module-box">
-        <h2>Flight Status</h2>
-        <iframe src="modules/flight-status.html" class="auto"></iframe>
-      </div>
-    </div>
+    <details>
+      <summary>Day 6 Sunday 07 December</summary>
+      <ul>
+        <li>9h00 Parc Montsouris</li>
+        <li>10h15 Covered passages</li>
+        <li>12h00 Tuileries Christmas Market</li>
+        <li>14h15 Galeries Lafayette</li>
+        <li>16h00 Carrefour Italie 2</li>
+        <li>18h00 Darkoum Cantine Marocaine</li>
+      </ul>
+    </details>
 
+    <details>
+      <summary>Day 7 Monday 08 December</summary>
+      <ul>
+        <li>6h15 Leave apartment</li>
+        <li>6h30 Metro then RER B to CDG</li>
+        <li>7h30 Arrive airport</li>
+        <li>10h30 Flight departs</li>
+      </ul>
+    </details>
   </div>
 
+  <div id="weather">
+    <h1>Flight Weather</h1>
+    <h2>Good or bad flying conditions</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Segment</th>
+          <th>Local Time</th>
+          <th>Summary</th>
+          <th>Weather</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <div id="footer">
+      Forecasts are from Open Meteo
+    </div>
+  </div>
+
+</div>
+
+
 <script>
-// Paris time updater (unchanged, fully working)
-function updateParisTime() {
-  const now = new Date().toLocaleString("en-US", {
-    timeZone: "Europe/Paris",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-  document.getElementById("paris-time").textContent = "Paris time: " + now;
+const airports = {
+  ATW: { code: "ATW", name: "Appleton ATW", lat: 44.2581, lon: -88.5191, timezone: "America/Chicago" },
+  DTW: { code: "DTW", name: "Detroit DTW", lat: 42.2162, lon: -83.3554, timezone: "America/New_York" },
+  CDG: { code: "CDG", name: "Paris CDG", lat: 49.0097, lon: 2.5479, timezone: "Europe/Paris" }
+};
+
+const events = [
+  { id:"ATW_TAKE",  label:"ATW to DTW takeoff", airport:"ATW", iso:"2025-12-01T17:21:00-06:00" },
+  { id:"DTW_LAND1", label:"ATW to DTW landing", airport:"DTW", iso:"2025-12-01T19:43:00-05:00" },
+  { id:"DTW_TAKE",  label:"DTW to CDG takeoff", airport:"DTW", iso:"2025-12-01T21:20:00-05:00" },
+  { id:"CDG_LAND",  label:"DTW to CDG landing", airport:"CDG", iso:"2025-12-02T11:05:00+01:00" },
+  { id:"CDG_TAKE",  label:"CDG to DTW takeoff", airport:"CDG", iso:"2025-12-08T10:30:00+01:00" },
+  { id:"DTW_LAND2", label:"CDG to DTW landing", airport:"DTW", iso:"2025-12-08T13:45:00-05:00" },
+  { id:"DTW_TAKE2", label:"DTW to ATW takeoff", airport:"DTW", iso:"2025-12-08T16:50:00-05:00" },
+  { id:"ATW_LAND",  label:"DTW to ATW landing", airport:"ATW", iso:"2025-12-08T17:14:00-06:00" }
+];
+
+const tbody = document.getElementById("rows");
+
+function initialRender() {
+  tbody.innerHTML = "";
+  for (const ev of events) {
+    const ap = airports[ev.airport];
+    const dt = new Date(ev.iso);
+
+    const row = document.createElement("tr");
+    row.id = "row_" + ev.id;
+    row.innerHTML = `
+      <td><strong>${ev.label}</strong><br><span class="small">${ap.name}</span></td>
+      <td>${dt.toLocaleString()}</td>
+      <td class="small">Loading</td>
+      <td><span class="tag wait">WAIT</span></td>
+    `;
+    tbody.appendChild(row);
+  }
 }
-updateParisTime();
-setInterval(updateParisTime, 60000);
+
+async function getForecast(ap) {
+  const url =
+    "https://api.open-meteo.com/v1/forecast"
+    + "?latitude=" + ap.lat
+    + "&longitude=" + ap.lon
+    + "&hourly=temperature_2m,weathercode,precipitation,windspeed_10m"
+    + "&timezone=" + encodeURIComponent(ap.timezone)
+    + "&forecast_days=16";
+
+  const r = await fetch(url);
+  return r.json();
+}
+
+function nearestIndex(times, target) {
+  let best = 0;
+  let diff = Number.POSITIVE_INFINITY;
+  const t = target.getTime();
+  for (let i = 0; i < times.length; i++) {
+    const d = Math.abs(new Date(times[i]).getTime() - t);
+    if (d < diff) { diff = d; best = i; }
+  }
+  return best;
+}
+
+function classify(code, wind, prec) {
+  const badCodes = [65,66,67,71,73,75,77,80,81,82,85,86,95,96,99];
+  if (badCodes.includes(code)) return "BAD";
+  if (wind >= 45) return "BAD";
+  if (prec >= 4) return "BAD";
+  return "GOOD";
+}
+
+function describe(code) {
+  const labels = {
+    0:"Clear", 1:"Mainly clear", 2:"Partly cloudy", 3:"Overcast",
+    45:"Fog", 48:"Rime fog",
+    51:"Light drizzle", 53:"Drizzle", 55:"Heavy drizzle",
+    61:"Light rain", 63:"Moderate rain", 65:"Heavy rain",
+    71:"Light snow", 73:"Snow", 75:"Heavy snow",
+    80:"Showers", 81:"Showers", 82:"Heavy showers",
+    95:"Thunderstorm", 96:"Storm hail", 99:"Severe hail"
+  };
+  return labels[code] || "Weather";
+}
+
+function fahrenheit(c) { return c * 9 / 5 + 32; }
+
+async function updateAll() {
+  const byAirport = {};
+
+  for (const ev of events) {
+    if (!byAirport[ev.airport]) byAirport[ev.airport] = [];
+    byAirport[ev.airport].push(ev);
+  }
+
+  for (const code of Object.keys(byAirport)) {
+    const ap = airports[code];
+    const data = await getForecast(ap);
+
+    const times = data.hourly.time;
+    const temps = data.hourly.temperature_2m;
+    const precs = data.hourly.precipitation;
+    const wcodes = data.hourly.weathercode;
+    const winds = data.hourly.windspeed_10m;
+
+    for (const ev of byAirport[code]) {
+      const row = document.getElementById("row_" + ev.id);
+
+      const summaryCell = row.children[2];
+      const weatherCell = row.children[3];
+
+      const moment = new Date(ev.iso);
+      const idx = nearestIndex(times, moment);
+
+      const t = temps[idx];
+      const p = precs[idx];
+      const w = winds[idx];
+      const c = wcodes[idx];
+
+      const rating = classify(c, w, p);
+      const label = describe(c);
+      const f = fahrenheit(t).toFixed(0);
+
+      summaryCell.textContent = label + "; " + f + " F";
+
+      const detailUrl =
+        "forecast.html"
+        + "?airport=" + ap.code
+        + "&time=" + encodeURIComponent(ev.iso);
+
+      if (rating === "GOOD") {
+        weatherCell.innerHTML = `<a class="tag good" href="${detailUrl}" target="_blank">GOOD</a>`;
+      } else {
+        weatherCell.innerHTML = `<a class="tag bad" href="${detailUrl}" target="_blank">BAD</a>`;
+      }
+    }
+  }
+}
+
+initialRender();
+updateAll();
+setInterval(updateAll, 1800000);
 </script>
 
 </body>
 </html>
+
