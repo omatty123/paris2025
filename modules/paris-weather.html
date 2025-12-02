@@ -1,3 +1,11 @@
+<div class="module-header">
+  <h2><i class="fas fa-cloud-sun-rain"></i> Paris weather</h2>
+  <p class="panel-subtitle">Today and next five days · Data from Open-Meteo · Central Paris</p>
+</div>
+
+<div id="paris-weather-days" class="weather-grid"></div>
+
+<script>
 async function loadParisWeather() {
   const url =
     "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
@@ -37,20 +45,23 @@ async function loadParisWeather() {
       day: "numeric"
     });
 
-    const link =
-      `https://weather.com/weather/tenday/l/Paris+France?day=${i}`;
+    const link = `https://weather.com/weather/tenday/l/Paris+France?day=${i}`;
 
     const div = document.createElement("div");
     div.className = "weather-day";
 
     div.innerHTML = `
-      <a href="${link}" target="_blank">
-        <img src="${iconURL(icons[i])}" />
-        <div style="font-weight:600;">${pretty}</div>
-        <div>${Math.round(tmax[i])}° / ${Math.round(tmin[i])}°C</div>
+      <a href="${link}" target="_blank" style="text-decoration:none;color:inherit;">
+        <img src="${iconURL(icons[i])}" width="42" height="42" />
+        <div class="weather-date">${pretty}</div>
+        <div class="weather-temp">${Math.round(tmax[i])}° / ${Math.round(tmin[i])}°C</div>
       </a>
     `;
 
     container.appendChild(div);
   });
 }
+
+// Call when module loads
+loadParisWeather();
+</script>
