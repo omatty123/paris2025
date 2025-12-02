@@ -8,7 +8,7 @@
   <!-- Cormorant Garamond -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Font Awesome (no integrity to avoid blocking issues) -->
+  <!-- Font Awesome -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -33,12 +33,12 @@
     </div>
 
     <div class="header-buttons">
-      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank" rel="noopener noreferrer">
+      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
         <i class="fas fa-route"></i> RATP directions
       </a>
       <a class="header-btn"
          href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
-         target="_blank" rel="noopener noreferrer">
+         target="_blank">
         <i class="fas fa-map-pin"></i> Open home in Maps
       </a>
     </div>
@@ -73,32 +73,35 @@
           <i class="fas fa-suitcase-rolling"></i> Itinerary planner
         </h2>
         <p class="section-subtitle">
-          Drag items between days and the Open Bin · Add or delete freely · Saved in this browser
+          Drag items between days and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
         </p>
       </div>
       <div class="itinerary-header-right">
         <button class="secondary-btn" id="resetBtn">
           Reset to defaults
         </button>
-        <button class="secondary-btn" id="exportBtn">
-          Export JSON
-        </button>
+        <div class="github-controls">
+          <button class="small-btn" id="githubToken">Set GitHub token</button>
+          <button class="small-btn" id="githubSave">Save to GitHub</button>
+          <button class="small-btn" id="githubLoad">Load from GitHub</button>
+        </div>
+        <div id="githubStatus" class="github-status"></div>
       </div>
     </div>
 
     <div class="itinerary-layout">
-      <!-- Days stacked vertically (narrow) -->
+      <!-- Days stacked vertically (left) -->
       <div id="daysColumn" class="days-column">
         <!-- itinerary.js will populate -->
       </div>
 
-      <!-- Open Bin on the right (fixed width, sticky) -->
+      <!-- Open Bin (right) -->
       <aside class="open-bin-column">
         <h3 class="open-bin-title">
           <i class="fas fa-inbox"></i> Open Bin
         </h3>
         <p class="open-bin-subtitle">
-          Day 1 (Dec 2) and spare ideas live here. Drag into any day, or back again.
+          Day 1 (Dec 2) and extra ideas live here. Drag into any day, or back again.
         </p>
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
@@ -123,7 +126,7 @@
         <i class="fas fa-cloud-sun-rain"></i> Paris weather
       </h2>
       <p class="section-subtitle">
-        Today + next 5 days · Data: Open-Meteo · Tap a day for full forecast on Météo-France
+        Today + next 5 days · Open-Meteo · Tap a day for full forecast on Météo-France
       </p>
     </div>
     <div id="paris-weather-days" class="weather-grid">
