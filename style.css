@@ -1,11 +1,9 @@
-/* -------------------------------------------------------
-   1. CORMORANT GARAMOND
--------------------------------------------------------- */
+/* ---------------------------------------------------
+   FONTS
+--------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
 
-/* -------------------------------------------------------
-   2. GLOBAL FONT STACK
--------------------------------------------------------- */
+/* SYSTEM FONT STACK */
 body, button, input, p, a, li {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -13,6 +11,9 @@ body, button, input, p, a, li {
   text-rendering: optimizeLegibility;
 }
 
+/* ---------------------------------------------------
+   BODY / BACKGROUND
+--------------------------------------------------- */
 body {
   background: #f2f2f2 url('img/paris-bg.jpg') no-repeat center top / cover fixed;
   margin: 0;
@@ -20,9 +21,9 @@ body {
   color: #222;
 }
 
-/* -------------------------------------------------------
-   3. HEADER
--------------------------------------------------------- */
+/* ---------------------------------------------------
+   HEADER PANEL
+--------------------------------------------------- */
 .main-header {
   padding: 20px 40px;
   background: rgba(255,255,255,0.85);
@@ -31,6 +32,7 @@ body {
   backdrop-filter: blur(12px);
 }
 
+/* MAIN TITLE – Cormorant */
 .main-header h1 {
   font-family: "Cormorant Garamond", serif;
   font-weight: 700;
@@ -46,6 +48,7 @@ body {
   font-size: 1.25rem;
 }
 
+/* HEADER BUTTONS */
 .header-buttons {
   margin-top: 12px;
   display: flex;
@@ -77,48 +80,22 @@ body {
   align-items: center;
 }
 
-/* -------------------------------------------------------
-   4. CARDS / MODULE BOXES
--------------------------------------------------------- */
+/* ---------------------------------------------------
+   CARDS
+--------------------------------------------------- */
 .card {
   background: rgba(255, 255, 255, 0.87);
-  padding: 18px;
+  padding: 20px;
   border-radius: 16px;
   backdrop-filter: blur(10px);
-  margin: 16px 20px;
+  margin: 20px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-.row {
-  display: flex;
-  gap: 20px;
-  padding: 0 20px;
-}
-
-.module-box {
-  flex: 1;
-  min-height: auto !important;
-  height: auto !important;
-  padding: 0 !important;
-}
-
-/* -------------------------------------------------------
-   5. MODULE TITLES
--------------------------------------------------------- */
-.module-title,
-.module-header h2 {
-  margin: 0 0 10px 0;
-  font-family: "Cormorant Garamond", serif;
-  font-weight: 600;
-  font-size: 1.6rem;
-}
-
-/* -------------------------------------------------------
-   6. MAP
--------------------------------------------------------- */
-.map-wrapper {
-  margin-top: 10px;
-}
+/* ---------------------------------------------------
+   MAP
+--------------------------------------------------- */
+.map-wrapper { margin-top: 10px; }
 
 .map-container {
   width: 100%;
@@ -127,9 +104,46 @@ body {
   margin-top: 10px;
 }
 
-/* -------------------------------------------------------
-   7. WEATHER GRID BASE
--------------------------------------------------------- */
+/* ---------------------------------------------------
+   ROW LAYOUT
+--------------------------------------------------- */
+.row {
+  display: flex;
+  gap: 20px;
+  padding: 0 20px;
+  align-items: flex-start;
+}
+
+/* Each module box inside row */
+.module-box {
+  min-height: 200px;
+}
+
+/* ---------------------------------------------------
+   FIX WEATHER MODULE WIDTH
+--------------------------------------------------- */
+#paris-weather-module {
+  flex: 0 0 260px !important;   /* the narrow weather sidebar */
+  max-width: 260px !important;
+}
+
+#itinerary-module {
+  flex: 1 1 auto !important;    /* itinerary expands to fill rest */
+}
+
+/* ---------------------------------------------------
+   MODULE TITLES – Cormorant
+--------------------------------------------------- */
+.module-title {
+  margin: 0 0 10px 0;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  font-size: 1.6rem;
+}
+
+/* ---------------------------------------------------
+   WEATHER GRID (BASE)
+--------------------------------------------------- */
 .weather-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -140,9 +154,9 @@ body {
 .weather-day {
   background: #ffffff;
   border-radius: 14px;
-  padding: 10px 8px;
+  padding: 12px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .weather-day a {
@@ -168,13 +182,11 @@ body {
   opacity: 0.8;
 }
 
-/* -------------------------------------------------------
-   8. COMPACT WEATHER MODULE OVERRIDES
--------------------------------------------------------- */
+/* ---------------------------------------------------
+   COMPACT WEATHER MODULE OVERRIDES
+--------------------------------------------------- */
 #paris-weather-module.card {
-  padding: 12px 14px !important;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  padding: 14px 16px !important;
 }
 
 #paris-weather-module .module-header h2 {
@@ -183,23 +195,26 @@ body {
 
 #paris-weather-module .panel-subtitle {
   margin-top: 0;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-size: 0.82rem;
   opacity: 0.75;
 }
 
+/* smaller grid */
 #paris-weather-days.weather-grid {
   grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
   gap: 10px;
   margin-top: 4px;
 }
 
+/* smaller cards */
 #paris-weather-module .weather-day {
   padding: 8px 6px;
   border-radius: 10px;
   box-shadow: 0 1px 5px rgba(0,0,0,0.05);
 }
 
+/* smaller emoji */
 #paris-weather-module .weather-emoji {
   font-size: 1.4rem;
   margin-bottom: 2px;
