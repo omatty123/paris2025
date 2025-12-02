@@ -1,4 +1,6 @@
-/* Base */
+/* =============== */
+/*     BASE        */
+/* =============== */
 
 *,
 *::before,
@@ -21,9 +23,26 @@ h1, h2, h3, h4 {
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
-/* Cards and global layout */
+/* Ensure UI elements use the same font */
+button,
+input,
+.itinerary-card,
+.itinerary-card span,
+.add-item-input,
+.add-item-btn,
+.delete-btn,
+.small-btn,
+.secondary-btn {
+  font-family: inherit !important;
+}
+
+
+/* =============== */
+/*     CARDS       */
+/* =============== */
 
 .card {
   background: #ffffff;
@@ -34,7 +53,10 @@ a {
   max-width: 1100px;
 }
 
-/* Header */
+
+/* =============== */
+/*     HEADER      */
+/* =============== */
 
 .main-header {
   max-width: 1100px;
@@ -50,7 +72,7 @@ a {
 }
 
 .main-header h1 {
-  font-size: 2.1rem;
+  font-size: 2.3rem;
   letter-spacing: 0.03em;
 }
 
@@ -85,14 +107,16 @@ a {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  text-decoration: none;
 }
 
 .header-btn:hover {
   background: #f0e9df;
 }
 
-/* Map */
+
+/* =============== */
+/*       MAP       */
+/* =============== */
 
 .map-section .map-container {
   margin-top: 10px;
@@ -102,7 +126,7 @@ a {
 }
 
 .section-title {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -114,7 +138,10 @@ a {
   color: #7a7267;
 }
 
-/* Itinerary */
+
+/* =============== */
+/*   ITINERARY     */
+/* =============== */
 
 .itinerary-section {
   margin-top: 12px;
@@ -142,15 +169,16 @@ a {
   padding: 6px 14px;
   font-size: 0.9rem;
   cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
 }
 
 .secondary-btn:hover {
   background: #f0e9e0;
 }
 
-/* GitHub controls */
+
+/* =============== */
+/*   GITHUB + UI   */
+/* =============== */
 
 .github-controls {
   display: flex;
@@ -167,7 +195,6 @@ a {
   padding: 4px 10px;
   font-size: 0.8rem;
   cursor: pointer;
-  font-family: inherit;
 }
 
 .small-btn:hover {
@@ -180,57 +207,69 @@ a {
   min-height: 1em;
 }
 
-/* Itinerary layout */
+
+/* =============== */
+/*   TWO COLUMNS   */
+/* =============== */
 
 .itinerary-layout {
   display: flex;
+  gap: 24px;
+}
+
+/* Left column = Days (slightly wider) */
+.days-column {
+  flex: 0 0 52%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-/* Left: days column, right: Open Bin
-   Slightly widened, equal width */
-
-.days-column,
+/* Right column = Open Bin (sticky) */
 .open-bin-column {
   flex: 0 0 48%;
-  max-width: 440px;
+  max-width: 480px;
+  align-self: flex-start;
+  position: sticky;
+  top: 16px;
 }
 
-/* Day block */
+.open-bin-wrapper {
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+
+/* =============== */
+/*  DAY BLOCKS     */
+/* =============== */
 
 .day-column {
   background: #fbf9f6;
   border-radius: 16px;
-  padding: 10px 12px 8px;
+  padding: 12px 14px 10px;
   box-shadow: inset 0 0 0 1px #efe7dd;
-  margin-bottom: 12px;
 }
 
 .day-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
 .day-header h3,
 .day-header h4 {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   margin: 0;
 }
-
-.day-date-label {
-  font-weight: 600;
-}
-
-/* Add item */
 
 .add-item-container {
   display: flex;
   align-items: center;
   gap: 4px;
-  flex: 1;
 }
 
 .add-item-input {
@@ -238,24 +277,24 @@ a {
   min-width: 0;
   border-radius: 999px;
   border: 1px solid #dacfbf;
-  padding: 5px 9px;
-  font-size: 0.86rem;
+  padding: 6px 10px;
+  font-size: 0.9rem;
   background: #fff;
-  font-family: inherit;
 }
 
 .add-item-btn {
   border-radius: 999px;
   border: 1px solid #dacfbf;
-  background: #f2e9dd;
-  padding: 0 9px;
-  height: 26px;
+  background: #e9e1d6;
+  padding: 0 10px;
+  height: 28px;
   cursor: pointer;
-  font-size: 0.85rem;
-  font-family: inherit;
 }
 
-/* Lists and cards */
+
+/* =============== */
+/*     TOKENS      */
+/* =============== */
 
 .itinerary-list {
   margin-top: 4px;
@@ -263,14 +302,14 @@ a {
 
 .itinerary-card {
   background: #ffffff;
-  border-radius: 12px;
-  padding: 7px 9px;
+  border-radius: 14px;
+  padding: 9px 11px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.04);
-  margin-bottom: 5px;
-  font-size: 0.86rem;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  margin-bottom: 6px;
+  font-size: 0.94rem;
   cursor: grab;
 }
 
@@ -280,19 +319,17 @@ a {
 
 .card-text {
   flex: 1;
-  padding-right: 6px;
+  padding-right: 8px;
 }
 
 .delete-btn {
   border: none;
   border-radius: 999px;
   background: #f3ddd8;
-  width: 20px;
-  height: 20px;
-  font-size: 0.85rem;
+  width: 22px;
+  height: 22px;
+  font-size: 0.9rem;
   cursor: pointer;
-  flex-shrink: 0;
-  font-family: inherit;
 }
 
 .delete-btn:hover {
@@ -301,36 +338,13 @@ a {
 
 .itinerary-list.drag-over {
   outline: 2px dashed #c9b39a;
-  outline-offset: 3px;
-}
-
-/* Right: Open Bin (sticky on desktop) */
-
-.open-bin-column {
-  align-self: flex-start;
-  position: sticky;
-  top: 16px;
-}
-
-.open-bin-title {
-  font-size: 1.2rem;
-  margin-bottom: 2px;
-}
-
-.open-bin-subtitle {
-  font-size: 0.9rem;
-  color: #7d7166;
-  margin-bottom: 8px;
-}
-
-.open-bin-wrapper {
-  max-height: 520px;
-  overflow-y: auto;
+  outline-offset: 4px;
 }
 
 
-
-/* Footer */
+/* =============== */
+/*    FOOTER       */
+/* =============== */
 
 .page-footer {
   max-width: 1100px;
@@ -340,61 +354,31 @@ a {
   text-align: center;
 }
 
-/* Responsive */
 
-/* Mobile layout: columns become fixed-width cards in a horizontal scroller */
+/* =============== */
+/*   RESPONSIVE    */
+/* =============== */
 
 @media (max-width: 900px) {
-  .header-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .main-header h1 {
-    font-size: 1.8rem;
-  }
-
   .itinerary-layout {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 8px;
+    flex-direction: column;
   }
-
-  .days-column,
-  .open-bin-column {
-    flex: 0 0 320px;
-    max-width: 320px;
-  }
-
   .open-bin-column {
     position: static;
+    max-width: none;
   }
-
-  .map-section .map-container {
-    height: 320px;
-  }
-
-  .weather-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .days-column {
+    flex-basis: 100%;
+    max-width: none;
   }
 }
 
 @media (max-width: 600px) {
-  .card {
-    padding: 18px 16px 20px;
+  .main-header h1 {
+    font-size: 1.8rem;
   }
-
-  .main-header {
-    margin-top: 12px;
-  }
-
-  .header-buttons {
-    gap: 6px;
-  }
-
-  .header-btn {
-    font-size: 0.85rem;
-    padding: 6px 10px;
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
