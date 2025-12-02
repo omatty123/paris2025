@@ -1,5 +1,8 @@
-/* SYSTEM FONT STACK */
-body, button, input, p, a, li, h1, h2, h3 {
+/* LOAD CORMORANT GARAMOND */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
+
+/* SYSTEM FONT STACK (default everywhere) */
+body, button, input, p, a, li, h2, h3 {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -13,17 +16,31 @@ body {
   color: #222;
 }
 
+/* HEADER TITLE — CORMORANT GAR. */
+.main-header h1 {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 700;
+  font-size: 3rem;
+  letter-spacing: -0.4px;
+  margin-bottom: 0.4rem;
+}
+
+/* Subtitle also in Cormorant (matches screenshot look) */
+.subtitle {
+  margin-top: -8px;
+  opacity: 0.8;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+/* HEADER container */
 .main-header {
   padding: 20px 40px;
   background: rgba(255,255,255,0.85);
   border-radius: 20px;
   margin: 20px;
   backdrop-filter: blur(12px);
-}
-
-.subtitle {
-  margin-top: -8px;
-  opacity: 0.8;
 }
 
 .header-buttons {
@@ -90,9 +107,10 @@ body {
   min-height: 200px;
 }
 
-/* Module Headers */
+/* Module titles also in Cormorant */
 .module-title {
   margin: 0 0 10px 0;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 1.6rem;
+  font-family: "Cormorant Garamond", serif;
 }
