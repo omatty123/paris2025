@@ -1,60 +1,48 @@
-/* ===========================
-   Global base
-   =========================== */
+:root {
+  --bg: #f4f1ec;
+  --card-bg: #ffffff;
+  --accent: #2f4858;
+  --accent-soft: #e0d6c8;
+  --border-soft: #ddd3c5;
+  --text-main: #222222;
+  --text-muted: #5f5b52;
+}
+
+/* GLOBAL */
 
 * {
   box-sizing: border-box;
 }
 
-html, body {
+body {
   margin: 0;
   padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, #fdf9f3, #f0ece4);
+  color: var(--text-main);
 }
 
-body {
-  background: #f5f1e8; /* warm cream */
-  color: #2c2925;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
-  line-height: 1.5;
-}
-
-/* Links */
-
-a {
-  color: #2b4c7e;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* ===========================
-   Header
-   =========================== */
+/* HEADER */
 
 .main-header {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 20px 14px;
+  padding: 18px 24px 12px;
+  background: linear-gradient(to right, #fdfaf6, #f1ece4);
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .main-header h1 {
-  font-family: "Cormorant Garamond", "Times New Roman", serif;
+  margin: 0 0 4px;
+  font-family: "Cormorant Garamond", serif;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  font-size: 40px;
-  margin: 0 0 6px;
+  font-size: 28px;
+  letter-spacing: 0.04em;
 }
 
 .subtitle {
-  margin: 0 0 16px;
-  font-size: 15px;
-  color: #6a645b;
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 14px;
 }
-
-/* Header buttons row */
 
 .header-buttons {
   display: flex;
@@ -64,14 +52,16 @@ a:hover {
 }
 
 .header-btn {
+  border: 1px solid var(--border-soft);
+  background: #fffdf8;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
-  border-radius: 999px;
-  border: 1px solid #ddd0bd;
-  background: #fbf7ef;
   cursor: pointer;
 }
 
@@ -80,350 +70,229 @@ a:hover {
 }
 
 .header-btn:hover {
-  background: #f0e5d5;
-  text-decoration: none;
+  background: #f7f2ea;
 }
-
-/* Paris time badge */
 
 .paris-time {
   margin-left: auto;
   font-size: 13px;
-  color: #4d463f;
+  color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #f0e6d7;
 }
 
-/* ===========================
-   Card shell
-   =========================== */
-
-.card {
-  background: #fdfaf3;
-  border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  padding: 18px 18px 20px;
+.save-status {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
-/* Section wrapper widths */
+/* MAP */
 
-.map-wrapper,
-.row {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px 24px;
-}
-
-/* Map card */
-
-.map-wrapper .module-title {
-  font-family: "Cormorant Garamond", "Times New Roman", serif;
-  font-size: 22px;
-  font-weight: 600;
-  margin: 0 0 12px;
+.map-wrapper {
+  margin: 14px auto;
+  max-width: 1100px;
 }
 
 .map-container {
-  border-radius: 16px;
+  height: 260px;
+  border-radius: 12px;
   overflow: hidden;
-  height: 320px;
 }
 
-/* ===========================
-   Two column layout
-   =========================== */
+/* LAYOUT */
 
-.row {
+.layout {
+  max-width: 1100px;
+  margin: 0 auto 24px;
+  padding: 0 12px 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(260px, 1fr);
+  gap: 14px;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  padding: 12px 14px;
+  border: 1px solid rgba(210, 196, 176, 0.7);
+}
+
+.module-title {
+  margin: 0 0 6px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* ITINERARY */
+
+.itinerary-section {
+  min-height: 360px;
   display: flex;
-  gap: 22px;
+  flex-direction: column;
+}
+
+.itinerary-header {
+  display: flex;
   align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-.col-large {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+.itinerary-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
 }
-
-.col-small {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.sidebar-stack {
-  position: sticky;
-  top: 10px;
-}
-
-/* Module shell inside cards */
-
-.module-box {
-  min-height: 120px;
-}
-
-/* Generic module titles */
-
-.module-box h2,
-.module-box h3 {
-  font-family: "Cormorant Garamond", "Times New Roman", serif;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-/* ===========================
-   Itinerary planner styles
-   =========================== */
-
-#itinerary-board-container {
-  padding: 4px;
-}
-
-#itinerary-board-container h2 {
-  margin: 0 0 10px;
-  font-family: "Cormorant Garamond", "Times New Roman", serif;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-/* Controls */
 
 .itinerary-controls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.itinerary-controls button {
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid #d2c5af;
-  background: #f8efe1;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.itinerary-controls button:hover {
-  background: #f0e3cf;
-}
-
-/* Board */
-
-#itinerary-board {
-  display: flex;
-  flex-direction: row;
-  gap: 14px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-}
-
-/* scrollbar */
-
-#itinerary-board::-webkit-scrollbar {
-  height: 8px;
-}
-
-#itinerary-board::-webkit-scrollbar-thumb {
-  background: #d0c3af;
-  border-radius: 999px;
-}
-
-#itinerary-board::-webkit-scrollbar-track {
-  background: #f4ebdd;
-}
-
-/* Column card */
-
-.itinerary-col {
-  background: #fffdf6;
-  border-radius: 14px;
-  padding: 10px;
-  min-width: 240px;
-  max-width: 260px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* Column header row */
-
-.itinerary-col-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.itinerary-col-header span {
-  font-size: 15px;
-  font-weight: 600;
-  color: #3e352c;
-}
-
-.add-item-btn {
-  border: none;
-  background: #efe3d1;
-  border-radius: 999px;
-  padding: 3px 8px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.add-item-btn:hover {
-  background: #e3d4be;
-}
-
-/* Card list */
-
-.itinerary-card-list {
-  display: flex;
-  flex-direction: column;
   gap: 6px;
 }
 
-.itinerary-card-list.drag-over {
-  outline: 2px dashed #c7aa74;
-  outline-offset: 3px;
-  border-radius: 10px;
-  padding: 6px;
-}
-
-/* Single itinerary card */
-
-.itinerary-card {
-  background: #faf4e8;
-  border-radius: 10px;
-  padding: 7px 9px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: grab;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-}
-
-.itinerary-card span {
-  font-size: 13px;
-  color: #43382e;
-  margin-right: 6px;
-}
-
-.itinerary-card:hover {
-  background: #f3ebdf;
-}
-
-.del-btn {
-  border: none;
-  background: #e0d2c0;
+.small-btn {
   border-radius: 999px;
-  padding: 2px 7px;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.del-btn:hover {
-  background: #cfbfa9;
-}
-
-/* ===========================
-   Weather and flight modules
-   =========================== */
-
-#paris-weather-module h2,
-#flight-weather-module h2,
-#flight-status-module h2 {
-  margin-top: 0;
-  margin-bottom: 6px;
-  font-size: 20px;
-}
-
-#paris-weather-module p,
-#flight-weather-module p,
-#flight-status-module p,
-#flight-status-module li,
-#flight-weather-module li {
-  font-size: 13px;
-  color: #51473d;
-}
-
-/* Tables inside flight status */
-
-#flight-status-module table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
+  border: 1px solid var(--border-soft);
+  background: #f7f2ea;
   font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-#flight-status-module th,
-#flight-status-module td {
-  padding: 4px 4px;
-  border-bottom: 1px solid #e1d5c4;
-  text-align: left;
+.small-btn:hover {
+  background: #efe4d5;
 }
 
-/* Emphasis text */
+.itinerary-board {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
 
-strong {
+.itinerary-column {
+  min-width: 220px;
+  max-width: 260px;
+  background: #faf6ef;
+  border-radius: 12px;
+  padding: 8px;
+  border: 1px solid rgba(210, 196, 176, 0.8);
+  display: flex;
+  flex-direction: column;
+}
+
+.itinerary-column-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.itinerary-column-title {
+  margin: 0;
+  font-size: 14px;
   font-weight: 600;
 }
 
-/* ===========================
-   Responsiveness
-   =========================== */
-
-@media (max-width: 900px) {
-  .main-header {
-    padding: 18px 16px 10px;
-  }
-
-  .main-header h1 {
-    font-size: 32px;
-  }
-
-  .row {
-    flex-direction: column;
-  }
-
-  .sidebar-stack {
-    position: static;
-  }
-
-  .map-wrapper,
-  .row {
-    padding: 0 16px 20px;
-  }
+.itinerary-column-meta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
-@media (max-width: 600px) {
-  .header-buttons {
-    gap: 6px;
-  }
+.itinerary-column-body {
+  flex: 1;
+  min-height: 40px;
+}
 
-  .header-btn {
-    font-size: 12px;
-    padding: 5px 10px;
+.itinerary-item {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  cursor: grab;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.itinerary-item:active {
+  cursor: grabbing;
+}
+
+.itinerary-item-delete {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #b16b5f;
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  cursor: pointer;
+}
+
+.itinerary-add-item {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 4px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.itinerary-add-item:hover {
+  color: var(--accent);
+}
+
+/* Drag targets */
+
+.itinerary-column-body.drag-over {
+  outline: 2px dashed rgba(120, 91, 71, 0.7);
+  outline-offset: 2px;
+}
+
+/* SIDE PANEL */
+
+.side-panel {
+  font-size: 13px;
+}
+
+.side-note {
+  margin-top: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.side-list {
+  padding-left: 18px;
+  margin-top: 6px;
+  color: var(--text-main);
+}
+
+.side-list li {
+  margin-bottom: 4px;
+}
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .paris-time {
     margin-left: 0;
   }
 
-  .map-container {
-    height: 260px;
-  }
-
-  #itinerary-board {
-    padding-bottom: 6px;
-  }
-
-  .itinerary-col {
-    min-width: 210px;
+  .header-buttons {
+    gap: 6px;
   }
 }
