@@ -3,85 +3,167 @@
   <p class="panel-subtitle">Today + next 5 days • Central Paris</p>
 </div>
 
-<div id="paris-weather-days" style="padding-top:0.5rem;">Loading weather…</div>
+<div id="paris-weather-container" class="pwx-container">
+  <div id="pwx-current" class="pwx-current">Loading…</div>
+  <div id="pwx-forecast" class="pwx-forecast"></div>
+</div>
 
 <style>
-.forecast-row {
-  display: grid;
-  grid-template-columns: 95px 40px 1fr;
-  align-items: center;
-  padding: 0.35rem 0;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 0.9rem;
+/* --- Paris weather layout (compact like screenshot) --- */
+
+.pwx-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1.25rem;
+  align-items: flex-start;
 }
-.forecast-row:hover {
-  background: #f3f4f6;
+
+.pwx-current {
+  min-width: 160px;
+  padding-top: 0.1rem;
+}
+
+.pwx-current-temp {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.pwx-current-cond {
+  font-size: 1rem;
+  margin-bottom: 0.15rem;
+  color: #4b5563;
+}
+
+.pwx-current-loc {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Horizontal forecast bar */
+
+.pwx-forecast {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pwx-day {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  width: 95px;
+  text-align: center;
+  font-size: 0.75rem;
   cursor: pointer;
+  transition: background 0.15s;
 }
-.forecast-date {
-  font-weight: 600;
+
+.pwx-day:hover {
+  background: #eef2f7;
+}
+
+.pwx-day-name {
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 0.15rem;
+}
+
+.pwx-icon {
+  font-size: 1.2rem;
+  margin-bottom: 0.1rem;
+}
+
+.pwx-temps {
+  font-size: 0.75rem;
+  color: #374151;
 }
 </style>
 
 <script>
-// --- PARIS WEATHER (compact version with links) ---
+// --- Paris Weather Module (Open-Meteo, dual units, screenshot layout) ---
+
+function wxIcon(code) {
+  if (code === 0) return "☀️";
+  if (code <= 3) return "⛅";
+  if (code <= 48) return "🌫️";
+  if (code <= 65) return "🌧️";
+  if (code <= 82) return "🌦️";
+  if (code <= 95) return "⛈️";
+  return "🌩️";
+}
+
+function toF(c) { return Math.round((c * 9) / 5 + 32); }
+function toC(c) { return Math.round(c); }
 
 async function loadParisWeather() {
-  const container = document.getElementById("paris-weather-days");
-  container.textContent = "Loading…";
-
-  const url =
-    "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
+  const cur = document.getElementById("pwx-current");
+  const forecast = document.getElementById("pwx-forecast");
 
   try {
+    const url =
+      "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
+
     const res = await fetch(url);
     const data = await res.json();
 
-    const days = data.daily;
-    const out = [];
+    const cw = data.current_weather;
+    const daily = data.daily;
 
-    const icon = code => {
-      if (code === 0) return "☀️";
-      if (code <= 3) return "⛅";
-      if (code <= 48) return "🌫️";
-      if (code <= 65) return "🌧️";
-      if (code <= 82) return "🌦️";
-      if (code <= 95) return "⛈️";
-      return "🌩️";
-    };
+    // --- Current weather block ---
+    const f = toF(cw.temperature);
+    const c = toC(cw.temperature);
 
-    // Convert YYYY-MM-DD → "Tue 2 Dec"
-    const fmt = iso => {
-      const d = new Date(iso);
-      return d.toLocaleDateString("en-US", {
-        weekday: "short",
-        day: "numeric",
-        month: "short"
-      });
-    };
+    cur.innerHTML = `
+      <div class="pwx-current-temp">${f}°F / ${c}°C</div>
+      <div class="pwx-current-cond">${cw.weathercode <= 3 ? "Clear / Cloudy" :
+        cw.weathercode <= 48 ? "Mist" :
+        cw.weathercode <= 65 ? "Rain" :
+        cw.weathercode <= 82 ? "Showers" :
+        cw.weathercode <= 95 ? "Storms" : "Weather"}
+      </div>
+      <div class="pwx-current-loc">CDG area</div>
+    `;
 
-    for (let i = 0; i < 6; i++) {
-      const raw = days.time[i];
-      const searchDate = new Date(raw);
-      const googleDate =
-        `${searchDate.toLocaleString("default",{month:"short"})}+`
-        + `${searchDate.getDate()}+`
-        + `${searchDate.getFullYear()}`;
+    // --- Forecast bar ---
+    const rows = [];
+    for (let i = 0; i < 5; i++) {
+      const raw = daily.time[i];
+      const dateObj = new Date(raw);
 
-      const link = `https://www.google.com/search?q=paris+weather+${googleDate}`;
+      const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
 
-      out.push(`
-        <div class="forecast-row" onclick="window.open('${link}','_blank')">
-          <div class="forecast-date">${fmt(raw)}</div>
-          <div>${icon(days.weathercode[i])}</div>
-          <div>${Math.round(days.temperature_2m_min[i])}°F / ${Math.round(days.temperature_2m_max[i])}°F</div>
+      const code = daily.weathercode[i];
+      const icon = wxIcon(code);
+
+      // Temps
+      const maxC = daily.temperature_2m_max[i];
+      const minC = daily.temperature_2m_min[i];
+      const maxF = toF(maxC);
+      const minF = toF(minC);
+
+      // Google weather link for the day
+      const gDate =
+        `${dateObj.toLocaleString("default",{month:"short"})}+`
+        + `${dateObj.getDate()}+${dateObj.getFullYear()}`;
+      const link = `https://www.google.com/search?q=paris+weather+${gDate}`;
+
+      rows.push(`
+        <div class="pwx-day" onclick="window.open('${link}', '_blank')">
+          <div class="pwx-day-name">${dayName}</div>
+          <div class="pwx-icon">${icon}</div>
+          <div class="pwx-temps">${minF}°/${maxF}°F<br>${minC}°/${maxC}°C</div>
         </div>
       `);
     }
 
-    container.innerHTML = out.join("");
+    forecast.innerHTML = rows.join("");
+
   } catch (err) {
-    container.textContent = "Error loading Paris weather.";
+    cur.innerHTML = "Error loading weather.";
+    forecast.innerHTML = "";
   }
 }
 
