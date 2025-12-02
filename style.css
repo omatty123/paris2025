@@ -41,6 +41,7 @@ body {
   margin-bottom: 0.3rem;
 }
 
+/* SUBTITLE – Cormorant */
 .subtitle {
   margin-top: -8px;
   opacity: 0.8;
@@ -95,7 +96,9 @@ body {
 /* ---------------------------------------------------
    MAP
 --------------------------------------------------- */
-.map-wrapper { margin-top: 10px; }
+.map-wrapper {
+  margin-top: 10px;
+}
 
 .map-container {
   width: 100%;
@@ -114,21 +117,28 @@ body {
   align-items: flex-start;
 }
 
-/* Each module box inside row */
+/* Column wrappers */
+.col-large {
+  flex: 1 1 auto;
+  display: flex;
+}
+
+.col-small {
+  flex: 0 0 260px;
+  max-width: 260px;
+  display: flex;
+}
+
+/* Make inner card fill its column */
+.col-large .card,
+.col-small .card {
+  width: 100%;
+  margin: 20px 0; /* remove extra side margin; row already has padding */
+}
+
+/* Keep generic module box minimum height */
 .module-box {
   min-height: 200px;
-}
-
-/* ---------------------------------------------------
-   FIX WEATHER MODULE WIDTH
---------------------------------------------------- */
-#paris-weather-module {
-  flex: 0 0 260px !important;   /* the narrow weather sidebar */
-  max-width: 260px !important;
-}
-
-#itinerary-module {
-  flex: 1 1 auto !important;    /* itinerary expands to fill rest */
 }
 
 /* ---------------------------------------------------
@@ -186,9 +196,10 @@ body {
    COMPACT WEATHER MODULE OVERRIDES
 --------------------------------------------------- */
 #paris-weather-module.card {
-  padding: 14px 16px !important;
+  padding: 14px 16px;
 }
 
+/* module header inside weather module (if present) */
 #paris-weather-module .module-header h2 {
   margin-bottom: 4px;
 }
@@ -200,7 +211,7 @@ body {
   opacity: 0.75;
 }
 
-/* smaller grid */
+/* smaller grid in sidebar */
 #paris-weather-days.weather-grid {
   grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
   gap: 10px;
@@ -228,4 +239,24 @@ body {
 #paris-weather-module .weather-temps {
   font-size: 0.75rem;
   opacity: 0.65;
+}
+
+/* ---------------------------------------------------
+   RESPONSIVE TWEAKS
+--------------------------------------------------- */
+@media (max-width: 900px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .col-large,
+  .col-small {
+    max-width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .col-large .card,
+  .col-small .card {
+    margin: 10px 0;
+  }
 }
