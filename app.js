@@ -1,38 +1,106 @@
-/* --- WEATHER GRID (simple row) --- */
-.weather-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
-  margin-top: 10px;
+// app.js
+// Paris time + simple 6-day weather (today + 5).
+
+// Paris time
+function updateParisTime() {
+  const el = document.getElementById("parisTime");
+  if (!el) return;
+
+  const now = new Date();
+  const opts = {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Paris",
+    hour12: false
+  };
+  const timeStr = new Intl.DateTimeFormat("en-GB", opts).format(now);
+  el.textContent = `Paris time: ${timeStr}`;
 }
 
-.weather-day {
-  background: white;
-  border-radius: 14px;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  color: #222;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.10);
-  transition: transform 0.15s ease;
+updateParisTime();
+setInterval(updateParisTime, 30_000);
+
+// Weather
+
+function iconForCode(code) {
+  if (code === 0) return "☀️";
+  if (code === 1) return "🌤️";
+  if (code === 2) return "⛅";
+  if (code === 3) return "☁️";
+  if (code === 45 || code === 48) return "🌫️";
+  if ([51, 53, 55].includes(code)) return "🌦️";
+  if ([61, 63, 65, 80, 81, 82].includes(code)) return "🌧️";
+  if ([71, 73, 75, 85, 86].includes(code)) return "❄️";
+  if ([95, 96, 99].includes(code)) return "⛈️";
+  return "🌡️";
 }
 
-.weather-day:hover {
-  transform: translateY(-3px);
+async function loadParisWeather() {
+  const container = document.getElementById("paris-weather-days");
+  if (!container) return;
+
+  const baseUrl =
+    "https://api.open-meteo.com/v1/forecast" +
+    "?latitude=48.8566&longitude=2.3522" +
+    "&daily=weathercode,temperature_2m_max,temperature_2m_min" +
+    "&timezone=Europe%2FParis";
+
+  async function fetchWeather(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("Weather HTTP " + res.status);
+    return res.json();
+  }
+
+  let data;
+  try {
+    data = await fetchWeather(baseUrl);
+  } catch (e) {
+    // Simple proxy fallback (may or may not be needed depending on network)
+    const proxy =
+      "https://cors-proxy.api.exponential-hub.workers.dev/?" + baseUrl;
+    try {
+      data = await fetchWeather(proxy);
+    } catch (err) {
+      container.textContent = "Could not load weather.";
+      console.error(err);
+      return;
+    }
+  }
+
+  container.innerHTML = "";
+
+  const days = data.daily.time;
+  const codes = data.daily.weathercode;
+  const tmax = data.daily.temperature_2m_max;
+  const tmin = data.daily.temperature_2m_min;
+
+  // Today + next 5
+  for (let i = 0; i < 6 && i < days.length; i++) {
+    const d = new Date(days[i]);
+    const label = d.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric"
+    });
+    const icon = iconForCode(codes[i]);
+    const hi = Math.round(tmax[i]);
+    const lo = Math.round(tmin[i]);
+
+    const link =
+      "https://www.meteofrance.com/previsions-meteo-france/paris-75000?day=" +
+      d.toISOString().slice(0, 10);
+
+    const card = document.createElement("div");
+    card.className = "weather-day";
+    card.innerHTML = `
+      <a href="${link}" target="_blank" rel="noopener noreferrer">
+        <div class="weather-emoji">${icon}</div>
+        <div class="weather-date">${label}</div>
+        <div class="weather-temps">${hi}° / ${lo}°C</div>
+      </a>
+    `;
+    container.appendChild(card);
+  }
 }
 
-.weather-emoji {
-  font-size: 32px;
-  margin-bottom: 6px;
-}
-
-.weather-date {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.weather-temps {
-  font-size: 13px;
-  opacity: 0.75;
-  margin-top: 2px;
-}
+loadParisWeather();
