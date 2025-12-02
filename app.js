@@ -5,7 +5,7 @@
 // GitHub config (for saving itinerary.json)
 const GITHUB_OWNER = "omatty123";
 const GITHUB_REPO = "paris2025";
-const GITHUB_BRANCH = "main"; // change if repo uses "master"
+const GITHUB_BRANCH = "main";
 const GITHUB_FILE_PATH = "data/itinerary.json";
 
 const STORAGE_TOKEN_KEY = "paris25_github_token";
@@ -40,7 +40,7 @@ const INITIAL_BOARD = {
         "Metro to Bastille",
         "Walk the Coulée Verte",
         "Drink at Le Train Bleu",
-        "Dinner at Afrik’N’Fusion",
+        "Dinner at Afrik'N'Fusion",
         "Walk home"
       ]
     },
@@ -55,7 +55,7 @@ const INITIAL_BOARD = {
         "Pont Neuf and Pont des Arts",
         "Jardin du Luxembourg",
         "Huitrerie Regis",
-        "Musée d’Orsay",
+        "Musée d'Orsay",
         "Chez Gladines"
       ]
     },
@@ -500,82 +500,40 @@ async function initBoard() {
 }
 
 // ===============================
-// WEATHER (TRIP DATES ONLY)
+// MODULE LOADER
 // ===============================
 
-function parisWeatherIcon(code) {
-  if (code === 0) return "☀️";
-  if (code === 1) return "🌤️";
-  if (code === 2) return "⛅";
-  if (code === 3) return "☁️";
-  if (code === 45 || code === 48) return "🌫️";
-  if ([51, 53, 55].includes(code)) return "🌦️";
-  if ([61, 63, 65, 80, 81, 82].includes(code)) return "🌧️";
-  if ([71, 73, 75, 85, 86].includes(code)) return "❄️";
-  if ([95, 96, 99].includes(code)) return "⛈️";
-  return "🌡️";
-}
-
-async function loadParisWeather() {
-  const container = document.getElementById("paris-weather-days");
-  if (!container) return;
-
-  const base =
-    "https://api.open-meteo.com/v1/forecast" +
-    "?latitude=48.8566&longitude=2.3522" +
-    "&daily=weathercode,temperature_2m_max,temperature_2m_min" +
-    "&timezone=Europe%2FParis" +
-    "&start_date=" +
-    TRIP_START +
-    "&end_date=" +
-    TRIP_END;
-
-  let data;
-  try {
-    const res = await fetch(base, { cache: "no-store" });
-    data = await res.json();
-  } catch (e) {
-    console.error("Weather fetch error:", e);
-    container.innerHTML = "<p>Weather unavailable.</p>";
-    return;
-  }
-
-  if (!data || !data.daily) {
-    container.innerHTML = "<p>Weather unavailable.</p>";
-    return;
-  }
-
-  container.innerHTML = "";
-
-  const { time, weathercode, temperature_2m_max, temperature_2m_min } =
-    data.daily;
-
-  for (let i = 0; i < time.length; i++) {
-    const d = new Date(time[i]);
-    const pretty = d.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric"
-    });
-
-    const icon = parisWeatherIcon(weathercode[i]);
-    const hi = Math.round(temperature_2m_max[i]);
-    const lo = Math.round(temperature_2m_min[i]);
-
-    const link =
-      "https://www.meteofrance.com/previsions-meteo-france/paris-75000?day=" +
-      d.toISOString().slice(0, 10);
-
-    const card = document.createElement("div");
-    card.className = "weather-day";
-    card.innerHTML = `
-      <a href="${link}" target="_blank">
-        <div class="weather-emoji">${icon}</div>
-        <div class="weather-date">${pretty}</div>
-        <div class="weather-temps">${hi}° / ${lo}°C</div>
-      </a>
-    `;
-    container.appendChild(card);
+async function loadModules() {
+  const modules = document.querySelectorAll('[data-module]');
+  
+  for (const moduleEl of modules) {
+    const modulePath = moduleEl.getAttribute('data-module');
+    if (!modulePath) continue;
+    
+    try {
+      const response = await fetch(modulePath);
+      if (response.ok) {
+        const html = await response.text();
+        moduleEl.innerHTML = html;
+        
+        // Execute any scripts in the loaded module
+        const scripts = moduleEl.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+          const newScript = document.createElement('script');
+          Array.from(oldScript.attributes).forEach(attr => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+          newScript.textContent = oldScript.textContent;
+          oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+        
+        console.log('✓ Loaded module:', modulePath);
+      } else {
+        console.error('Failed to load module:', modulePath, response.status);
+      }
+    } catch (error) {
+      console.error('Error loading module:', modulePath, error);
+    }
   }
 }
 
@@ -583,10 +541,13 @@ async function loadParisWeather() {
 // BOOTSTRAP
 // ===============================
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   updateParisTime();
   setInterval(updateParisTime, 30000);
 
+  // Load all modules first
+  await loadModules();
+  
+  // Then initialize itinerary board
   initBoard();
-  loadParisWeather();
 });
