@@ -2,72 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Paris December 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Fonts -->
+  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <!-- Global Styles -->
-  <link rel="stylesheet" href="style.css" charset="UTF-8" />
-
-  <!-- FORCE UTF-8 on all linked resources -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll("script, link").forEach(t => {
-        if (!t.getAttribute("charset")) t.setAttribute("charset", "UTF-8");
-      });
-    });
-  </script>
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-
   <!-- HEADER -->
   <header class="main-header">
-    <h1>Paris December 2025</h1>
-    <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
-
-    <div class="header-buttons">
-
-      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
-        <i class="fas fa-route"></i> RATP directions
-      </a>
-
-      <a class="header-btn" href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris" target="_blank">
-        <i class="fas fa-map-pin"></i> Open home in Maps
-      </a>
-
-      <button class="header-btn" onclick="scrollToModule('paris-weather-module')">
-        <i class="fas fa-cloud-sun"></i> Paris weather
-      </button>
-
-      <button class="header-btn" onclick="scrollToModule('flight-weather-module')">
-        <i class="fas fa-plane-departure"></i> Flight weather
-      </button>
-
+    <div class="header-top">
+      <div>
+        <h1>Paris December 2025</h1>
+        <p class="subtitle">
+          December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton
+        </p>
+      </div>
       <div class="paris-time">
         <i class="fas fa-clock"></i>
         <span id="parisTime">Paris time: --:--</span>
       </div>
+    </div>
 
+    <div class="header-buttons">
+      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
+        <i class="fas fa-route"></i> RATP directions
+      </a>
+      <a class="header-btn"
+         href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
+         target="_blank">
+        <i class="fas fa-map-pin"></i> Open home in Maps
+      </a>
     </div>
   </header>
 
-
-  <!-- GOOGLE MAP -->
-  <section class="map-wrapper card">
-    <h2 class="module-title">Home Base</h2>
+  <!-- MAP -->
+  <section class="card map-section">
+    <h2 class="section-title"><i class="fas fa-house-chimney"></i> Home base</h2>
+    <p class="section-subtitle">7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement</p>
     <div class="map-container">
       <iframe
         width="100%"
         height="100%"
-        style="border:0; border-radius:12px;"
+        style="border:0; border-radius: 16px;"
         loading="lazy"
         allowfullscreen
         referrerpolicy="no-referrer-when-downgrade"
@@ -76,260 +63,151 @@
     </div>
   </section>
 
-
   <!-- MAIN LAYOUT -->
-  <section class="row">
-
-    <!-- LEFT SIDE: ITINERARY -->
-    <div class="col-large">
-      <!-- Replace the itinerary-module div with this: -->
-<div id="itinerary-module" class="card module-box">
-  <h2 class="module-title">
-    <i class="fas fa-calendar-days"></i> Travel Itinerary
-  </h2>
-  
-  <div class="itinerary-controls">
-    <button id="githubModeBtn" class="control-btn github-btn">
-      <i class="fab fa-github"></i> Setup GitHub Token
-    </button>
-    <span id="saveStatus" style="color: #666; font-size: 0.9em; margin-left: 10px;">Loading...</span>
-  </div>
-
-  <div class="itinerary-layout">
-    <!-- Left: Day columns stacked vertically -->
-    <div class="itinerary-days-stack">
-      <div id="itineraryBoard"></div>
-    </div>
-    
-    <!-- Right: Open bin -->
-    <div class="itinerary-open-bin-wrapper">
-      <div class="itinerary-column-header">
-        <h3 class="itinerary-column-title">Open Bin</h3>
-        <p class="itinerary-column-meta">Unassigned items</p>
-      </div>
-      <div id="openBinColumn" class="itinerary-column-body"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Add this CSS for the itinerary layout -->
-<style>
-.itinerary-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.control-btn {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
-  font-size: 0.9em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.control-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.control-btn.github-btn {
-  background: linear-gradient(135deg, #24292e 0%, #444d56 100%);
-}
-
-.control-btn.github-btn:hover {
-  box-shadow: 0 4px 12px rgba(36, 41, 46, 0.4);
-}
-
-.itinerary-layout {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 20px;
-}
-
-.itinerary-days-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-#itineraryBoard {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.itinerary-column {
-  background: #f8f9fa;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
-
-.itinerary-column-header {
-  padding: 15px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.itinerary-column-title {
-  margin: 0;
-  font-size: 1.2em;
-  font-weight: 600;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.itinerary-column-meta {
-  margin: 4px 0 0 0;
-  font-size: 0.85em;
-  opacity: 0.9;
-}
-
-.itinerary-column-body {
-  padding: 12px;
-  min-height: 80px;
-  transition: background 0.3s;
-}
-
-.itinerary-column-body.drag-over {
-  background: rgba(102, 126, 234, 0.1);
-  border: 2px dashed #667eea;
-}
-
-.itinerary-item {
-  background: white;
-  border: 1px solid #e1e8ed;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  cursor: move;
-  transition: all 0.2s;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  position: relative;
-}
-
-.itinerary-item:hover {
-  border-color: #667eea;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  transform: translateX(2px);
-}
-
-.itinerary-item-delete {
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: 50%;
-  background: #ff6b6b;
-  color: white;
-  font-size: 1.1em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1;
-  margin-left: 10px;
-  flex-shrink: 0;
-}
-
-.itinerary-item-delete:hover {
-  background: #ff5252;
-  transform: scale(1.15);
-}
-
-.itinerary-add-item {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border: 2px dashed #ddd;
-  border-radius: 8px;
-  background: white;
-  color: #667eea;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.itinerary-add-item:hover {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
-}
-
-.itinerary-open-bin-wrapper {
-  background: #f8f9fa;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  max-height: 600px;
-  display: flex;
-  flex-direction: column;
-}
-
-#openBinColumn {
-  overflow-y: auto;
-  flex: 1;
-}
-
-@media (max-width: 1024px) {
-  .itinerary-layout {
-    grid-template-columns: 1fr;
-  }
-  
-  .itinerary-open-bin-wrapper {
-    max-height: 400px;
-  }
-}
-</style>
-
-      <div id="flight-weather-module"
-        class="card module-box"
-        data-module="modules/flight-weather.html">
-      </div>
-    </div>
-
-    <!-- RIGHT SIDE: WEATHER + FLIGHT STATUS -->
-    <div class="col-small sidebar-stack">
-
-      <div id="paris-weather-module"
-        class="card module-box"
-        data-module="modules/paris-weather.html">
+  <main class="main-layout">
+    <!-- LEFT: ITINERARY -->
+    <section class="card itinerary-panel">
+      <div class="panel-header">
+        <div>
+          <h2 class="section-title">
+            <i class="fas fa-suitcase-rolling"></i> Itinerary planner
+          </h2>
+          <p class="section-subtitle">
+            Drag to reorder · Add or delete items · Saved locally and can sync to GitHub
+          </p>
+        </div>
+        <div class="itinerary-actions">
+          <button class="secondary-btn" onclick="window.itineraryApp.resetToDefaults()">
+            Reset to defaults
+          </button>
+          <button class="secondary-btn" onclick="window.itineraryApp.exportItinerary()">
+            Export JSON
+          </button>
+        </div>
       </div>
 
-      <div id="flight-status-module"
-        class="card module-box"
-        data-module="modules/flight-status.html">
+      <div id="github-status" class="github-status"></div>
+
+      <div id="itinerary-board" class="itinerary-board">
+        <!-- itinerary.js will render columns here -->
+      </div>
+    </section>
+
+    <!-- RIGHT: WEATHER -->
+    <aside class="card sidebar-panel">
+      <div class="panel-header">
+        <h2 class="section-title">
+          <i class="fas fa-cloud-sun-rain"></i> Paris weather
+        </h2>
+        <p class="section-subtitle">
+          Today + next 5 days · Open-Meteo · Tap for full forecast
+        </p>
       </div>
 
-    </div>
+      <div id="paris-weather-days" class="weather-grid">
+        <p>Loading…</p>
+      </div>
+    </aside>
+  </main>
 
-  </section>
+  <!-- FOOTER -->
+  <footer class="page-footer">
+    <p>Built for Dominica’s Paris 2025 trip · Matty’s planner</p>
+  </footer>
 
-  <script src="app.js" charset="UTF-8"></script>
-
+  <!-- SCRIPTS -->
   <script>
-    function scrollToModule(id) {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+    // Paris time
+    function updateParisTime() {
+      const el = document.getElementById("parisTime");
+      if (!el) return;
+      const now = new Date();
+      const time = now.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Europe/Paris"
+      });
+      el.textContent = "Paris time: " + time;
     }
+    updateParisTime();
+    setInterval(updateParisTime, 30000);
   </script>
 
+  <!-- Paris weather (based on your previous module) -->
+  <script>
+    function parisWeatherIcon(code) {
+      if (code === 0) return "☀️";
+      if (code === 1) return "🌤️";
+      if (code === 2) return "⛅";
+      if (code === 3) return "☁️";
+      if (code === 45 || code === 48) return "🌫️";
+      if ([51, 53, 55].includes(code)) return "🌦️";
+      if ([61, 63, 65, 80, 81, 82].includes(code)) return "🌧️";
+      if ([71, 73, 75, 85, 86].includes(code)) return "❄️";
+      if ([95, 96, 99].includes(code)) return "⛈️";
+      return "🌡️";
+    }
+
+    async function loadParisWeather() {
+      const url =
+        "https://api.open-meteo.com/v1/forecast" +
+        "?latitude=48.8566&longitude=2.3522" +
+        "&daily=weathercode,temperature_2m_max,temperature_2m_min" +
+        "&timezone=Europe%2FParis";
+
+      let data;
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        data = await res.json();
+      } catch (e) {
+        const proxy =
+          "https://cors-proxy.api.exponential-hub.workers.dev/?" + url;
+        const res = await fetch(proxy);
+        data = await res.json();
+      }
+
+      const container = document.getElementById("paris-weather-days");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const days = data.daily.time;
+      const codes = data.daily.weathercode;
+      const tmax = data.daily.temperature_2m_max;
+      const tmin = data.daily.temperature_2m_min;
+
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(days[i]);
+        const pretty = d.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric"
+        });
+
+        const icon = parisWeatherIcon(codes[i]);
+        const hi = Math.round(tmax[i]);
+        const lo = Math.round(tmin[i]);
+
+        const link =
+          "https://www.meteofrance.com/previsions-meteo-france/paris-75000?day=" +
+          d.toISOString().slice(0, 10);
+
+        const card = document.createElement("div");
+        card.className = "weather-day";
+        card.innerHTML = `
+          <a href="${link}" target="_blank">
+            <div class="weather-emoji">${icon}</div>
+            <div class="weather-date">${pretty}</div>
+            <div class="weather-temps">${hi}° / ${lo}°C</div>
+          </a>
+        `;
+        container.appendChild(card);
+      }
+    }
+
+    loadParisWeather();
+  </script>
+
+  <!-- Your existing itinerary logic -->
+  <script src="itinerary.js"></script>
 </body>
 </html>
