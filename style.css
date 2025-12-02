@@ -1,7 +1,11 @@
-/* LOAD CORMORANT GAR. */
+/* -------------------------------------------------------
+   1. CORMORANT GARAMOND
+-------------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
 
-/* SYSTEM FONT STACK */
+/* -------------------------------------------------------
+   2. GLOBAL FONT STACK
+-------------------------------------------------------- */
 body, button, input, p, a, li {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -16,7 +20,9 @@ body {
   color: #222;
 }
 
-/* MAIN HEADER PANEL */
+/* -------------------------------------------------------
+   3. HEADER
+-------------------------------------------------------- */
 .main-header {
   padding: 20px 40px;
   background: rgba(255,255,255,0.85);
@@ -25,7 +31,6 @@ body {
   backdrop-filter: blur(12px);
 }
 
-/* MAIN TITLE — CORMORANT GAR. */
 .main-header h1 {
   font-family: "Cormorant Garamond", serif;
   font-weight: 700;
@@ -34,7 +39,6 @@ body {
   margin-bottom: 0.3rem;
 }
 
-/* SUBTITLE — CORMORANT GAR. */
 .subtitle {
   margin-top: -8px;
   opacity: 0.8;
@@ -42,7 +46,6 @@ body {
   font-size: 1.25rem;
 }
 
-/* HEADER BUTTONS */
 .header-buttons {
   margin-top: 12px;
   display: flex;
@@ -74,17 +77,45 @@ body {
   align-items: center;
 }
 
-/* CARDS */
+/* -------------------------------------------------------
+   4. CARDS / MODULE BOXES
+-------------------------------------------------------- */
 .card {
   background: rgba(255, 255, 255, 0.87);
-  padding: 20px;
+  padding: 18px;
   border-radius: 16px;
   backdrop-filter: blur(10px);
-  margin: 20px;
+  margin: 16px 20px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-/* MAP */
+.row {
+  display: flex;
+  gap: 20px;
+  padding: 0 20px;
+}
+
+.module-box {
+  flex: 1;
+  min-height: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+}
+
+/* -------------------------------------------------------
+   5. MODULE TITLES
+-------------------------------------------------------- */
+.module-title,
+.module-header h2 {
+  margin: 0 0 10px 0;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  font-size: 1.6rem;
+}
+
+/* -------------------------------------------------------
+   6. MAP
+-------------------------------------------------------- */
 .map-wrapper {
   margin-top: 10px;
 }
@@ -96,54 +127,9 @@ body {
   margin-top: 10px;
 }
 
-/* ROWS */
-.row {
-  display: flex;
-  gap: 20px;
-  padding: 0 20px;
-}
-
-.module-box {
-  flex: 1;
-  min-height: 200px;
-}
-
-/* MODULE TITLES — CORMORANT GAR. */
-.module-title {
-  margin: 0 0 10px 0;
-  font-family: "Cormorant Garamond", serif;
-  font-weight: 600;
-  font-size: 1.6rem;
-}
-
-/* WEATHER GRID */
-.weather-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 12px;
-}
-
-.weather-day {
-  background: rgba(255,255,255,0.85);
-  padding: 12px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-.weather-day img {
-  width: 40px;
-  height: 40px;
-  display: block;
-  margin: 0 auto 6px auto;
-}
-
-.weather-day a {
-  text-decoration: none;
-  color: inherit;
-}
-/* --- Paris weather cards --- */
-
+/* -------------------------------------------------------
+   7. WEATHER GRID BASE
+-------------------------------------------------------- */
 .weather-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -182,10 +168,13 @@ body {
   opacity: 0.8;
 }
 
-/* --- COMPACT WEATHER MODULE --- */
-
+/* -------------------------------------------------------
+   8. COMPACT WEATHER MODULE OVERRIDES
+-------------------------------------------------------- */
 #paris-weather-module.card {
-  padding: 14px 16px !important; /* reduce big card padding */
+  padding: 12px 14px !important;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 #paris-weather-module .module-header h2 {
@@ -194,7 +183,7 @@ body {
 
 #paris-weather-module .panel-subtitle {
   margin-top: 0;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-size: 0.82rem;
   opacity: 0.75;
 }
