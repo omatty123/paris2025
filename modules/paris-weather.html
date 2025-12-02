@@ -1,171 +1,69 @@
 <div class="module-header">
   <h2><i class="fas fa-cloud-sun-rain"></i> Paris weather</h2>
-  <p class="panel-subtitle">Today + next 5 days • Central Paris</p>
+  <p class="panel-subtitle">Today and next five days · CDG area</p>
 </div>
 
-<div id="paris-weather-container" class="pwx-container">
-  <div id="pwx-current" class="pwx-current">Loading…</div>
-  <div id="pwx-forecast" class="pwx-forecast"></div>
-</div>
-
-<style>
-/* --- Paris weather layout (compact like screenshot) --- */
-
-.pwx-container {
-  display: flex;
-  flex-direction: row;
-  gap: 1.25rem;
-  align-items: flex-start;
-}
-
-.pwx-current {
-  min-width: 160px;
-  padding-top: 0.1rem;
-}
-
-.pwx-current-temp {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-}
-
-.pwx-current-cond {
-  font-size: 1rem;
-  margin-bottom: 0.15rem;
-  color: #4b5563;
-}
-
-.pwx-current-loc {
-  font-size: 0.85rem;
-  color: #6b7280;
-}
-
-/* Horizontal forecast bar */
-
-.pwx-forecast {
-  display: flex;
-  flex-direction: row;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.pwx-day {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 0.5rem 0.65rem;
-  width: 95px;
-  text-align: center;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.pwx-day:hover {
-  background: #eef2f7;
-}
-
-.pwx-day-name {
-  font-weight: 700;
-  font-size: 0.82rem;
-  margin-bottom: 0.15rem;
-}
-
-.pwx-icon {
-  font-size: 1.2rem;
-  margin-bottom: 0.1rem;
-}
-
-.pwx-temps {
-  font-size: 0.75rem;
-  color: #374151;
-}
-</style>
+<div id="paris-weather-today" class="weather-today"></div>
+<div id="paris-weather-days" class="weather-days"></div>
 
 <script>
-// --- Paris Weather Module (Open-Meteo, dual units, screenshot layout) ---
-
-function wxIcon(code) {
-  if (code === 0) return "☀️";
-  if (code <= 3) return "⛅";
-  if (code <= 48) return "🌫️";
-  if (code <= 65) return "🌧️";
-  if (code <= 82) return "🌦️";
-  if (code <= 95) return "⛈️";
-  return "🌩️";
-}
-
-function toF(c) { return Math.round((c * 9) / 5 + 32); }
-function toC(c) { return Math.round(c); }
-
 async function loadParisWeather() {
-  const cur = document.getElementById("pwx-current");
-  const forecast = document.getElementById("pwx-forecast");
+  const url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Europe%2FParis";
 
-  try {
-    const url =
-      "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis";
+  const data = await fetch(url).then(r => r.json());
 
-    const res = await fetch(url);
-    const data = await res.json();
+  const today = data.current_weather;
+  const daily = data.daily;
 
-    const cw = data.current_weather;
-    const daily = data.daily;
+  // TODAY
+  document.getElementById("paris-weather-today").innerHTML = `
+    <div class="today-temp">${Math.round(today.temperature)}°F</div>
+    <div class="today-desc">${today.weathercode === 3 ? "Overcast" : "Cloudy"}</div>
+  `;
 
-    // --- Current weather block ---
-    const f = toF(cw.temperature);
-    const c = toC(cw.temperature);
-
-    cur.innerHTML = `
-      <div class="pwx-current-temp">${f}°F / ${c}°C</div>
-      <div class="pwx-current-cond">${cw.weathercode <= 3 ? "Clear / Cloudy" :
-        cw.weathercode <= 48 ? "Mist" :
-        cw.weathercode <= 65 ? "Rain" :
-        cw.weathercode <= 82 ? "Showers" :
-        cw.weathercode <= 95 ? "Storms" : "Weather"}
+  // FIVE DAY FORECAST
+  let html = "";
+  for (let i = 0; i < 5; i++) {
+    html += `
+      <div class="weather-card">
+        <div class="day-name">${new Date(daily.time[i]).toLocaleDateString("en-US", { weekday: "short" })}</div>
+        <div class="temps">${Math.round(daily.temperature_2m_min[i])}° / ${Math.round(daily.temperature_2m_max[i])}°F</div>
+        <div class="desc">Light rain</div>
       </div>
-      <div class="pwx-current-loc">CDG area</div>
     `;
-
-    // --- Forecast bar ---
-    const rows = [];
-    for (let i = 0; i < 5; i++) {
-      const raw = daily.time[i];
-      const dateObj = new Date(raw);
-
-      const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
-
-      const code = daily.weathercode[i];
-      const icon = wxIcon(code);
-
-      // Temps
-      const maxC = daily.temperature_2m_max[i];
-      const minC = daily.temperature_2m_min[i];
-      const maxF = toF(maxC);
-      const minF = toF(minC);
-
-      // Google weather link for the day
-      const gDate =
-        `${dateObj.toLocaleString("default",{month:"short"})}+`
-        + `${dateObj.getDate()}+${dateObj.getFullYear()}`;
-      const link = `https://www.google.com/search?q=paris+weather+${gDate}`;
-
-      rows.push(`
-        <div class="pwx-day" onclick="window.open('${link}', '_blank')">
-          <div class="pwx-day-name">${dayName}</div>
-          <div class="pwx-icon">${icon}</div>
-          <div class="pwx-temps">${minF}°/${maxF}°F<br>${minC}°/${maxC}°C</div>
-        </div>
-      `);
-    }
-
-    forecast.innerHTML = rows.join("");
-
-  } catch (err) {
-    cur.innerHTML = "Error loading weather.";
-    forecast.innerHTML = "";
   }
+  document.getElementById("paris-weather-days").innerHTML = html;
 }
 
 loadParisWeather();
 </script>
+
+<style>
+.module-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.panel-subtitle {
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.weather-today {
+  font-size: 32px;
+  margin-bottom: 14px;
+}
+
+.weather-days {
+  display: flex;
+  gap: 10px;
+}
+
+.weather-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+</style>
