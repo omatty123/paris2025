@@ -1,6 +1,5 @@
-/* ----------------------------------------------------
-   GLOBAL
----------------------------------------------------- */
+/* Base reset */
+
 *,
 *::before,
 *::after {
@@ -8,72 +7,82 @@
 }
 
 body {
-  font-family: "Cormorant Garamond", serif;
   margin: 0;
   padding: 0;
-  background: #f5f4f2;
-  color: #2c2c2c;
+  background: #f6f3ee;
+  color: #2b2620;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
 }
 
-h1, h2, h3, h4, summary {
-  font-weight: 600;
+h1, h2, h3, h4 {
   margin: 0;
+  font-family: "Cormorant Garamond", serif;
 }
 
-p, li, button, a, span {
-  font-family: "Cormorant Garamond", serif !important;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-/* ----------------------------------------------------
-   HEADER
----------------------------------------------------- */
-.main-header {
-  padding: 16px;
+/* Cards and layout */
+
+.card {
   background: #ffffff;
-  border-bottom: 1px solid #ddd;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  padding: 20px 24px 24px;
+  margin: 16px auto;
+  max-width: 1100px;
+}
+
+/* Header */
+
+.main-header {
+  max-width: 1100px;
+  margin: 20px auto 8px;
+  padding: 8px 4px 0;
 }
 
 .header-top {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   gap: 12px;
 }
 
 .main-header h1 {
-  font-size: 1.9rem;
+  font-size: 2.3rem;
+  letter-spacing: 0.03em;
 }
 
 .subtitle {
-  font-size: 0.9rem;
-  margin-top: 2px;
-  opacity: 0.75;
+  margin-top: 4px;
+  font-size: 0.95rem;
+  color: #6f645a;
 }
 
 .paris-time {
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  color: #4b4138;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-/* Header buttons */
 .header-buttons {
   margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .header-btn {
-  background: #eceae7;
-  padding: 6px 10px;
   border-radius: 999px;
-  font-size: 0.85rem;
-  text-decoration: none;
-  color: #333;
-  border: 1px solid #ddd;
+  padding: 7px 14px;
+  border: 1px solid #d5cfc7;
+  background: #fff;
+  font-size: 0.9rem;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -81,51 +90,35 @@ p, li, button, a, span {
 }
 
 .header-btn:hover {
-  background: #e2dfda;
+  background: #f0e9df;
 }
 
-/* ----------------------------------------------------
-   CARD CONTAINERS
----------------------------------------------------- */
-.card {
-  margin: 18px auto;
-  background: #ffffff;
-  width: 92%;
-  max-width: 1100px;
-  padding: 16px 18px 18px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+/* Map */
+
+.map-section .map-container {
+  margin-top: 10px;
+  height: 400px; /* big enough, not too short */
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .section-title {
-  font-size: 1.15rem;
+  font-size: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .section-subtitle {
-  font-size: 0.85rem;
-  opacity: 0.7;
-  margin-top: 2px;
+  margin-top: 4px;
+  font-size: 0.93rem;
+  color: #7a7267;
 }
 
-/* ----------------------------------------------------
-   MAP
----------------------------------------------------- */
-.map-container {
-  width: 100%;
-  height: 280px;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-top: 10px;
-}
+/* Itinerary */
 
-/* ----------------------------------------------------
-   ITINERARY
----------------------------------------------------- */
 .itinerary-section {
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .itinerary-header {
@@ -133,7 +126,7 @@ p, li, button, a, span {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .itinerary-header-right {
@@ -143,127 +136,135 @@ p, li, button, a, span {
   gap: 6px;
 }
 
-/* Buttons */
 .secondary-btn {
   border-radius: 999px;
   border: 1px solid #d3cdc4;
   background: #faf7f3;
-  padding: 6px 12px;
-  font-size: 0.85rem;
+  padding: 6px 14px;
+  font-size: 0.9rem;
   cursor: pointer;
+  white-space: nowrap;
+  font-family: "Cormorant Garamond", serif;
 }
 
 .secondary-btn:hover {
   background: #f0e9e0;
 }
 
-.github-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  justify-content: flex-end;
-}
+/* Itinerary layout: days left, open bin right */
 
-.small-btn {
-  border-radius: 999px;
-  border: 1px solid #d3cdc4;
-  background: #f8f3eb;
-  padding: 4px 8px;
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-.small-btn:hover {
-  background: #eee0d1;
-}
-
-.github-status {
-  font-size: 0.78rem;
-  color: #7a7267;
-  min-height: 1em;
-}
-
-/* Layout: narrow days + wide Open Bin */
 .itinerary-layout {
-  display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
-  gap: 16px;
-  align-items: flex-start;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
 }
 
-/* Days column (left) */
+/* Left: days column (narrow) */
+
 .days-column {
+  flex: 0 0 200px;
+  max-width: 200px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
+
+/* Day block */
 
 .day-column {
-  width: 120px;
-  min-width: 120px;
-  max-width: 120px;
-  background: #fafafa;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  padding: 6px;
-  overflow-y: auto;
+  background: #fbf9f6;
+  border-radius: 16px;
+  padding: 10px 10px 8px;
+  box-shadow: inset 0 0 0 1px #efe7dd;
 }
 
-/* Day header */
 .day-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .day-header h3,
 .day-header h4 {
-  font-size: 0.78rem;
+  font-size: 1.1rem;
+  margin: 0;
 }
 
 /* Add item */
+
 .add-item-container {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex: 1;
 }
 
 .add-item-input {
   flex: 1;
+  min-width: 0;
   border-radius: 999px;
   border: 1px solid #dacfbf;
-  padding: 4px 8px;
-  font-size: 0.72rem;
+  padding: 5px 8px;
+  font-size: 0.8rem;
   background: #fff;
+  font-family: inherit;
 }
 
 .add-item-btn {
   border-radius: 999px;
   border: 1px solid #dacfbf;
   background: #f2e9dd;
-  padding: 0 8px;
-  height: 22px;
-  font-size: 0.75rem;
+  padding: 0 9px;
+  height: 24px;
   cursor: pointer;
+  font-size: 0.8rem;
+  font-family: inherit;
 }
 
-/* Lists & cards */
+/* Lists and cards */
+
 .itinerary-list {
   margin-top: 4px;
 }
 
 .itinerary-card {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 6px 8px;
+  border-radius: 12px;
+  padding: 7px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  margin-bottom: 4px;
-  font-size: 0.7rem;
+  margin-bottom: 5px;
+  font-size: 0.8rem;
   cursor: grab;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Pastel color coding by day */
+
+.itinerary-card[data-day="Dec 3"] {
+  background: #fff3e0;
+}
+
+.itinerary-card[data-day="Dec 4"] {
+  background: #e3f2fd;
+}
+
+.itinerary-card[data-day="Dec 5"] {
+  background: #e8f5e9;
+}
+
+.itinerary-card[data-day="Dec 6"] {
+  background: #f3e5f5;
+}
+
+.itinerary-card[data-day="Dec 7"] {
+  background: #ffeef2;
+}
+
+.itinerary-card[data-day="OPEN BIN"] {
+  background: #fef7e8;
 }
 
 .itinerary-card.dragging {
@@ -275,18 +276,15 @@ p, li, button, a, span {
   padding-right: 6px;
 }
 
-/* Delete button */
 .delete-btn {
   border: none;
   border-radius: 999px;
   background: #f3ddd8;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   font-size: 0.8rem;
   cursor: pointer;
   flex-shrink: 0;
-  line-height: 18px;
-  text-align: center;
 }
 
 .delete-btn:hover {
@@ -298,23 +296,25 @@ p, li, button, a, span {
   outline-offset: 3px;
 }
 
-/* Open Bin (right) */
+/* Right: Open Bin */
+
 .open-bin-column {
-  background: #fafafa;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+  flex: 0 0 200px;
+  max-width: 200px;
+  align-self: flex-start;
+  position: sticky;
+  top: 16px;
 }
 
 .open-bin-title {
-  font-size: 0.95rem;
+  font-size: 1.3rem;
   margin-bottom: 2px;
 }
 
 .open-bin-subtitle {
   font-size: 0.8rem;
-  opacity: 0.7;
-  margin-bottom: 6px;
+  color: #7d7166;
+  margin-bottom: 8px;
 }
 
 .open-bin-wrapper {
@@ -322,21 +322,10 @@ p, li, button, a, span {
   overflow-y: auto;
 }
 
-/* Remove bullets globally from itinerary lists */
-.itinerary-list ul,
-.itinerary-list li,
-.day-column li {
-  list-style: none;
-  padding-left: 0;
-  margin-left: 0;
-}
+/* Weather */
 
-/* ----------------------------------------------------
-   WEATHER
----------------------------------------------------- */
 .weather-section {
   margin-top: 16px;
-  margin-bottom: 26px;
 }
 
 .weather-header {
@@ -344,27 +333,21 @@ p, li, button, a, span {
 }
 
 .weather-grid {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .weather-day {
-  flex: 0 0 auto;
-  width: 70px;
   background: #fbf9f6;
-  border-radius: 10px;
-  padding: 8px 4px;
+  border-radius: 12px;
+  padding: 6px 4px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e2d8cc;
 }
 
 .weather-day a {
-  text-decoration: none;
-  color: inherit;
   display: block;
 }
 
@@ -379,42 +362,54 @@ p, li, button, a, span {
 }
 
 .weather-temps {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: #5c5247;
 }
 
-/* ----------------------------------------------------
-   FOOTER
----------------------------------------------------- */
+/* Footer */
+
 .page-footer {
   max-width: 1100px;
-  margin: 8px auto 24px;
-  font-size: 0.8rem;
+  margin: 12px auto 30px;
+  font-size: 0.85rem;
   color: #91857a;
   text-align: center;
 }
 
-/* ----------------------------------------------------
-   RESPONSIVE
----------------------------------------------------- */
+/* Responsive */
+
 @media (max-width: 900px) {
   .itinerary-layout {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
   }
+
   .open-bin-column {
-    margin-top: 10px;
+    position: static;
+    max-width: none;
   }
-  .day-column {
-    max-height: 260px;
+
+  .days-column {
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .weather-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 600px) {
   .main-header h1 {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
   }
+
   .header-top {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .weather-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
