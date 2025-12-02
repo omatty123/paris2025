@@ -1,7 +1,7 @@
 // Repo config
 const GITHUB_OWNER = "omatty123";
 const GITHUB_REPO = "paris2025";
-const GITHUB_BRANCH = "main"; // change to "master" if your default branch is master
+const GITHUB_BRANCH = "main"; // change to "master" if your repo uses master
 const GITHUB_FILE_PATH = "data/itinerary.json";
 
 const STORAGE_TOKEN_KEY = "paris25_github_token";
@@ -9,10 +9,12 @@ const STORAGE_LOCAL_BACKUP = "paris25_itinerary_backup";
 
 const SAVE_STATUS_EL = document.getElementById("saveStatus");
 const BOARD_EL = document.getElementById("itineraryBoard");
-const DAY_NAV_EL = document.getElementById("dayNavList");
 const OPEN_BIN_EL = document.getElementById("openBinColumn");
 
-// Hard default (also used for Reset logic if you ever add it back)
+// Fixed day order for the vertical stack
+const DAY_ORDER = ["dec3", "dec4", "dec5", "dec6", "dec7", "dec8", "dec9"];
+
+// Hard default (also used if GitHub is unavailable and no local backup)
 const INITIAL_BOARD = {
   columns: [
     {
@@ -117,13 +119,12 @@ const INITIAL_BOARD = {
   ]
 };
 
-const DAY_ORDER = ["dec3", "dec4", "dec5", "dec6", "dec7", "dec8", "dec9"];
-
 let boardState = null;
 let currentSha = null;
 let dragging = null;
 
 // Utilities
+
 function cloneBoard(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -133,6 +134,7 @@ function setStatus(text) {
 }
 
 // Paris time
+
 function updateParisTime() {
   const span = document.getElementById("parisTime");
   if (!span) return;
@@ -143,6 +145,7 @@ function updateParisTime() {
   });
   span.textContent = "Paris time: " + now;
 }
+
 setInterval(updateParisTime, 30000);
 updateParisTime();
 
@@ -180,7 +183,7 @@ async function fetchItineraryFromGitHub() {
 async function saveItineraryToGitHub() {
   if (!boardState) return;
 
-  // Always keep local backup in case GitHub goes away
+  // Always keep local backup
   localStorage.setItem(STORAGE_LOCAL_BACKUP, JSON.stringify(boardState));
 
   const token = localStorage.getItem(STORAGE_TOKEN_KEY);
@@ -272,49 +275,6 @@ if (githubModeBtn) {
 
 // Rendering
 
-function renderDayNav() {
-  if (!DAY_NAV_EL || !boardState) return;
-  DAY_NAV_EL.innerHTML = "";
-
-  const dayColumns = boardState.columns.filter((c) => c.id !== "open");
-  const sorted = DAY_ORDER.map((id) => dayColumns.find((c) => c.id === id)).filter(
-    Boolean
-  );
-
-  sorted.forEach((col, index) => {
-    const li = document.createElement("li");
-    li.className = "day-nav-item";
-
-    const btn = document.createElement("button");
-    btn.className = "day-nav-button";
-    btn.textContent = col.title;
-    const metaSpan = document.createElement("span");
-    metaSpan.textContent = col.meta || "";
-    btn.appendChild(metaSpan);
-
-    btn.addEventListener("click", () => {
-      const colEl = BOARD_EL.querySelector(
-        '.itinerary-column[data-column-id="' + col.id + '"]'
-      );
-      if (colEl) {
-        colEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-      }
-      // simple active state
-      Array.from(DAY_NAV_EL.querySelectorAll(".day-nav-button")).forEach((b) =>
-        b.classList.remove("active")
-      );
-      btn.classList.add("active");
-    });
-
-    if (index === 0) {
-      btn.classList.add("active");
-    }
-
-    li.appendChild(btn);
-    DAY_NAV_EL.appendChild(li);
-  });
-}
-
 function renderBoard() {
   if (!BOARD_EL || !OPEN_BIN_EL || !boardState) return;
 
@@ -324,11 +284,12 @@ function renderBoard() {
   const openCol = boardState.columns.find((c) => c.id === "open");
   const dayColumns = boardState.columns.filter((c) => c.id !== "open");
 
-  // Sort days in fixed order
-  const sortedDays = DAY_ORDER.map((id) => dayColumns.find((c) => c.id === id)).filter(
-    Boolean
-  );
+  // Sort days in fixed order for the vertical stack
+  const sortedDays = DAY_ORDER.map((id) =>
+    dayColumns.find((c) => c.id === id)
+  ).filter(Boolean);
 
+  // Left: all days stacked
   sortedDays.forEach((col) => {
     const colEl = document.createElement("div");
     colEl.className = "itinerary-column";
@@ -401,7 +362,7 @@ function renderBoard() {
     BOARD_EL.appendChild(colEl);
   });
 
-  // Open bin rendering
+  // Right: Open bin column
   if (openCol) {
     const bodyEl = OPEN_BIN_EL;
     bodyEl.dataset.columnId = openCol.id;
@@ -434,7 +395,6 @@ function renderBoard() {
       bodyEl.appendChild(itemEl);
     });
 
-    // plus add item for open bin
     const addOpenItemBtn = document.createElement("button");
     addOpenItemBtn.className = "itinerary-add-item";
     addOpenItemBtn.textContent = "+ add item";
@@ -506,7 +466,6 @@ async function initBoard() {
   setStatus("Loading from GitHub…");
   try {
     await fetchItineraryFromGitHub();
-    renderDayNav();
     renderBoard();
   } catch (e) {
     console.error(e);
@@ -518,7 +477,6 @@ async function initBoard() {
       boardState = cloneBoard(INITIAL_BOARD);
       setStatus("Using built in default (GitHub fetch failed)");
     }
-    renderDayNav();
     renderBoard();
   }
 }
@@ -556,7 +514,8 @@ async function loadParisWeather() {
     data = await res.json();
   } catch (e) {
     const proxy =
-      "https://cors-proxy.api.exponential-hub.workers.dev/?" + encodeURIComponent(base);
+      "https://cors-proxy.api.exponential-hub.workers.dev/?" +
+      encodeURIComponent(base);
     const res = await fetch(proxy);
     data = await res.json();
   }
@@ -573,8 +532,7 @@ async function loadParisWeather() {
   const tmax = data.daily.temperature_2m_max;
   const tmin = data.daily.temperature_2m_min;
 
-  // Today + next 5 days = up to 6
-  const limit = Math.min(6, days.length);
+  const limit = Math.min(6, days.length); // today + next five
 
   for (let i = 0; i < limit; i++) {
     const d = new Date(days[i]);
