@@ -13,7 +13,7 @@
 <body>
   <header class="main-header">
     <h1>Paris December 2025</h1>
-    <p class="subtitle">Trip in flux, itinerary under construction</p>
+    <p class="subtitle">Trip in flux, live itinerary board</p>
 
     <div class="header-buttons">
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
@@ -53,41 +53,55 @@
   </section>
 
   <main class="layout">
-    <section class="card itinerary-section">
-      <div class="itinerary-header">
-        <div>
-          <h2 class="module-title">Itinerary planner</h2>
-          <p class="itinerary-subtitle">
-            Drag items between days. Changes are saved to GitHub when your edit key is set.
-          </p>
-        </div>
-        <div class="itinerary-controls">
-          <button id="addDayBtn" class="small-btn">
-            <i class="fas fa-plus"></i> Add day
-          </button>
-          <button id="resetItineraryBtn" class="small-btn">
-            <i class="fas fa-rotate-left"></i> Reset
-          </button>
-        </div>
-      </div>
 
-      <div id="itineraryBoard" class="itinerary-board"></div>
+    <!-- LEFT: DAY NAV -->
+    <nav class="card day-nav">
+      <h2 class="module-title">Days</h2>
+      <ul id="dayNavList" class="day-nav-list">
+        <!-- Filled by app.js -->
+      </ul>
+    </nav>
+
+    <!-- CENTER: ITINERARY BOARD -->
+    <section class="card board-section">
+      <div class="board-header">
+        <h2 class="module-title">Itinerary board</h2>
+        <p class="itinerary-subtitle">
+          Drag items between days and the Open bin. Changes save to GitHub when your edit key is set.
+        </p>
+      </div>
+      <div id="itineraryBoard" class="itinerary-board">
+        <!-- Day columns injected here -->
+      </div>
     </section>
 
-    <aside class="card side-panel">
-      <h2 class="module-title">Scratchpad</h2>
-      <p class="side-note">
-        This board is backed by the file <code>data/itinerary.json</code> in your GitHub repo.
-        With an edit key set, every change is committed there.
+    <!-- RIGHT: OPEN BIN -->
+    <aside class="card open-bin-section">
+      <h2 class="module-title">Open bin</h2>
+      <p class="open-bin-subtitle">
+        Temporary parking for activities while you reshuffle the days.
       </p>
-      <ul class="side-list">
-        <li>Click “GitHub edit key” to paste your personal access token.</li>
-        <li>Drag and drop cards between days to reshuffle plans.</li>
-        <li>Use “Add day” for extra days or a flexible last day.</li>
-        <li>“Reset” reloads the built in default and overwrites the GitHub file.</li>
-      </ul>
+      <div id="openBinColumn" class="open-bin-body">
+        <!-- Open bin items injected here -->
+      </div>
     </aside>
+
   </main>
+
+  <!-- BOTTOM: WEATHER -->
+  <section class="card weather-section">
+    <div class="weather-header">
+      <h2 class="module-title">
+        <i class="fas fa-cloud-sun-rain"></i> Paris weather
+      </h2>
+      <p class="weather-subtitle">
+        Today and next five days. Tap any card for a detailed forecast.
+      </p>
+    </div>
+    <div id="paris-weather-days" class="weather-grid">
+      <p>Loading weather…</p>
+    </div>
+  </section>
 
   <script src="app.js"></script>
 </body>
