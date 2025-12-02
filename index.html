@@ -13,7 +13,7 @@
 <body>
   <header class="main-header">
     <h1>Paris December 2025</h1>
-    <p class="subtitle">Trip in flux, live itinerary board</p>
+    <p class="subtitle">Trip in flux, live itinerary with open bin</p>
 
     <div class="header-buttons">
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
@@ -37,6 +37,7 @@
     </div>
   </header>
 
+  <!-- MAP -->
   <section class="map-wrapper card">
     <h2 class="module-title">Home base</h2>
     <div class="map-container">
@@ -52,26 +53,18 @@
     </div>
   </section>
 
+  <!-- MAIN LAYOUT: LEFT = DAYS, RIGHT = OPEN BIN -->
   <main class="layout">
-
-    <!-- LEFT: DAY NAV -->
-    <nav class="card day-nav">
-      <h2 class="module-title">Days</h2>
-      <ul id="dayNavList" class="day-nav-list">
-        <!-- Filled by app.js -->
-      </ul>
-    </nav>
-
-    <!-- CENTER: ITINERARY BOARD -->
-    <section class="card board-section">
+    <!-- LEFT: ALL DAYS STACKED VERTICALLY -->
+    <section class="card itinerary-section">
       <div class="board-header">
-        <h2 class="module-title">Itinerary board</h2>
+        <h2 class="module-title">Itinerary by day</h2>
         <p class="itinerary-subtitle">
-          Drag items between days and the Open bin. Changes save to GitHub when your edit key is set.
+          Each day is expanded by default. Drag items in and out of the Open bin on the right.
         </p>
       </div>
       <div id="itineraryBoard" class="itinerary-board">
-        <!-- Day columns injected here -->
+        <!-- Day columns injected by app.js -->
       </div>
     </section>
 
@@ -79,13 +72,12 @@
     <aside class="card open-bin-section">
       <h2 class="module-title">Open bin</h2>
       <p class="open-bin-subtitle">
-        Temporary parking for activities while you reshuffle the days.
+        Tokens from the lost day plus any new possibilities. Drag in or out freely.
       </p>
       <div id="openBinColumn" class="open-bin-body">
-        <!-- Open bin items injected here -->
+        <!-- Open bin items injected by app.js -->
       </div>
     </aside>
-
   </main>
 
   <!-- BOTTOM: WEATHER -->
