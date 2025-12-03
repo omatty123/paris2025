@@ -16,9 +16,7 @@
   <!-- Core CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-
   <!-- HEADER -->
   <header class="main-header">
     <div class="header-top">
@@ -38,7 +36,6 @@
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
         <i class="fas fa-route"></i> RATP directions
       </a>
-
       <a class="header-btn"
          href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
          target="_blank">
@@ -55,17 +52,8 @@
     <p class="section-subtitle">
       7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement
     </p>
-
     <div class="map-container">
-      <iframe
-        width="100%"
-        height="100%"
-        style="border:0; border-radius: 16px;"
-        loading="lazy"
-        allowfullscreen
-        referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2759.6629974250623!2d2.357184576428085!3d48.83348360245892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6718b7ec95f99%3A0x6eaf265702e5e619!2s7%20Av.%20Stephen%20Pichon%2C%2075013%20Paris%2C%20France!5e1!3m2!1sen!2sus!4v1764636856567!5m2!1sen!2sus">
-      </iframe>
+      <div id="liveMap"></div>
     </div>
   </section>
 
@@ -80,66 +68,62 @@
           Drag items between days and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
         </p>
       </div>
-
       <div class="itinerary-header-right">
         <button class="secondary-btn" id="resetBtn">
           Reset to defaults
         </button>
-
         <div class="github-controls">
           <button class="small-btn" id="githubToken">Set GitHub token</button>
           <button class="small-btn" id="githubSave">Save to GitHub</button>
           <button class="small-btn" id="githubLoad">Load from GitHub</button>
         </div>
-
         <div id="githubStatus" class="github-status"></div>
       </div>
     </div>
 
     <div class="itinerary-layout">
-
-      <!-- Days stacked vertically -->
+      <!-- Days stacked vertically (left) -->
       <div id="daysColumn" class="days-column">
-        <!-- itinerary.js populates -->
+        <!-- itinerary.js will populate -->
       </div>
 
-      <!-- Open Bin -->
+      <!-- Open Bin (right) -->
       <aside class="open-bin-column">
         <h3 class="open-bin-title">
           <i class="fas fa-inbox"></i> Open Bin
         </h3>
         <p class="open-bin-subtitle">
-          Day 1 (Dec 2) and extra ideas live here. Drag into any day or back again.
+          Day 1 (Dec 2) and extra ideas live here. Drag into any day, or back again.
         </p>
-
         <div class="day-column open-bin-wrapper">
-
           <div class="day-header">
             <h4>OPEN BIN</h4>
-
             <div class="add-item-container">
               <input type="text" class="add-item-input" id="openBinInput" placeholder="Add event…" />
               <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
           </div>
-
           <div id="openBinList" class="itinerary-list" data-day="OPEN BIN">
-            <!-- itinerary.js populates -->
+            <!-- itinerary.js will populate -->
           </div>
-
         </div>
       </aside>
-
     </div>
   </section>
 
   <!-- Scripts -->
   <script src="app.js"></script>
+  <script src="map.js"></script>
 
-  <!-- SortableJS must load BEFORE itinerary.js -->
+  <!-- Google Maps JS API, with callback into map.js -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=YAIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap"
+    async
+  ></script>
+
+  <!-- SortableJS must load before itinerary.js -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 
   <script src="itinerary.js"></script>
-
 </body>
 </html>
