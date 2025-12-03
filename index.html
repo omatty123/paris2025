@@ -16,7 +16,9 @@
   <!-- Core CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+
   <!-- HEADER -->
   <header class="main-header">
     <div class="header-top">
@@ -36,6 +38,7 @@
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
         <i class="fas fa-route"></i> RATP directions
       </a>
+
       <a class="header-btn"
          href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
          target="_blank">
@@ -52,6 +55,7 @@
     <p class="section-subtitle">
       7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement
     </p>
+
     <div class="map-container">
       <iframe
         width="100%"
@@ -76,55 +80,66 @@
           Drag items between days and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
         </p>
       </div>
+
       <div class="itinerary-header-right">
         <button class="secondary-btn" id="resetBtn">
           Reset to defaults
         </button>
+
         <div class="github-controls">
           <button class="small-btn" id="githubToken">Set GitHub token</button>
           <button class="small-btn" id="githubSave">Save to GitHub</button>
           <button class="small-btn" id="githubLoad">Load from GitHub</button>
         </div>
+
         <div id="githubStatus" class="github-status"></div>
       </div>
     </div>
 
     <div class="itinerary-layout">
-      <!-- Days stacked vertically (left) -->
+
+      <!-- Days stacked vertically -->
       <div id="daysColumn" class="days-column">
-        <!-- itinerary.js will populate -->
+        <!-- itinerary.js populates -->
       </div>
 
-      <!-- Open Bin (right) -->
+      <!-- Open Bin -->
       <aside class="open-bin-column">
         <h3 class="open-bin-title">
           <i class="fas fa-inbox"></i> Open Bin
         </h3>
         <p class="open-bin-subtitle">
-          Day 1 (Dec 2) and extra ideas live here. Drag into any day, or back again.
+          Day 1 (Dec 2) and extra ideas live here. Drag into any day or back again.
         </p>
+
         <div class="day-column open-bin-wrapper">
+
           <div class="day-header">
             <h4>OPEN BIN</h4>
+
             <div class="add-item-container">
               <input type="text" class="add-item-input" id="openBinInput" placeholder="Add event…" />
               <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
           </div>
+
           <div id="openBinList" class="itinerary-list" data-day="OPEN BIN">
-            <!-- itinerary.js will populate -->
+            <!-- itinerary.js populates -->
           </div>
+
         </div>
       </aside>
+
     </div>
   </section>
 
-  
-
-
-
   <!-- Scripts -->
   <script src="app.js"></script>
+
+  <!-- SortableJS must load BEFORE itinerary.js -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+
   <script src="itinerary.js"></script>
+
 </body>
 </html>
