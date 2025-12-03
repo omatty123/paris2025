@@ -1,16 +1,16 @@
 // itinerary.js
-// Data + rendering + drag and drop + GitHub sync
+// Data, rendering, drag and drop, and GitHub sync
 // Drives the map via MapAPI so each item becomes a pin
 
 // 1) Default data
 
 window.ITIN_DATA = {
-  "columns": [
+  columns: [
     {
-      "id": "open",
-      "title": "Open bin",
-      "meta": "Unassigned items",
-      "items": [
+      id: "open",
+      title: "Open bin",
+      meta: "Unassigned items",
+      items: [
         "RER B → Denfert Rochereau → Metro 6",
         "Arrive apartment",
         "Explore Chinatown",
@@ -24,10 +24,10 @@ window.ITIN_DATA = {
     },
 
     {
-      "id": "dec3",
-      "title": "Day 1",
-      "meta": "Wed Dec 3",
-      "items": [
+      id: "dec3",
+      title: "Dec 3",
+      meta: "Wednesday",
+      items: [
         "Sainte-Chapelle",
         "Conciergerie",
         "Notre-Dame exterior",
@@ -41,10 +41,10 @@ window.ITIN_DATA = {
     },
 
     {
-      "id": "dec4",
-      "title": "Day 2",
-      "meta": "Thu Dec 4",
-      "items": [
+      id: "dec4",
+      title: "Dec 4",
+      meta: "Thursday",
+      items: [
         "Louvre nineteenth-century rooms",
         "Tuileries Garden",
         "Chez Alain Miam Miam",
@@ -56,10 +56,10 @@ window.ITIN_DATA = {
     },
 
     {
-      "id": "dec5",
-      "title": "Day 3",
-      "meta": "Fri Dec 5",
-      "items": [
+      id: "dec5",
+      title: "Dec 5",
+      meta: "Friday",
+      items: [
         "Metro to Opéra then walk to Gare Saint-Lazare",
         "Train to Rouen",
         "Taxi to Cathedral and Gros Horloge",
@@ -73,10 +73,10 @@ window.ITIN_DATA = {
     },
 
     {
-      "id": "dec6",
-      "title": "Day 4",
-      "meta": "Sat Dec 6",
-      "items": [
+      id: "dec6",
+      title: "Dec 6",
+      meta: "Saturday",
+      items: [
         "Belleville",
         "Promenade Dora Bruder",
         "Montmartre and Sacré-Cœur",
@@ -86,10 +86,10 @@ window.ITIN_DATA = {
     },
 
     {
-      "id": "dec7",
-      "title": "Day 5",
-      "meta": "Sun Dec 7",
-      "items": [
+      id: "dec7",
+      title: "Dec 7",
+      meta: "Sunday",
+      items: [
         "Parc Montsouris",
         "Covered passages",
         "Tuileries Christmas Market",
@@ -100,17 +100,17 @@ window.ITIN_DATA = {
     },
 
     {
-      "id": "dec8",
-      "title": "Day 6",
-      "meta": "Mon Dec 8",
-      "items": []
+      id: "dec8",
+      title: "Dec 8",
+      meta: "Monday",
+      items: []
     },
 
     {
-      "id": "dec9",
-      "title": "Day 7",
-      "meta": "Tue Dec 9",
-      "items": []
+      id: "dec9",
+      title: "Dec 9",
+      meta: "Tuesday",
+      items: []
     }
   ]
 };
@@ -262,13 +262,6 @@ function renderItinerary() {
 
     header.appendChild(title);
     header.appendChild(addContainer);
-
-    // Mark this as the selected day for the map when header is clicked
-    header.addEventListener("click", () => {
-      if (window.MapAPI && typeof window.MapAPI.setSelectedDayId === "function") {
-        window.MapAPI.setSelectedDayId(col.id);
-      }
-    });
 
     const list = document.createElement("div");
     list.className = "itinerary-list";
