@@ -11,12 +11,14 @@
   <!-- Font Awesome -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer" />
 
   <!-- Core CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <!-- HEADER -->
   <header class="main-header">
     <div class="header-top">
@@ -47,14 +49,18 @@
   <!-- MAP -->
   <section class="card map-section">
     <h2 class="section-title">
-      <i class="fas fa-house-chimney"></i> Home base
+      <i class="fas fa-map"></i> Interactive Paris Map
     </h2>
-    <p class="section-subtitle">
-      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement
-    </p>
-    <div class="map-container">
-      <div id="liveMap"></div>
+    <p class="section-subtitle">Day-linked pins · Hover highlights · MyMaps sync</p>
+
+    <div id="mapToolbar" class="map-toolbar">
+      <button data-action="showAll">Show All</button>
+      <button data-action="today">Today Only</button>
+      <button data-action="selected">Selected Day</button>
+      <button data-action="clear">Clear Highlights</button>
     </div>
+
+    <div class="map-container" id="liveMap"></div>
   </section>
 
   <!-- ITINERARY -->
@@ -65,13 +71,11 @@
           <i class="fas fa-suitcase-rolling"></i> Itinerary planner
         </h2>
         <p class="section-subtitle">
-          Drag items between days and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
+          Drag items between days and the Open Bin · Add or delete freely · Saved locally and synced to GitHub
         </p>
       </div>
       <div class="itinerary-header-right">
-        <button class="secondary-btn" id="resetBtn">
-          Reset to defaults
-        </button>
+        <button class="secondary-btn" id="resetBtn">Reset to defaults</button>
         <div class="github-controls">
           <button class="small-btn" id="githubToken">Set GitHub token</button>
           <button class="small-btn" id="githubSave">Save to GitHub</button>
@@ -82,19 +86,15 @@
     </div>
 
     <div class="itinerary-layout">
-      <!-- Days stacked vertically (left) -->
-      <div id="daysColumn" class="days-column">
-        <!-- itinerary.js will populate -->
-      </div>
 
-      <!-- Open Bin (right) -->
+      <!-- Days -->
+      <div id="daysColumn" class="days-column"></div>
+
+      <!-- Open Bin -->
       <aside class="open-bin-column">
-        <h3 class="open-bin-title">
-          <i class="fas fa-inbox"></i> Open Bin
-        </h3>
-        <p class="open-bin-subtitle">
-          Day 1 (Dec 2) and extra ideas live here. Drag into any day, or back again.
-        </p>
+        <h3 class="open-bin-title"><i class="fas fa-inbox"></i> Open Bin</h3>
+        <p class="open-bin-subtitle">Day 1 and extra ideas live here. Drag anywhere.</p>
+
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
             <h4>OPEN BIN</h4>
@@ -103,27 +103,24 @@
               <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
           </div>
-          <div id="openBinList" class="itinerary-list" data-day="OPEN BIN">
-            <!-- itinerary.js will populate -->
-          </div>
+          <div id="openBinList" class="itinerary-list" data-day="OPEN BIN"></div>
         </div>
       </aside>
     </div>
   </section>
 
-  <!-- Scripts -->
+  <!-- JS -->
   <script src="app.js"></script>
+  <script src="itinerary.js"></script>
+
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap" async></script>
+
+  <!-- Map System -->
   <script src="map.js"></script>
 
-  <!-- Google Maps JS API, with callback into map.js -->
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap"
-    async
-  ></script>
-
-  <!-- SortableJS must load before itinerary.js -->
+  <!-- SortableJS -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 
-  <script src="itinerary.js"></script>
 </body>
 </html>
