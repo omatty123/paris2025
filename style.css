@@ -396,3 +396,31 @@ input,
     align-items: flex-start;
   }
 }
+/* MAP TOOLBAR */
+.map-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.map-toolbar button {
+  border-radius: 999px;
+  border: 1px solid #d3cdc4;
+  background: #faf7f3;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.map-toolbar button:hover {
+  background: #eee4d7;
+}
+
+/* MAP CONTAINER */
+#liveMap {
+  width: 100%;
+  height: 520px;
+  border-radius: 16px;
+  overflow: hidden;
+}
