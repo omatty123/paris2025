@@ -1,5 +1,8 @@
 // itinerary.js
-// Default data, rendering, drag and drop, GitHub sync, and map hooks
+// Data + rendering + drag and drop + GitHub sync
+// Now also drives the map via MapAPI so every item becomes a pin
+
+// 1) Default data
 
 window.ITIN_DATA = {
   "columns": [
@@ -19,6 +22,7 @@ window.ITIN_DATA = {
         "Arrive CDG"
       ]
     },
+
     {
       "id": "dec3",
       "title": "Day 1",
@@ -35,6 +39,7 @@ window.ITIN_DATA = {
         "Lunch near Tang Frères"
       ]
     },
+
     {
       "id": "dec4",
       "title": "Day 2",
@@ -49,6 +54,7 @@ window.ITIN_DATA = {
         "Le Temps des Cerises"
       ]
     },
+
     {
       "id": "dec5",
       "title": "Day 3",
@@ -65,6 +71,7 @@ window.ITIN_DATA = {
         "Dinner at Brasserie Le Lazare"
       ]
     },
+
     {
       "id": "dec6",
       "title": "Day 4",
@@ -77,6 +84,7 @@ window.ITIN_DATA = {
         "Pain Vin Fromages"
       ]
     },
+
     {
       "id": "dec7",
       "title": "Day 5",
@@ -90,12 +98,14 @@ window.ITIN_DATA = {
         "Darkoum Cantine Marocaine"
       ]
     },
+
     {
       "id": "dec8",
       "title": "Day 6",
       "meta": "Mon Dec 8",
       "items": []
     },
+
     {
       "id": "dec9",
       "title": "Day 7",
@@ -105,13 +115,10 @@ window.ITIN_DATA = {
   ]
 };
 
+// 2) State and helpers
+
 const ITIN_LOCAL_KEY = "itinerary-columns-v1";
 let itinState = null;
-
-// This global map lets the map system know which names belong to each day
-window.DayColumnMap = {};
-
-// Helpers
 
 function cloneDefaultItin() {
   return JSON.parse(JSON.stringify(window.ITIN_DATA));
@@ -120,8 +127,12 @@ function cloneDefaultItin() {
 function loadFromLocal() {
   try {
     const raw = localStorage.getItem(ITIN_LOCAL_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed.columns) return null;
+    return parsed;
+  } catch (e) {
+    console.warn("Failed to parse local itinerary, using defaults:", e);
     return null;
   }
 }
@@ -129,17 +140,17 @@ function loadFromLocal() {
 function saveToLocal() {
   try {
     localStorage.setItem(ITIN_LOCAL_KEY, JSON.stringify(itinState));
-  } catch {}
+    console.log("Itinerary saved locally");
+  } catch (e) {
+    console.error("Local save failed:", e);
+  }
 }
 
-// Rendering
+// 3) Rendering
 
-function buildCard(colId, itemIndex, text) {
+function buildCard(text, colId, index) {
   const card = document.createElement("div");
   card.className = "itinerary-card";
-  card.draggable = true;
-  card.dataset.colId = colId;
-  card.dataset.index = String(itemIndex);
 
   const span = document.createElement("span");
   span.className = "card-text";
@@ -148,74 +159,41 @@ function buildCard(colId, itemIndex, text) {
   const del = document.createElement("button");
   del.className = "delete-btn";
   del.textContent = "×";
+
   del.addEventListener("click", (e) => {
     e.stopPropagation();
-    removeItem(colId, itemIndex);
+    removeItem(colId, index);
   });
 
   card.appendChild(span);
   card.appendChild(del);
 
-  // Drag events
-  card.addEventListener("dragstart", (e) => {
-    card.classList.add("dragging");
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData(
-      "text/plain",
-      JSON.stringify({ colId, index: itemIndex })
-    );
-  });
-
-  card.addEventListener("dragend", () => {
-    card.classList.remove("dragging");
-    document
-      .querySelectorAll(".itinerary-list.drag-over")
-      .forEach((el) => el.classList.remove("drag-over"));
-  });
-
-  // Map hover and click
-  card.addEventListener("mouseenter", () => {
-    if (window.MapAPI && window.MapAPI.highlightPlace) {
-      window.MapAPI.highlightPlace(text);
-    }
-  });
-
+  // Clicking a card focuses its marker on the map
   card.addEventListener("click", () => {
-    if (window.MapAPI && window.MapAPI.focusPlace) {
-      window.MapAPI.focusPlace(text);
+    if (window.MapAPI && typeof window.MapAPI.highlightPlace === "function") {
+      window.MapAPI.highlightPlace(text);
     }
   });
 
   return card;
 }
 
-function wireDropZone(listEl, targetColId) {
-  listEl.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    listEl.classList.add("drag-over");
-  });
+function setupSortable(listEl) {
+  if (!listEl) return;
 
-  listEl.addEventListener("dragleave", (e) => {
-    if (e.currentTarget === e.target) {
-      listEl.classList.remove("drag-over");
+  new Sortable(listEl, {
+    group: "itinerary",
+    animation: 150,
+    ghostClass: "dragging",
+    onEnd(evt) {
+      const fromColId = evt.from.dataset.colId;
+      const toColId = evt.to.dataset.colId;
+      const fromIndex = evt.oldIndex;
+      const toIndex = evt.newIndex;
+
+      if (!fromColId || !toColId) return;
+      moveItemBetweenColumns(fromColId, fromIndex, toColId, toIndex);
     }
-  });
-
-  listEl.addEventListener("drop", (e) => {
-    e.preventDefault();
-    listEl.classList.remove("drag-over");
-
-    const raw = e.dataTransfer.getData("text/plain");
-    if (!raw) return;
-
-    let payload;
-    try {
-      payload = JSON.parse(raw);
-    } catch {
-      return;
-    }
-
-    moveItem(payload.colId, payload.index, targetColId);
   });
 }
 
@@ -226,26 +204,34 @@ function renderItinerary() {
   const openBinList = document.getElementById("openBinList");
   const openBinInput = document.getElementById("openBinInput");
 
-  if (!daysColumn || !openBinList) return;
+  if (!daysColumn || !openBinList) {
+    console.warn("Itinerary containers not found in DOM");
+    return;
+  }
+
+  // Clear map markers and rebuild from current state
+  if (window.MapAPI && typeof window.MapAPI.resetPlaces === "function") {
+    window.MapAPI.resetPlaces();
+  }
 
   daysColumn.innerHTML = "";
   openBinList.innerHTML = "";
-  window.DayColumnMap = {};
 
   const openCol = itinState.columns.find((c) => c.id === "open");
   const dayCols = itinState.columns.filter((c) => c.id !== "open");
+
+  const dayMap = {};
 
   // Render day columns
   dayCols.forEach((col) => {
     const wrapper = document.createElement("div");
     wrapper.className = "day-column";
-    wrapper.dataset.dayId = col.id;
 
     const header = document.createElement("div");
     header.className = "day-header";
 
-    const titleBlock = document.createElement("div");
-    titleBlock.innerHTML = `<h3>${col.title}</h3><div class="day-meta">${col.meta}</div>`;
+    const title = document.createElement("div");
+    title.innerHTML = `<h3>${col.title}</h3><div class="day-meta">${col.meta}</div>`;
 
     const addContainer = document.createElement("div");
     addContainer.className = "add-item-container";
@@ -276,53 +262,47 @@ function renderItinerary() {
     addContainer.appendChild(input);
     addContainer.appendChild(btn);
 
-    header.appendChild(titleBlock);
+    header.appendChild(title);
     header.appendChild(addContainer);
 
     const list = document.createElement("div");
     list.className = "itinerary-list";
     list.dataset.colId = col.id;
 
-    wireDropZone(list, col.id);
-
-    const namesForDay = [];
-
     col.items.forEach((itemText, idx) => {
-      namesForDay.push(itemText);
-      const card = buildCard(col.id, idx, itemText);
+      const card = buildCard(itemText, col.id, idx);
       list.appendChild(card);
-    });
 
-    // store mapping for this day
-    window.DayColumnMap[col.id] = namesForDay;
-
-    // clicking the header sets the selected day and filters markers
-    header.addEventListener("click", () => {
-      if (window.MapAPI && window.MapAPI.setSelectedDayId) {
-        window.MapAPI.setSelectedDayId(col.id);
-      }
-      if (window.MapAPI && window.MapAPI.showMarkersForList) {
-        window.MapAPI.showMarkersForList(window.DayColumnMap[col.id] || []);
+      // Announce to map
+      if (window.MapAPI && typeof window.MapAPI.addPlace === "function") {
+        window.MapAPI.addPlace(col.id, itemText);
       }
     });
+
+    dayMap[col.id] = [...col.items];
 
     wrapper.appendChild(header);
     wrapper.appendChild(list);
     daysColumn.appendChild(wrapper);
+
+    setupSortable(list);
   });
 
   // Render Open Bin
   if (openCol) {
-    wireDropZone(openBinList, openCol.id);
+    openBinList.dataset.colId = openCol.id;
 
     openCol.items.forEach((itemText, idx) => {
-      const card = buildCard(openCol.id, idx, itemText);
+      const card = buildCard(itemText, openCol.id, idx);
       openBinList.appendChild(card);
+
+      if (window.MapAPI && typeof window.MapAPI.addPlace === "function") {
+        window.MapAPI.addPlace(openCol.id, itemText);
+      }
     });
 
     if (openBinInput) {
       const openBinAddBtn = document.getElementById("openBinAdd");
-
       function addToOpenBin() {
         const v = openBinInput.value.trim();
         if (!v) return;
@@ -331,53 +311,76 @@ function renderItinerary() {
         saveToLocal();
         renderItinerary();
       }
-
       openBinInput.onkeypress = (e) => {
         if (e.key === "Enter") addToOpenBin();
       };
-      if (openBinAddBtn) openBinAddBtn.onclick = addToOpenBin;
+      if (openBinAddBtn) {
+        openBinAddBtn.onclick = addToOpenBin;
+      }
     }
+
+    setupSortable(openBinList);
+    dayMap[openCol.id] = [...openCol.items];
   }
+
+  // Export mapping if you want to do fancy date based map filtering later
+  window.DayColumnMap = dayMap;
 }
 
-// Item operations
+// 4) Item operations
 
 function removeItem(colId, index) {
   const col = itinState.columns.find((c) => c.id === colId);
   if (!col) return;
   const idx = Number(index);
   if (Number.isNaN(idx) || idx < 0 || idx >= col.items.length) return;
-
   col.items.splice(idx, 1);
   saveToLocal();
   renderItinerary();
 }
 
-function moveItem(fromColId, fromIndex, toColId) {
+function moveItemBetweenColumns(fromColId, fromIndex, toColId, toIndex) {
   const fromCol = itinState.columns.find((c) => c.id === fromColId);
   const toCol = itinState.columns.find((c) => c.id === toColId);
   if (!fromCol || !toCol) return;
 
-  const idx = Number(fromIndex);
-  if (Number.isNaN(idx) || idx < 0 || idx >= fromCol.items.length) return;
+  const fromIdx = Number(fromIndex);
+  const toIdx = Number(toIndex);
 
-  const [item] = fromCol.items.splice(idx, 1);
-  toCol.items.push(item);
+  if (
+    Number.isNaN(fromIdx) ||
+    fromIdx < 0 ||
+    fromIdx >= fromCol.items.length
+  ) {
+    return;
+  }
+
+  const [item] = fromCol.items.splice(fromIdx, 1);
+  if (!item) return;
+
+  const safeToIdx =
+    Number.isNaN(toIdx) || toIdx < 0 || toIdx > toCol.items.length
+      ? toCol.items.length
+      : toIdx;
+
+  toCol.items.splice(safeToIdx, 0, item);
 
   saveToLocal();
   renderItinerary();
 }
 
-// Reset
+// 5) Reset
 
 function resetItinerary() {
-  if (!confirm("Reset itinerary to defaults? This will erase your changes.")) return;
+  if (!confirm("Reset itinerary to defaults? This will erase your changes.")) {
+    return;
+  }
   itinState = cloneDefaultItin();
   saveToLocal();
   renderItinerary();
 }
 
-// GitHub sync
+// 6) GitHub sync
 
 const GITHUB = {
   owner: "omatty123",
@@ -391,19 +394,27 @@ function loadGitHubToken() {
   try {
     const t = localStorage.getItem("itinerary-github-token");
     if (t) GITHUB.token = t;
-  } catch {}
+  } catch (e) {
+    console.warn("No GitHub token in localStorage");
+  }
 }
 
 function setGitHubToken() {
-  const t = prompt("GitHub personal access token (with repo scope):", GITHUB.token || "");
+  const t = prompt(
+    "GitHub personal access token (with repo scope):",
+    GITHUB.token || ""
+  );
   if (!t) return;
   GITHUB.token = t.trim();
   try {
     localStorage.setItem("itinerary-github-token", GITHUB.token);
-  } catch {}
+  } catch (e) {
+    console.warn("Failed to save GitHub token locally", e);
+  }
   const status = document.getElementById("githubStatus");
   if (status) {
     status.textContent = "GitHub token saved locally.";
+    status.style.color = "#7a7267";
   }
 }
 
@@ -461,21 +472,31 @@ async function saveItineraryToGitHub() {
     }
 
     if (status) {
-      status.textContent = "✓ Saved to GitHub";
+      status.textContent = "Saved to GitHub";
       status.style.color = "#2f7d32";
     }
   } catch (e) {
     console.error(e);
-    const status = document.getElementById("githubStatus");
     if (status) {
       status.textContent = "GitHub save failed: " + e.message;
       status.style.color = "#b3261e";
+    } else {
+      alert("GitHub save failed: " + e.message);
     }
   }
 }
 
-async function autoLoadFromGitHub() {
-  if (!GITHUB.token) return null;
+async function loadItineraryFromGitHub() {
+  if (!GITHUB.token) {
+    setGitHubToken();
+    if (!GITHUB.token) return;
+  }
+
+  const status = document.getElementById("githubStatus");
+  if (status) {
+    status.textContent = "Loading from GitHub…";
+    status.style.color = "#7a7267";
+  }
 
   try {
     const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?ref=${GITHUB.branch}`;
@@ -485,29 +506,38 @@ async function autoLoadFromGitHub() {
         Accept: "application/vnd.github.v3+json"
       }
     });
-    if (!res.ok) return null;
-
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.message || `GitHub GET failed: ${res.status}`);
+    }
     const json = await res.json();
     const decoded = decodeURIComponent(escape(atob(json.content)));
-    return JSON.parse(decoded);
+    const parsed = JSON.parse(decoded);
+
+    itinState = parsed;
+    saveToLocal();
+    renderItinerary();
+
+    if (status) {
+      status.textContent = "Loaded from GitHub";
+      status.style.color = "#2f7d32";
+    }
   } catch (e) {
-    console.error("GitHub auto load failed:", e);
-    return null;
+    console.error(e);
+    if (status) {
+      status.textContent = "GitHub load failed: " + e.message;
+      status.style.color = "#b3261e";
+    } else {
+      alert("GitHub load failed: " + e.message);
+    }
   }
 }
 
-// Init
+// 7) Init
 
-async function initItinerary() {
+function initItinerary() {
+  itinState = loadFromLocal() || cloneDefaultItin();
   loadGitHubToken();
-
-  let loaded = await autoLoadFromGitHub();
-  if (!loaded) loaded = loadFromLocal();
-  if (!loaded) loaded = cloneDefaultItin();
-
-  itinState = loaded;
-  saveToLocal();
-  renderItinerary();
 
   const resetBtn = document.getElementById("resetBtn");
   const tokenBtn = document.getElementById("githubToken");
@@ -517,16 +547,13 @@ async function initItinerary() {
   if (resetBtn) resetBtn.addEventListener("click", resetItinerary);
   if (tokenBtn) tokenBtn.addEventListener("click", setGitHubToken);
   if (saveBtn) saveBtn.addEventListener("click", saveItineraryToGitHub);
-  if (loadBtn) {
-    loadBtn.addEventListener("click", async () => {
-      const data = await autoLoadFromGitHub();
-      if (data) {
-        itinState = data;
-        saveToLocal();
-        renderItinerary();
-      }
-    });
-  }
+  if (loadBtn) loadBtn.addEventListener("click", loadItineraryFromGitHub);
+
+  renderItinerary();
 }
 
-document.addEventListener("DOMContentLoaded", initItinerary);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initItinerary);
+} else {
+  initItinerary();
+}
