@@ -49,18 +49,20 @@
   <!-- MAP -->
   <section class="card map-section">
     <h2 class="section-title">
-      <i class="fas fa-map"></i> Interactive Paris Map
+      <i class="fas fa-map"></i> Interactive Paris map
     </h2>
-    <p class="section-subtitle">Day-linked pins · Hover highlights · MyMaps sync</p>
+    <p class="section-subtitle">
+      Pins linked to the itinerary · Filter by day · Click to focus
+    </p>
 
-    <div id="mapToolbar" class="map-toolbar">
-      <button data-action="showAll">Show All</button>
-      <button data-action="today">Today Only</button>
-      <button data-action="selected">Selected Day</button>
-      <button data-action="clear">Clear Highlights</button>
+    <div class="map-toolbar" id="mapToolbar">
+      <button type="button" data-action="showAll">Show all pins</button>
+      <button type="button" data-action="today">Show today only</button>
+      <button type="button" data-action="selected">Show selected day</button>
+      <button type="button" data-action="clear">Clear highlights</button>
     </div>
 
-    <div class="map-container" id="liveMap"></div>
+    <div id="liveMap" class="map-container"></div>
   </section>
 
   <!-- ITINERARY -->
@@ -71,7 +73,7 @@
           <i class="fas fa-suitcase-rolling"></i> Itinerary planner
         </h2>
         <p class="section-subtitle">
-          Drag items between days and the Open Bin · Add or delete freely · Saved locally and synced to GitHub
+          Drag items between days and the Open Bin · Add or delete freely · Saved locally and can sync to GitHub
         </p>
       </div>
       <div class="itinerary-header-right">
@@ -88,12 +90,18 @@
     <div class="itinerary-layout">
 
       <!-- Days -->
-      <div id="daysColumn" class="days-column"></div>
+      <div id="daysColumn" class="days-column">
+        <!-- itinerary.js populates -->
+      </div>
 
       <!-- Open Bin -->
       <aside class="open-bin-column">
-        <h3 class="open-bin-title"><i class="fas fa-inbox"></i> Open Bin</h3>
-        <p class="open-bin-subtitle">Day 1 and extra ideas live here. Drag anywhere.</p>
+        <h3 class="open-bin-title">
+          <i class="fas fa-inbox"></i> Open Bin
+        </h3>
+        <p class="open-bin-subtitle">
+          Day 1 and extra ideas live here. Drag anywhere.
+        </p>
 
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
@@ -103,23 +111,29 @@
               <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
           </div>
-          <div id="openBinList" class="itinerary-list" data-day="OPEN BIN"></div>
+          <div id="openBinList" class="itinerary-list" data-day="OPEN BIN">
+            <!-- itinerary.js populates -->
+          </div>
         </div>
       </aside>
     </div>
   </section>
 
-  <!-- JS -->
+  <!-- Scripts -->
   <script src="app.js"></script>
   <script src="itinerary.js"></script>
 
-  <!-- Google Maps API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap" async></script>
-
-  <!-- Map System -->
+  <!-- Map logic (defines initLiveMap and MapAPI) -->
   <script src="map.js"></script>
 
-  <!-- SortableJS -->
+  <!-- Google Maps API -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap"
+    async
+    defer
+  ></script>
+
+  <!-- SortableJS (currently unused but harmless) -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 
 </body>
