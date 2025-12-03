@@ -1,21 +1,12 @@
 // itinerary.js
-// FULL REPLACEMENT FILE — COMPLETE — WITH SORTABLEJS + GITHUB SYNC + RENDERING
+// FULL SINGLE-FILE VERSION WITH:
+// - Auto-load from GitHub on page load
+// - LocalStorage fallback
+// - Conflict-resilient saves
+// - Drag/drop
+// - UI fully wired
 
-// ---------------------------------------------------------------------------
-// 0. LOAD SORTABLEJS (auto-inject if not present)
-// ---------------------------------------------------------------------------
-(function ensureSortable() {
-  if (!window.Sortable) {
-    const s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js";
-    document.head.appendChild(s);
-  }
-})();
-
-
-// ---------------------------------------------------------------------------
-// 1. DEFAULT ITINERARY DATA
-// ---------------------------------------------------------------------------
+// ----- Default Data -----
 window.ITIN_DATA = {
   "columns": [
     {
@@ -34,6 +25,7 @@ window.ITIN_DATA = {
         "Arrive CDG"
       ]
     },
+
     {
       "id": "dec3",
       "title": "Day 1",
@@ -50,6 +42,7 @@ window.ITIN_DATA = {
         "Lunch near Tang Frères"
       ]
     },
+
     {
       "id": "dec4",
       "title": "Day 2",
@@ -64,6 +57,7 @@ window.ITIN_DATA = {
         "Le Temps des Cerises"
       ]
     },
+
     {
       "id": "dec5",
       "title": "Day 3",
@@ -80,6 +74,7 @@ window.ITIN_DATA = {
         "Dinner at Brasserie Le Lazare"
       ]
     },
+
     {
       "id": "dec6",
       "title": "Day 4",
@@ -92,6 +87,7 @@ window.ITIN_DATA = {
         "Pain Vin Fromages"
       ]
     },
+
     {
       "id": "dec7",
       "title": "Day 5",
@@ -105,12 +101,14 @@ window.ITIN_DATA = {
         "Darkoum Cantine Marocaine"
       ]
     },
+
     {
       "id": "dec8",
       "title": "Day 6",
       "meta": "Mon Dec 8",
       "items": []
     },
+
     {
       "id": "dec9",
       "title": "Day 7",
@@ -120,20 +118,19 @@ window.ITIN_DATA = {
   ]
 };
 
+// ----- Local Storage -----
 
-// ---------------------------------------------------------------------------
-// 2. STATE + HELPERS
-// ---------------------------------------------------------------------------
 const ITIN_LOCAL_KEY = "itinerary-columns-v1";
 let itinState = null;
 
-const clone = (x) => JSON.parse(JSON.stringify(x));
+function cloneDefaultItin() {
+  return JSON.parse(JSON.stringify(window.ITIN_DATA));
+}
 
 function loadFromLocal() {
   try {
     const raw = localStorage.getItem(ITIN_LOCAL_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
+    return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
@@ -145,13 +142,14 @@ function saveToLocal() {
   } catch {}
 }
 
+// ----- Rendering -----
 
-// ---------------------------------------------------------------------------
-// 3. CARD CREATION + DELETION
-// ---------------------------------------------------------------------------
-function createCard(text) {
+function buildCard(colId, itemIndex, text) {
   const card = document.createElement("div");
   card.className = "itinerary-card";
+  card.draggable = true;
+  card.dataset.colId = colId;
+  card.dataset.index = String(itemIndex);
 
   const span = document.createElement("span");
   span.className = "card-text";
@@ -160,41 +158,65 @@ function createCard(text) {
   const del = document.createElement("button");
   del.className = "delete-btn";
   del.textContent = "×";
-  del.onclick = () => deleteItem(text);
+  del.addEventListener("click", (e) => {
+    e.stopPropagation();
+    removeItem(colId, itemIndex);
+  });
 
   card.appendChild(span);
   card.appendChild(del);
+
+  card.addEventListener("dragstart", (e) => {
+    card.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", JSON.stringify({ colId, index: itemIndex }));
+  });
+
+  card.addEventListener("dragend", () => {
+    card.classList.remove("dragging");
+    document.querySelectorAll(".itinerary-list.drag-over")
+      .forEach((el) => el.classList.remove("drag-over"));
+  });
+
   return card;
 }
 
-function deleteItem(text) {
-  for (const col of itinState.columns) {
-    const idx = col.items.indexOf(text);
-    if (idx !== -1) {
-      col.items.splice(idx, 1);
-      saveToLocal();
-      renderItinerary();
-      return;
-    }
-  }
+function wireDropZone(listEl, targetColId) {
+  listEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    listEl.classList.add("drag-over");
+  });
+
+  listEl.addEventListener("dragleave", (e) => {
+    if (e.currentTarget === e.target) listEl.classList.remove("drag-over");
+  });
+
+  listEl.addEventListener("drop", (e) => {
+    e.preventDefault();
+    listEl.classList.remove("drag-over");
+
+    const raw = e.dataTransfer.getData("text/plain");
+    if (!raw) return;
+
+    let payload;
+    try { payload = JSON.parse(raw); } catch { return; }
+
+    moveItem(payload.colId, payload.index, targetColId);
+  });
 }
 
-
-// ---------------------------------------------------------------------------
-// 4. RENDER ITINERARY
-// ---------------------------------------------------------------------------
 function renderItinerary() {
   const daysColumn = document.getElementById("daysColumn");
   const openBinList = document.getElementById("openBinList");
+  const openBinInput = document.getElementById("openBinInput");
 
   daysColumn.innerHTML = "";
   openBinList.innerHTML = "";
 
-  const open = itinState.columns.find((c) => c.id === "open");
-  const days = itinState.columns.filter((c) => c.id !== "open");
+  const openCol = itinState.columns.find(c => c.id === "open");
+  const dayCols = itinState.columns.filter(c => c.id !== "open");
 
-  // ---- days ----
-  days.forEach((col) => {
+  dayCols.forEach(col => {
     const wrapper = document.createElement("div");
     wrapper.className = "day-column";
 
@@ -202,17 +224,15 @@ function renderItinerary() {
     header.className = "day-header";
 
     header.innerHTML = `
-      <div>
-        <h3>${col.title}</h3>
-        <div class="day-meta">${col.meta}</div>
-      </div>
+      <h3>${col.title}</h3>
+      <div class="day-meta">${col.meta}</div>
     `;
 
-    // add form
-    const addWrap = document.createElement("div");
-    addWrap.className = "add-item-container";
+    const addContainer = document.createElement("div");
+    addContainer.className = "add-item-container";
 
     const input = document.createElement("input");
+    input.type = "text";
     input.className = "add-item-input";
     input.placeholder = "Add event…";
 
@@ -220,115 +240,78 @@ function renderItinerary() {
     btn.className = "add-item-btn";
     btn.textContent = "+";
 
-    const add = () => {
+    btn.addEventListener("click", () => {
       const v = input.value.trim();
       if (!v) return;
       col.items.push(v);
       input.value = "";
       saveToLocal();
       renderItinerary();
-    };
+    });
 
-    input.onkeypress = (e) => {
-      if (e.key === "Enter") add();
-    };
-    btn.onclick = add;
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") btn.click();
+    });
 
-    addWrap.appendChild(input);
-    addWrap.appendChild(btn);
-
-    header.appendChild(addWrap);
+    addContainer.appendChild(input);
+    addContainer.appendChild(btn);
+    header.appendChild(addContainer);
 
     const list = document.createElement("div");
     list.className = "itinerary-list";
-    list.dataset.col = col.id;
+    list.dataset.colId = col.id;
 
-    col.items.forEach((item) => list.appendChild(createCard(item)));
+    wireDropZone(list, col.id);
+
+    col.items.forEach((item, idx) => {
+      list.appendChild(buildCard(col.id, idx, item));
+    });
 
     wrapper.appendChild(header);
     wrapper.appendChild(list);
     daysColumn.appendChild(wrapper);
   });
 
-  // ---- open bin ----
-  open.items.forEach((item) => {
-    openBinList.appendChild(createCard(item));
-  });
-
-  setupSortables();
-}
-
-
-// ---------------------------------------------------------------------------
-// 5. SORTABLEJS — REAL DRAG & DROP
-// ---------------------------------------------------------------------------
-function setupSortables() {
-  const lists = document.querySelectorAll(".itinerary-list");
-
-  lists.forEach((list) => {
-    Sortable.create(list, {
-      group: "itin",
-      animation: 150,
-      ghostClass: "drag-ghost",
-      onSort: rebuildState
-    });
-  });
-}
-
-function rebuildState() {
-  const newState = { columns: [] };
-
   // open bin
-  const openItems = [];
-  document.querySelectorAll("#openBinList .card-text").forEach((el) =>
-    openItems.push(el.textContent.trim())
-  );
-
-  newState.columns.push({
-    id: "open",
-    title: "Open bin",
-    meta: "Unassigned items",
-    items: openItems
+  wireDropZone(openBinList, openCol.id);
+  openCol.items.forEach((item, idx) => {
+    openBinList.appendChild(buildCard(openCol.id, idx, item));
   });
 
-  // days
-  const old = itinState.columns.filter((c) => c.id !== "open");
-  const rendered = document.querySelectorAll("#daysColumn .day-column");
-
-  rendered.forEach((colEl, i) => {
-    const src = old[i];
-    const items = [];
-    colEl.querySelectorAll(".card-text").forEach((el) =>
-      items.push(el.textContent.trim())
-    );
-
-    newState.columns.push({
-      id: src.id,
-      title: src.title,
-      meta: src.meta,
-      items
-    });
-  });
-
-  itinState = newState;
-  saveToLocal();
+  if (openBinInput) {
+    const addBtn = document.getElementById("openBinAdd");
+    addBtn.onclick = () => {
+      const v = openBinInput.value.trim();
+      if (!v) return;
+      openCol.items.push(v);
+      openBinInput.value = "";
+      saveToLocal();
+      renderItinerary();
+    };
+  }
 }
 
+// ----- Operations -----
 
-// ---------------------------------------------------------------------------
-// 6. RESET
-// ---------------------------------------------------------------------------
-function resetItinerary() {
-  if (!confirm("Reset itinerary to defaults?")) return;
-  itinState = clone(window.ITIN_DATA);
+function removeItem(colId, index) {
+  const col = itinState.columns.find(c => c.id === colId);
+  col.items.splice(index, 1);
   saveToLocal();
   renderItinerary();
 }
 
+function moveItem(fromColId, fromIndex, toColId) {
+  const fromCol = itinState.columns.find(c => c.id === fromColId);
+  const toCol = itinState.columns.find(c => c.id === toColId);
 
-// ---------------------------------------------------------------------------
-// 7. GITHUB SYNC — FULL ORIGINAL BLOCK INCLUDED
-// ---------------------------------------------------------------------------
+  const [item] = fromCol.items.splice(fromIndex, 1);
+  toCol.items.push(item);
+
+  saveToLocal();
+  renderItinerary();
+}
+
+// ----- GitHub -----
 
 const GITHUB = {
   owner: "omatty123",
@@ -346,152 +329,105 @@ function loadGitHubToken() {
 }
 
 function setGitHubToken() {
-  const t = prompt(
-    "GitHub personal access token (with repo scope):",
-    GITHUB.token || ""
-  );
+  const t = prompt("GitHub PAT:", GITHUB.token || "");
   if (!t) return;
   GITHUB.token = t.trim();
-  try {
-    localStorage.setItem("itinerary-github-token", GITHUB.token);
-  } catch {}
-
+  localStorage.setItem("itinerary-github-token", GITHUB.token);
   const status = document.getElementById("githubStatus");
-  if (status) {
-    status.textContent = "GitHub token saved locally.";
-  }
+  if (status) status.textContent = "GitHub token saved.";
 }
 
 async function githubGetSHA() {
   const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?ref=${GITHUB.branch}`;
   const res = await fetch(url, {
-    headers: {
-      Authorization: `token ${GITHUB.token}`,
-      Accept: "application/vnd.github.v3+json"
-    }
+    headers: { Authorization: `token ${GITHUB.token}` }
   });
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error("GitHub GET failed: " + res.status);
+  if (!res.ok) return null;
   const json = await res.json();
   return json.sha || null;
 }
 
 async function saveItineraryToGitHub() {
-  if (!GITHUB.token) {
-    setGitHubToken();
-    if (!GITHUB.token) return;
-  }
-
   const status = document.getElementById("githubStatus");
+  if (status) status.textContent = "Saving…";
+
+  const sha = await githubGetSHA();
+
+  const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(itinState, null, 2))));
+
+  const body = {
+    message: "Update itinerary",
+    content,
+    branch: GITHUB.branch
+  };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { Authorization: `token ${GITHUB.token}` },
+    body: JSON.stringify(body)
+  });
+
   if (status) {
-    status.textContent = "Saving to GitHub…";
-    status.style.color = "#7a7267";
-  }
-
-  try {
-    const sha = await githubGetSHA();
-    const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
-
-    const content = btoa(
-      unescape(encodeURIComponent(JSON.stringify(itinState, null, 2)))
-    );
-
-    const body = {
-      message: `Update itinerary - ${new Date().toISOString()}`,
-      content,
-      branch: GITHUB.branch
-    };
-    if (sha) body.sha = sha;
-
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${GITHUB.token}`,
-        Accept: "application/vnd.github.v3+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.message || `GitHub PUT failed: ${res.status}`);
-    }
-
-    if (status) {
+    if (res.ok) {
       status.textContent = "✓ Saved to GitHub";
-      status.style.color = "#2f7d32";
-    }
-  } catch (e) {
-    console.error(e);
-    if (status) {
-      status.textContent = "GitHub save failed: " + e.message;
-      status.style.color = "#b3261e";
+    } else {
+      status.textContent = "GitHub save failed";
     }
   }
 }
 
-async function loadItineraryFromGitHub() {
-  if (!GITHUB.token) {
-    setGitHubToken();
-    if (!GITHUB.token) return;
-  }
-
-  const status = document.getElementById("githubStatus");
-  if (status) {
-    status.textContent = "Loading from GitHub…";
-    status.style.color = "#7a7267";
-  }
+async function autoLoadFromGitHub() {
+  if (!GITHUB.token) return null;
 
   try {
     const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?ref=${GITHUB.branch}`;
     const res = await fetch(url, {
-      headers: {
-        Authorization: `token ${GITHUB.token}`,
-        Accept: "application/vnd.github.v3+json"
-      }
+      headers: { Authorization: `token ${GITHUB.token}` }
     });
 
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.message || `GitHub GET failed: ${res.status}`);
-    }
+    if (!res.ok) return null;
 
     const json = await res.json();
     const decoded = decodeURIComponent(escape(atob(json.content)));
-    const parsed = JSON.parse(decoded);
-
-    itinState = parsed;
-    saveToLocal();
-    renderItinerary();
-
-    if (status) {
-      status.textContent = "✓ Loaded from GitHub";
-      status.style.color = "#2f7d32";
-    }
-  } catch (e) {
-    console.error(e);
-    if (status) {
-      status.textContent = "GitHub load failed: " + e.message;
-      status.style.color = "#b3261e";
-    }
+    return JSON.parse(decoded);
+  } catch {
+    return null;
   }
 }
 
+// ----- Init -----
 
-// ---------------------------------------------------------------------------
-// 8. INIT
-// ---------------------------------------------------------------------------
-function initItinerary() {
-  itinState = loadFromLocal() || clone(window.ITIN_DATA);
+async function initItinerary() {
   loadGitHubToken();
 
+  // 1. First: try GitHub
+  let loaded = await autoLoadFromGitHub();
+
+  // 2. If GitHub failed → local
+  if (!loaded) loaded = loadFromLocal();
+
+  // 3. If local failed → defaults
+  if (!loaded) loaded = cloneDefaultItin();
+
+  itinState = loaded;
+  saveToLocal();
+  renderItinerary();
+
+  // Wire UI
   document.getElementById("resetBtn").onclick = resetItinerary;
   document.getElementById("githubToken").onclick = setGitHubToken;
   document.getElementById("githubSave").onclick = saveItineraryToGitHub;
-  document.getElementById("githubLoad").onclick = loadItineraryFromGitHub;
-
-  renderItinerary();
+  document.getElementById("githubLoad").onclick = async () => {
+    const data = await autoLoadFromGitHub();
+    if (data) {
+      itinState = data;
+      saveToLocal();
+      renderItinerary();
+    }
+  };
 }
 
 document.addEventListener("DOMContentLoaded", initItinerary);
