@@ -1,12 +1,6 @@
 // itinerary.js
-// FULL SINGLE-FILE VERSION WITH:
-// - Auto-load from GitHub on page load
-// - LocalStorage fallback
-// - Conflict-resilient saves
-// - Drag/drop
-// - UI fully wired
+// Default data, rendering, drag and drop, GitHub sync, and map hooks
 
-// ----- Default Data -----
 window.ITIN_DATA = {
   "columns": [
     {
@@ -25,7 +19,6 @@ window.ITIN_DATA = {
         "Arrive CDG"
       ]
     },
-
     {
       "id": "dec3",
       "title": "Day 1",
@@ -42,7 +35,6 @@ window.ITIN_DATA = {
         "Lunch near Tang Frères"
       ]
     },
-
     {
       "id": "dec4",
       "title": "Day 2",
@@ -57,7 +49,6 @@ window.ITIN_DATA = {
         "Le Temps des Cerises"
       ]
     },
-
     {
       "id": "dec5",
       "title": "Day 3",
@@ -74,7 +65,6 @@ window.ITIN_DATA = {
         "Dinner at Brasserie Le Lazare"
       ]
     },
-
     {
       "id": "dec6",
       "title": "Day 4",
@@ -87,7 +77,6 @@ window.ITIN_DATA = {
         "Pain Vin Fromages"
       ]
     },
-
     {
       "id": "dec7",
       "title": "Day 5",
@@ -101,14 +90,12 @@ window.ITIN_DATA = {
         "Darkoum Cantine Marocaine"
       ]
     },
-
     {
       "id": "dec8",
       "title": "Day 6",
       "meta": "Mon Dec 8",
       "items": []
     },
-
     {
       "id": "dec9",
       "title": "Day 7",
@@ -118,10 +105,13 @@ window.ITIN_DATA = {
   ]
 };
 
-// ----- Local Storage -----
-
 const ITIN_LOCAL_KEY = "itinerary-columns-v1";
 let itinState = null;
+
+// This global map lets the map system know which names belong to each day
+window.DayColumnMap = {};
+
+// Helpers
 
 function cloneDefaultItin() {
   return JSON.parse(JSON.stringify(window.ITIN_DATA));
@@ -142,7 +132,7 @@ function saveToLocal() {
   } catch {}
 }
 
-// ----- Rendering -----
+// Rendering
 
 function buildCard(colId, itemIndex, text) {
   const card = document.createElement("div");
@@ -166,16 +156,34 @@ function buildCard(colId, itemIndex, text) {
   card.appendChild(span);
   card.appendChild(del);
 
+  // Drag events
   card.addEventListener("dragstart", (e) => {
     card.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", JSON.stringify({ colId, index: itemIndex }));
+    e.dataTransfer.setData(
+      "text/plain",
+      JSON.stringify({ colId, index: itemIndex })
+    );
   });
 
   card.addEventListener("dragend", () => {
     card.classList.remove("dragging");
-    document.querySelectorAll(".itinerary-list.drag-over")
+    document
+      .querySelectorAll(".itinerary-list.drag-over")
       .forEach((el) => el.classList.remove("drag-over"));
+  });
+
+  // Map hover and click
+  card.addEventListener("mouseenter", () => {
+    if (window.MapAPI && window.MapAPI.highlightPlace) {
+      window.MapAPI.highlightPlace(text);
+    }
+  });
+
+  card.addEventListener("click", () => {
+    if (window.MapAPI && window.MapAPI.focusPlace) {
+      window.MapAPI.focusPlace(text);
+    }
   });
 
   return card;
@@ -188,7 +196,9 @@ function wireDropZone(listEl, targetColId) {
   });
 
   listEl.addEventListener("dragleave", (e) => {
-    if (e.currentTarget === e.target) listEl.classList.remove("drag-over");
+    if (e.currentTarget === e.target) {
+      listEl.classList.remove("drag-over");
+    }
   });
 
   listEl.addEventListener("drop", (e) => {
@@ -199,34 +209,43 @@ function wireDropZone(listEl, targetColId) {
     if (!raw) return;
 
     let payload;
-    try { payload = JSON.parse(raw); } catch { return; }
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      return;
+    }
 
     moveItem(payload.colId, payload.index, targetColId);
   });
 }
 
 function renderItinerary() {
+  if (!itinState || !itinState.columns) return;
+
   const daysColumn = document.getElementById("daysColumn");
   const openBinList = document.getElementById("openBinList");
   const openBinInput = document.getElementById("openBinInput");
 
+  if (!daysColumn || !openBinList) return;
+
   daysColumn.innerHTML = "";
   openBinList.innerHTML = "";
+  window.DayColumnMap = {};
 
-  const openCol = itinState.columns.find(c => c.id === "open");
-  const dayCols = itinState.columns.filter(c => c.id !== "open");
+  const openCol = itinState.columns.find((c) => c.id === "open");
+  const dayCols = itinState.columns.filter((c) => c.id !== "open");
 
-  dayCols.forEach(col => {
+  // Render day columns
+  dayCols.forEach((col) => {
     const wrapper = document.createElement("div");
     wrapper.className = "day-column";
+    wrapper.dataset.dayId = col.id;
 
     const header = document.createElement("div");
     header.className = "day-header";
 
-    header.innerHTML = `
-      <h3>${col.title}</h3>
-      <div class="day-meta">${col.meta}</div>
-    `;
+    const titleBlock = document.createElement("div");
+    titleBlock.innerHTML = `<h3>${col.title}</h3><div class="day-meta">${col.meta}</div>`;
 
     const addContainer = document.createElement("div");
     addContainer.className = "add-item-container";
@@ -240,21 +259,24 @@ function renderItinerary() {
     btn.className = "add-item-btn";
     btn.textContent = "+";
 
-    btn.addEventListener("click", () => {
+    function addItemFromInput() {
       const v = input.value.trim();
       if (!v) return;
       col.items.push(v);
       input.value = "";
       saveToLocal();
       renderItinerary();
-    });
+    }
 
     input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") btn.click();
+      if (e.key === "Enter") addItemFromInput();
     });
+    btn.addEventListener("click", addItemFromInput);
 
     addContainer.appendChild(input);
     addContainer.appendChild(btn);
+
+    header.appendChild(titleBlock);
     header.appendChild(addContainer);
 
     const list = document.createElement("div");
@@ -263,8 +285,25 @@ function renderItinerary() {
 
     wireDropZone(list, col.id);
 
-    col.items.forEach((item, idx) => {
-      list.appendChild(buildCard(col.id, idx, item));
+    const namesForDay = [];
+
+    col.items.forEach((itemText, idx) => {
+      namesForDay.push(itemText);
+      const card = buildCard(col.id, idx, itemText);
+      list.appendChild(card);
+    });
+
+    // store mapping for this day
+    window.DayColumnMap[col.id] = namesForDay;
+
+    // clicking the header sets the selected day and filters markers
+    header.addEventListener("click", () => {
+      if (window.MapAPI && window.MapAPI.setSelectedDayId) {
+        window.MapAPI.setSelectedDayId(col.id);
+      }
+      if (window.MapAPI && window.MapAPI.showMarkersForList) {
+        window.MapAPI.showMarkersForList(window.DayColumnMap[col.id] || []);
+      }
     });
 
     wrapper.appendChild(header);
@@ -272,46 +311,73 @@ function renderItinerary() {
     daysColumn.appendChild(wrapper);
   });
 
-  // open bin
-  wireDropZone(openBinList, openCol.id);
-  openCol.items.forEach((item, idx) => {
-    openBinList.appendChild(buildCard(openCol.id, idx, item));
-  });
+  // Render Open Bin
+  if (openCol) {
+    wireDropZone(openBinList, openCol.id);
 
-  if (openBinInput) {
-    const addBtn = document.getElementById("openBinAdd");
-    addBtn.onclick = () => {
-      const v = openBinInput.value.trim();
-      if (!v) return;
-      openCol.items.push(v);
-      openBinInput.value = "";
-      saveToLocal();
-      renderItinerary();
-    };
+    openCol.items.forEach((itemText, idx) => {
+      const card = buildCard(openCol.id, idx, itemText);
+      openBinList.appendChild(card);
+    });
+
+    if (openBinInput) {
+      const openBinAddBtn = document.getElementById("openBinAdd");
+
+      function addToOpenBin() {
+        const v = openBinInput.value.trim();
+        if (!v) return;
+        openCol.items.push(v);
+        openBinInput.value = "";
+        saveToLocal();
+        renderItinerary();
+      }
+
+      openBinInput.onkeypress = (e) => {
+        if (e.key === "Enter") addToOpenBin();
+      };
+      if (openBinAddBtn) openBinAddBtn.onclick = addToOpenBin;
+    }
   }
 }
 
-// ----- Operations -----
+// Item operations
 
 function removeItem(colId, index) {
-  const col = itinState.columns.find(c => c.id === colId);
-  col.items.splice(index, 1);
+  const col = itinState.columns.find((c) => c.id === colId);
+  if (!col) return;
+  const idx = Number(index);
+  if (Number.isNaN(idx) || idx < 0 || idx >= col.items.length) return;
+
+  col.items.splice(idx, 1);
   saveToLocal();
   renderItinerary();
 }
 
 function moveItem(fromColId, fromIndex, toColId) {
-  const fromCol = itinState.columns.find(c => c.id === fromColId);
-  const toCol = itinState.columns.find(c => c.id === toColId);
+  const fromCol = itinState.columns.find((c) => c.id === fromColId);
+  const toCol = itinState.columns.find((c) => c.id === toColId);
+  if (!fromCol || !toCol) return;
 
-  const [item] = fromCol.items.splice(fromIndex, 1);
+  const idx = Number(fromIndex);
+  if (Number.isNaN(idx) || idx < 0 || idx >= fromCol.items.length) return;
+
+  const [item] = fromCol.items.splice(idx, 1);
   toCol.items.push(item);
 
   saveToLocal();
   renderItinerary();
 }
 
-// ----- GitHub -----
+// Reset
+
+function resetItinerary() {
+  if (!confirm("Reset itinerary to defaults? This will erase your changes.")) return;
+  itinState = cloneDefaultItin();
+  saveToLocal();
+  renderItinerary();
+}
+
+// GitHub sync
 
 const GITHUB = {
   owner: "omatty123",
@@ -329,52 +395,81 @@ function loadGitHubToken() {
 }
 
 function setGitHubToken() {
-  const t = prompt("GitHub PAT:", GITHUB.token || "");
+  const t = prompt("GitHub personal access token (with repo scope):", GITHUB.token || "");
   if (!t) return;
   GITHUB.token = t.trim();
-  localStorage.setItem("itinerary-github-token", GITHUB.token);
+  try {
+    localStorage.setItem("itinerary-github-token", GITHUB.token);
+  } catch {}
   const status = document.getElementById("githubStatus");
-  if (status) status.textContent = "GitHub token saved.";
+  if (status) {
+    status.textContent = "GitHub token saved locally.";
+  }
 }
 
 async function githubGetSHA() {
   const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?ref=${GITHUB.branch}`;
   const res = await fetch(url, {
-    headers: { Authorization: `token ${GITHUB.token}` }
+    headers: {
+      Authorization: `token ${GITHUB.token}`,
+      Accept: "application/vnd.github.v3+json"
+    }
   });
   if (res.status === 404) return null;
-  if (!res.ok) return null;
+  if (!res.ok) throw new Error("GitHub GET failed: " + res.status);
   const json = await res.json();
   return json.sha || null;
 }
 
 async function saveItineraryToGitHub() {
+  if (!GITHUB.token) {
+    setGitHubToken();
+    if (!GITHUB.token) return;
+  }
+
   const status = document.getElementById("githubStatus");
-  if (status) status.textContent = "Saving…";
-
-  const sha = await githubGetSHA();
-
-  const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(itinState, null, 2))));
-
-  const body = {
-    message: "Update itinerary",
-    content,
-    branch: GITHUB.branch
-  };
-  if (sha) body.sha = sha;
-
-  const res = await fetch(url, {
-    method: "PUT",
-    headers: { Authorization: `token ${GITHUB.token}` },
-    body: JSON.stringify(body)
-  });
-
   if (status) {
-    if (res.ok) {
+    status.textContent = "Saving to GitHub…";
+    status.style.color = "#7a7267";
+  }
+
+  try {
+    const sha = await githubGetSHA();
+    const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(itinState, null, 2))));
+
+    const body = {
+      message: `Update itinerary - ${new Date().toISOString()}`,
+      content,
+      branch: GITHUB.branch
+    };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${GITHUB.token}`,
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.message || `GitHub PUT failed: ${res.status}`);
+    }
+
+    if (status) {
       status.textContent = "✓ Saved to GitHub";
-    } else {
-      status.textContent = "GitHub save failed";
+      status.style.color = "#2f7d32";
+    }
+  } catch (e) {
+    console.error(e);
+    const status = document.getElementById("githubStatus");
+    if (status) {
+      status.textContent = "GitHub save failed: " + e.message;
+      status.style.color = "#b3261e";
     }
   }
 }
@@ -385,49 +480,53 @@ async function autoLoadFromGitHub() {
   try {
     const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?ref=${GITHUB.branch}`;
     const res = await fetch(url, {
-      headers: { Authorization: `token ${GITHUB.token}` }
+      headers: {
+        Authorization: `token ${GITHUB.token}`,
+        Accept: "application/vnd.github.v3+json"
+      }
     });
-
     if (!res.ok) return null;
 
     const json = await res.json();
     const decoded = decodeURIComponent(escape(atob(json.content)));
     return JSON.parse(decoded);
-  } catch {
+  } catch (e) {
+    console.error("GitHub auto load failed:", e);
     return null;
   }
 }
 
-// ----- Init -----
+// Init
 
 async function initItinerary() {
   loadGitHubToken();
 
-  // 1. First: try GitHub
   let loaded = await autoLoadFromGitHub();
-
-  // 2. If GitHub failed → local
   if (!loaded) loaded = loadFromLocal();
-
-  // 3. If local failed → defaults
   if (!loaded) loaded = cloneDefaultItin();
 
   itinState = loaded;
   saveToLocal();
   renderItinerary();
 
-  // Wire UI
-  document.getElementById("resetBtn").onclick = resetItinerary;
-  document.getElementById("githubToken").onclick = setGitHubToken;
-  document.getElementById("githubSave").onclick = saveItineraryToGitHub;
-  document.getElementById("githubLoad").onclick = async () => {
-    const data = await autoLoadFromGitHub();
-    if (data) {
-      itinState = data;
-      saveToLocal();
-      renderItinerary();
-    }
-  };
+  const resetBtn = document.getElementById("resetBtn");
+  const tokenBtn = document.getElementById("githubToken");
+  const saveBtn = document.getElementById("githubSave");
+  const loadBtn = document.getElementById("githubLoad");
+
+  if (resetBtn) resetBtn.addEventListener("click", resetItinerary);
+  if (tokenBtn) tokenBtn.addEventListener("click", setGitHubToken);
+  if (saveBtn) saveBtn.addEventListener("click", saveItineraryToGitHub);
+  if (loadBtn) {
+    loadBtn.addEventListener("click", async () => {
+      const data = await autoLoadFromGitHub();
+      if (data) {
+        itinState = data;
+        saveToLocal();
+        renderItinerary();
+      }
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", initItinerary);
