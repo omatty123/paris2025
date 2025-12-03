@@ -52,11 +52,28 @@
   <!-- MAP -->
   <section class="card map-section">
     <h2 class="section-title">
-      <i class="fas fa-house-chimney"></i> Home base and pins
+      <i class="fas fa-house-chimney"></i> Home base and daily pins
     </h2>
     <p class="section-subtitle">
       7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement · Each itinerary item is pinned on this map by day
     </p>
+
+    <!-- Toolbar above the map -->
+    <div id="mapToolbar" style="margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+      <button class="small-btn" data-action="showAll">
+        <i class="fas fa-globe"></i> Show all pins
+      </button>
+      <button class="small-btn" data-action="today">
+        <i class="fas fa-calendar-day"></i> Today
+      </button>
+      <button class="small-btn" data-action="selected">
+        <i class="fas fa-bullseye"></i> Chosen day
+      </button>
+      <button class="small-btn" data-action="clear">
+        <i class="fas fa-eye-slash"></i> Clear filters
+      </button>
+    </div>
+
     <div class="map-container">
       <div id="liveMap" style="width: 100%; height: 100%;"></div>
     </div>
@@ -130,7 +147,7 @@
   <script src="app.js"></script>
   <script src="map.js"></script>
 
-  <!-- Google Maps JS API: insert your real key in place of YOUR_API_KEY_HERE -->
+  <!-- Google Maps JS API: insert your real key -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap"
     async
