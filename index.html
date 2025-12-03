@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Cormorant Garamond -->
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
 
   <!-- Font Awesome -->
   <link
@@ -55,20 +58,31 @@
       <i class="fas fa-house-chimney"></i> Home base and daily pins
     </h2>
     <p class="section-subtitle">
-      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement · Each itinerary item is pinned on this map by day
+      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement · Each itinerary item is pinned on this map by date
     </p>
 
     <!-- Toolbar above the map -->
-    <div id="mapToolbar" style="margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+    <div
+      id="mapToolbar"
+      style="margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px;"
+    >
       <button class="small-btn" data-action="showAll">
         <i class="fas fa-globe"></i> Show all pins
       </button>
+
       <button class="small-btn" data-action="today">
         <i class="fas fa-calendar-day"></i> Today
       </button>
-      <button class="small-btn" data-action="selected">
-        <i class="fas fa-bullseye"></i> Chosen day
-      </button>
+
+      <!-- Date filters -->
+      <button class="small-btn" data-day-id="dec3">Dec 3</button>
+      <button class="small-btn" data-day-id="dec4">Dec 4</button>
+      <button class="small-btn" data-day-id="dec5">Dec 5</button>
+      <button class="small-btn" data-day-id="dec6">Dec 6</button>
+      <button class="small-btn" data-day-id="dec7">Dec 7</button>
+      <button class="small-btn" data-day-id="dec8">Dec 8</button>
+      <button class="small-btn" data-day-id="dec9">Dec 9</button>
+
       <button class="small-btn" data-action="clear">
         <i class="fas fa-eye-slash"></i> Clear filters
       </button>
@@ -87,13 +101,11 @@
           <i class="fas fa-suitcase-rolling"></i> Itinerary planner
         </h2>
         <p class="section-subtitle">
-          Drag items between days and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
+          Drag items between dates and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
         </p>
       </div>
       <div class="itinerary-header-right">
-        <button class="secondary-btn" id="resetBtn">
-          Reset to defaults
-        </button>
+        <button class="secondary-btn" id="resetBtn">Reset to defaults</button>
         <div class="github-controls">
           <button class="small-btn" id="githubToken">Set GitHub token</button>
           <button class="small-btn" id="githubSave">Save to GitHub</button>
@@ -115,7 +127,7 @@
           <i class="fas fa-inbox"></i> Open Bin
         </h3>
         <p class="open-bin-subtitle">
-          Keep ideas, arrivals, and unscheduled events here. Drag into any day, or back again.
+          Keep arrivals, unscheduled ideas, and overflow here. Drag into any date, or back again.
         </p>
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
@@ -154,7 +166,7 @@
     defer
   ></script>
 
-  <!-- SortableJS must load before itinerary.js -->
+  <!-- SortableJS for drag and drop -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 
   <script src="itinerary.js"></script>
