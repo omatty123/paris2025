@@ -1,122 +1,55 @@
-// map.js
-// Interactive Google Map with persistent markers in localStorage
+// map.js — full interactive MyMaps sync
 
 let map;
-let markers = [];
+let kmlLayer;
+let markers = {};
+let selectedDay = null;
 
-// This is called by the Google Maps JS API callback in index.html
+// MyMaps KML URL (replace "layer" param with yours if you add layers)
+const KML_URL =
+  "https://www.google.com/maps/d/u/0/kml?mid=1k9SguuxO-GBk3bF4j2mr9lpahzS7Nbs";
+
 function initLiveMap() {
-  const savedMarkers = loadMarkers();
-
   map = new google.maps.Map(document.getElementById("liveMap"), {
-    center: { lat: 48.8335, lng: 2.3569 },
-    zoom: 14,
-    mapTypeId: "roadmap"
+    center: { lat: 48.8566, lng: 2.3522 },
+    zoom: 12,
+    mapTypeControl: false,
   });
 
-  // Restore saved markers
-  savedMarkers.forEach((m) => {
-    addMarker(m.position, m.title, false);
+  kmlLayer = new google.maps.KmlLayer({
+    url: KML_URL,
+    suppressInfoWindows: false,
+    preserveViewport: false,
+    map: map,
   });
 
-  // Click on map to add a new marker
-  map.addListener("click", (event) => {
-    const position = event.latLng;
-    const title = prompt("Name this location:");
-    if (title && title.trim() !== "") {
-      addMarker(position, title.trim(), true);
-    }
-  });
+  kmlLayer.addListener("defaultviewport_changed", () => {});
 }
 
-function addMarker(position, title, save = true) {
-  const marker = new google.maps.Marker({
-    position,
-    map,
-    draggable: true
-  });
-
-  marker.title = title;
-
-  const info = new google.maps.InfoWindow({
-    content: `
-      <div style="font-family: 'Cormorant Garamond', serif; font-size: 16px;">
-        <strong>${escapeHtml(title)}</strong><br />
-        <button id="renameBtn">Rename</button>
-        <button id="deleteBtn">Delete</button>
-      </div>
-    `
-  });
-
-  marker.addListener("click", () => {
-    info.open(map, marker);
-
-    google.maps.event.addListenerOnce(info, "domready", () => {
-      const renameBtn = document.getElementById("renameBtn");
-      const deleteBtn = document.getElementById("deleteBtn");
-
-      if (renameBtn) {
-        renameBtn.onclick = () => {
-          const newTitle = prompt("New name for this spot:", marker.title || "");
-          if (newTitle && newTitle.trim() !== "") {
-            marker.title = newTitle.trim();
-            saveMarkers();
-            info.close();
-          }
-        };
-      }
-
-      if (deleteBtn) {
-        deleteBtn.onclick = () => {
-          marker.setMap(null);
-          markers = markers.filter((m) => m !== marker);
-          saveMarkers();
-          info.close();
-        };
-      }
-    });
-  });
-
-  marker.addListener("dragend", () => {
-    saveMarkers();
-  });
-
-  markers.push(marker);
-  if (save) {
-    saveMarkers();
-  }
+// Highlight matched pin
+function highlightPlace(name) {
+  const mk = markers[name];
+  if (!mk) return;
+  mk.setAnimation(google.maps.Animation.BOUNCE);
+  setTimeout(() => mk.setAnimation(null), 1500);
+  map.panTo(mk.getPosition());
 }
 
-function saveMarkers() {
-  const data = markers.map((m) => ({
-    position: { lat: m.getPosition().lat(), lng: m.getPosition().lng() },
-    title: m.title || ""
-  }));
-  try {
-    localStorage.setItem("paris-map-markers", JSON.stringify(data));
-  } catch (e) {
-    console.warn("Could not save map markers:", e);
-  }
+// Show only markers for a given list
+function showMarkersForList(names) {
+  Object.values(markers).forEach((mk) => mk.setVisible(false));
+  names.forEach((n) => markers[n] && markers[n].setVisible(true));
 }
 
-function loadMarkers() {
-  try {
-    const raw = localStorage.getItem("paris-map-markers");
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
-  } catch (e) {
-    console.warn("Could not load map markers:", e);
-    return [];
-  }
+// Reset all visibility
+function showAllMarkers() {
+  Object.values(markers).forEach((mk) => mk.setVisible(true));
 }
 
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+// External API for itinerary.js
+window.MapAPI = {
+  highlightPlace,
+  showMarkersForList,
+  showAllMarkers,
+  setSelectedDay: (d) => (selectedDay = d),
+};
