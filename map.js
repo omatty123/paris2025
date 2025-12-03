@@ -1,6 +1,6 @@
 // map.js
 // Interactive map driven by the itinerary
-// Each item becomes a pin, color coded by day, with toolbar controls
+// Each item becomes a pin, color coded by date, with toolbar controls
 
 let mapInstance = null;
 let geocoder = null;
@@ -8,8 +8,8 @@ let geocoder = null;
 const geocodeCache = {};
 let markers = {}; // key: `${dayId}::${name}` -> google.maps.Marker
 let pendingPlaces = [];
-let selectedDayId = null;
 
+// Trip dates mapped to itinerary ids
 const DAY_DATE_MAP = {
   dec3: "2025-12-03",
   dec4: "2025-12-04",
@@ -20,6 +20,7 @@ const DAY_DATE_MAP = {
   dec9: "2025-12-09"
 };
 
+// Marker icons per day
 const ICONS = {
   home: "https://maps.google.com/mapfiles/kml/shapes/star.png",
   open: "https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png",
@@ -155,7 +156,7 @@ function createMarker(name, position, iconUrl, dayId) {
       ? "Home base"
       : dayId === "open"
       ? "Open bin"
-      : `Day id: ${dayId}`;
+      : `Itinerary group: ${dayId}`;
 
   const info = new google.maps.InfoWindow({
     content: `<div style="font-family: 'Cormorant Garamond', serif; font-size: 14px;">
@@ -171,7 +172,7 @@ function createMarker(name, position, iconUrl, dayId) {
   return marker;
 }
 
-// API for itinerary.js
+// API used by itinerary.js
 
 function resetPlaces() {
   Object.entries(markers).forEach(([key, marker]) => {
@@ -231,7 +232,7 @@ function clearHighlights() {
   showAllMarkers();
 }
 
-// Filtering logic
+// Marker filtering
 
 function showMarkersForDayList(dayId, names) {
   if (!mapInstance) return;
@@ -259,7 +260,7 @@ function showMarkersForDayList(dayId, names) {
   mapInstance.fitBounds(bounds);
 }
 
-function filterMarkersByDate(dateString, dayColumnsMap) {
+function filterMarkersByDateString(dateString, dayColumnsMap) {
   const dayId = Object.keys(DAY_DATE_MAP).find(
     (id) => DAY_DATE_MAP[id] === dateString
   );
@@ -271,7 +272,7 @@ function filterMarkersByDate(dateString, dayColumnsMap) {
 
   const names = dayColumnsMap[dayId] || [];
   if (!names.length) {
-    alert("No items mapped for this day.");
+    alert("No items mapped for this date.");
     return;
   }
 
@@ -283,11 +284,21 @@ function wireMapToolbar() {
   if (!toolbar) return;
 
   toolbar.addEventListener("click", (e) => {
-    const btn = e.target.closest("button[data-action]");
+    const btn = e.target.closest("button");
     if (!btn) return;
+
+    const dayId = btn.dataset.dayId;
     const action = btn.dataset.action;
 
     if (!window.MapAPI) return;
+
+    if (dayId) {
+      // Date specific button
+      window.MapAPI.filterByDay(dayId);
+      return;
+    }
+
+    if (!action) return;
 
     if (action === "showAll") {
       window.MapAPI.showAllMarkers();
@@ -298,15 +309,13 @@ function wireMapToolbar() {
       const d = String(today.getDate()).padStart(2, "0");
       const dateStr = `${y}-${m}-${d}`;
       window.MapAPI.filterToday(dateStr);
-    } else if (action === "selected") {
-      window.MapAPI.filterSelectedDay();
     } else if (action === "clear") {
       window.MapAPI.clearHighlights();
     }
   });
 }
 
-// Expose API
+// Expose for itinerary.js
 
 window.MapAPI = {
   resetPlaces,
@@ -314,30 +323,23 @@ window.MapAPI = {
   highlightPlace,
   showAllMarkers,
   clearHighlights,
-  setSelectedDayId(id) {
-    selectedDayId = id;
-  },
   filterToday(dateStr) {
     if (!window.DayColumnMap) {
       alert("Day data not available yet.");
       return;
     }
-    filterMarkersByDate(dateStr, window.DayColumnMap);
+    filterMarkersByDateString(dateStr, window.DayColumnMap);
   },
-  filterSelectedDay() {
-    if (!selectedDayId) {
-      alert("No day selected yet. Click a day header first.");
-      return;
-    }
+  filterByDay(dayId) {
     if (!window.DayColumnMap) {
       alert("Day data not available yet.");
       return;
     }
-    const names = window.DayColumnMap[selectedDayId] || [];
+    const names = window.DayColumnMap[dayId] || [];
     if (!names.length) {
-      alert("Selected day has no mapped places.");
+      alert("No items mapped for this date.");
       return;
     }
-    showMarkersForDayList(selectedDayId, names);
+    showMarkersForDayList(dayId, names);
   }
 };
