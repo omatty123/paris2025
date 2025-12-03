@@ -1,22 +1,15 @@
 // map.js
-// Interactive map driven directly by the itinerary
-// Every item in the itinerary becomes a pin with a color by day
-// No places.json, no manual coordinates
+// Interactive map driven by the itinerary
+// Each item becomes a pin, color coded by day, with toolbar controls
 
 let mapInstance = null;
 let geocoder = null;
 
-// Cache geocoding results so we do not keep hitting the API
 const geocodeCache = {};
-
-// All markers: key -> google.maps.Marker
-// key format: `${dayId}::${name}`
-let markers = {};
-
-// Places waiting for the map to be ready
+let markers = {}; // key: `${dayId}::${name}` -> google.maps.Marker
 let pendingPlaces = [];
+let selectedDayId = null;
 
-// Optional: map day ids to dates if you ever want date based filtering
 const DAY_DATE_MAP = {
   dec3: "2025-12-03",
   dec4: "2025-12-04",
@@ -27,7 +20,6 @@ const DAY_DATE_MAP = {
   dec9: "2025-12-09"
 };
 
-// Icons per day or bucket
 const ICONS = {
   home: "https://maps.google.com/mapfiles/kml/shapes/star.png",
   open: "https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png",
@@ -59,21 +51,17 @@ function initLiveMap() {
 
   geocoder = new google.maps.Geocoder();
 
-  // Home base star marker
   createHomeMarker();
 
-  // Process places that itinerary.js already queued before map was ready
   if (pendingPlaces.length > 0) {
     const queued = [...pendingPlaces];
     pendingPlaces = [];
     queued.forEach((p) => ensureMarker(p.dayId, p.name));
   }
 
-  // Optionally wire toolbar if you later add one
   wireMapToolbar();
 }
 
-// Home base star
 function createHomeMarker() {
   if (!mapInstance || !geocoder) return;
 
@@ -87,12 +75,7 @@ function createHomeMarker() {
   if (geocodeCache[query]) {
     const loc = geocodeCache[query];
     const position = new google.maps.LatLng(loc.lat, loc.lng);
-    markers[key] = new google.maps.Marker({
-      position,
-      map: mapInstance,
-      title: name,
-      icon: ICONS.home
-    });
+    markers[key] = createMarker(name, position, ICONS.home, dayId);
     return;
   }
 
@@ -100,38 +83,26 @@ function createHomeMarker() {
     if (status === "OK" && results[0]) {
       const loc = results[0].geometry.location;
       geocodeCache[query] = { lat: loc.lat(), lng: loc.lng() };
-
-      markers[key] = new google.maps.Marker({
-        position: loc,
-        map: mapInstance,
-        title: name,
-        icon: ICONS.home
-      });
+      markers[key] = createMarker(name, loc, ICONS.home, dayId);
     } else {
       console.warn("Geocode failed for home base", status);
     }
   });
 }
 
-// Heuristic to build a geocoding query from an itinerary item
 function buildQueryForItem(name) {
   const lower = name.toLowerCase();
 
-  if (lower.includes("rouen")) {
+  if (lower.includes("rouen") || lower.includes("croisset")) {
     return `${name}, Rouen, France`;
   }
-  if (lower.includes("croisset")) {
-    return `${name}, Rouen, France`;
-  }
-  if (lower.includes("vegan & cie".toLowerCase())) {
+  if (lower.includes("vegan & cie")) {
     return "Vegan & Cie, Rouen, France";
   }
 
-  // Default to Paris
   return `${name}, Paris, France`;
 }
 
-// Ensure a marker exists for this (dayId, name) pair
 function ensureMarker(dayId, name) {
   if (!name) return;
   if (!dayId) dayId = "open";
@@ -139,12 +110,10 @@ function ensureMarker(dayId, name) {
   const key = getMarkerKey(dayId, name);
 
   if (!mapInstance || !geocoder) {
-    // Map not ready yet, queue
     pendingPlaces.push({ dayId, name });
     return;
   }
 
-  // If marker already exists, just ensure it is visible and has correct icon
   if (markers[key]) {
     markers[key].setVisible(true);
     const iconUrl = ICONS[dayId] || ICONS.default;
@@ -155,15 +124,10 @@ function ensureMarker(dayId, name) {
   const query = buildQueryForItem(name);
   const iconUrl = ICONS[dayId] || ICONS.default;
 
-  const useCached = geocodeCache[query];
-  if (useCached) {
-    const position = new google.maps.LatLng(useCached.lat, useCached.lng);
-    markers[key] = new google.maps.Marker({
-      position,
-      map: mapInstance,
-      title: name,
-      icon: iconUrl
-    });
+  if (geocodeCache[query]) {
+    const loc = geocodeCache[query];
+    const position = new google.maps.LatLng(loc.lat, loc.lng);
+    markers[key] = createMarker(name, position, iconUrl, dayId);
     return;
   }
 
@@ -171,23 +135,45 @@ function ensureMarker(dayId, name) {
     if (status === "OK" && results[0]) {
       const loc = results[0].geometry.location;
       geocodeCache[query] = { lat: loc.lat(), lng: loc.lng() };
-
-      markers[key] = new google.maps.Marker({
-        position: loc,
-        map: mapInstance,
-        title: name,
-        icon: iconUrl
-      });
+      markers[key] = createMarker(name, loc, iconUrl, dayId);
     } else {
       console.warn("Geocode failed for", name, query, status);
     }
   });
 }
 
-// Public API called by itinerary.js
+function createMarker(name, position, iconUrl, dayId) {
+  const marker = new google.maps.Marker({
+    position,
+    map: mapInstance,
+    title: name,
+    icon: iconUrl
+  });
+
+  const prettyDay =
+    dayId === "home"
+      ? "Home base"
+      : dayId === "open"
+      ? "Open bin"
+      : `Day id: ${dayId}`;
+
+  const info = new google.maps.InfoWindow({
+    content: `<div style="font-family: 'Cormorant Garamond', serif; font-size: 14px;">
+                <strong>${name}</strong><br/>
+                <span>${prettyDay}</span>
+              </div>`
+  });
+
+  marker.addListener("click", () => {
+    info.open(mapInstance, marker);
+  });
+
+  return marker;
+}
+
+// API for itinerary.js
 
 function resetPlaces() {
-  // Remove all non home markers from the map
   Object.entries(markers).forEach(([key, marker]) => {
     if (key.startsWith("home::")) return;
     marker.setMap(null);
@@ -202,18 +188,16 @@ function addPlace(dayId, name) {
   ensureMarker(dayId, name);
 }
 
-// Focus a specific item when user clicks the card
 function highlightPlace(name) {
   if (!mapInstance) return;
 
-  // Try all markers that match this name, regardless of day
   const matching = Object.entries(markers).filter(([key]) => {
     const parts = key.split("::");
     const n = parts.slice(1).join("::");
     return n === name;
   });
 
-  if (matching.length === 0) return;
+  if (!matching.length) return;
 
   const marker = matching[0][1];
   const pos = marker.getPosition();
@@ -234,6 +218,7 @@ function showAllMarkers() {
 
   const list = Object.values(markers);
   if (!list.length) return;
+
   const bounds = new google.maps.LatLngBounds();
   list.forEach((m) => {
     const pos = m.getPosition();
@@ -243,10 +228,56 @@ function showAllMarkers() {
 }
 
 function clearHighlights() {
-  // No persistent highlight state at the moment
+  showAllMarkers();
 }
 
-// Toolbar wiring is optional; if you do not have a mapToolbar element this does nothing
+// Filtering logic
+
+function showMarkersForDayList(dayId, names) {
+  if (!mapInstance) return;
+
+  const nameSet = new Set(names);
+
+  Object.entries(markers).forEach(([key, marker]) => {
+    const parts = key.split("::");
+    const markerDayId = parts[0];
+    const markerName = parts.slice(1).join("::");
+
+    const visible =
+      markerDayId === "home" || (markerDayId === dayId && nameSet.has(markerName));
+    marker.setVisible(visible);
+  });
+
+  const visibleMarkers = Object.values(markers).filter((m) => m.getVisible());
+  if (!visibleMarkers.length) return;
+
+  const bounds = new google.maps.LatLngBounds();
+  visibleMarkers.forEach((m) => {
+    const pos = m.getPosition();
+    if (pos) bounds.extend(pos);
+  });
+  mapInstance.fitBounds(bounds);
+}
+
+function filterMarkersByDate(dateString, dayColumnsMap) {
+  const dayId = Object.keys(DAY_DATE_MAP).find(
+    (id) => DAY_DATE_MAP[id] === dateString
+  );
+
+  if (!dayId) {
+    alert("Today is outside the trip range.");
+    return;
+  }
+
+  const names = dayColumnsMap[dayId] || [];
+  if (!names.length) {
+    alert("No items mapped for this day.");
+    return;
+  }
+
+  showMarkersForDayList(dayId, names);
+}
+
 function wireMapToolbar() {
   const toolbar = document.getElementById("mapToolbar");
   if (!toolbar) return;
@@ -256,18 +287,57 @@ function wireMapToolbar() {
     if (!btn) return;
     const action = btn.dataset.action;
 
+    if (!window.MapAPI) return;
+
     if (action === "showAll") {
-      showAllMarkers();
+      window.MapAPI.showAllMarkers();
+    } else if (action === "today") {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, "0");
+      const d = String(today.getDate()).padStart(2, "0");
+      const dateStr = `${y}-${m}-${d}`;
+      window.MapAPI.filterToday(dateStr);
+    } else if (action === "selected") {
+      window.MapAPI.filterSelectedDay();
     } else if (action === "clear") {
-      clearHighlights();
+      window.MapAPI.clearHighlights();
     }
   });
 }
 
-// Expose a minimal API to the rest of the app
+// Expose API
+
 window.MapAPI = {
   resetPlaces,
   addPlace,
   highlightPlace,
-  showAllMarkers
+  showAllMarkers,
+  clearHighlights,
+  setSelectedDayId(id) {
+    selectedDayId = id;
+  },
+  filterToday(dateStr) {
+    if (!window.DayColumnMap) {
+      alert("Day data not available yet.");
+      return;
+    }
+    filterMarkersByDate(dateStr, window.DayColumnMap);
+  },
+  filterSelectedDay() {
+    if (!selectedDayId) {
+      alert("No day selected yet. Click a day header first.");
+      return;
+    }
+    if (!window.DayColumnMap) {
+      alert("Day data not available yet.");
+      return;
+    }
+    const names = window.DayColumnMap[selectedDayId] || [];
+    if (!names.length) {
+      alert("Selected day has no mapped places.");
+      return;
+    }
+    showMarkersForDayList(selectedDayId, names);
+  }
 };
