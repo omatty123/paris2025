@@ -1,115 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paris Winter Itinerary | December 2025</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Paris December 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <style>
-        /* CSS for Color-Coded Headers */
-        .day-1 h3 { background-color: #002654; color: white; padding: 8px; border-radius: 4px; } /* Blue */
-        .day-2 h3 { background-color: #ED2939; color: white; padding: 8px; border-radius: 4px; } /* Red */
-        .day-3 h3 { background-color: #FFC300; color: black; padding: 8px; border-radius: 4px; } /* Yellow */
-        .open-bin h3 { background-color: #333; color: white; padding: 8px; border-radius: 4px; } /* Neutral */
-        
-        /* Mobile-First Layout Adjustments (Ensure this is in your style.css) */
-        #main-content { max-width: 900px; margin: 0 auto; padding: 10px; }
-        .day-column { width: 100%; margin-bottom: 20px; } /* Ensures columns stack on mobile */
-        
-        /* Styling for the new Weather Row */
-        #weather-forecast-row { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
-        .weather-links-container { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .weather-link { display: inline-block; padding: 8px 10px; background-color: #f0f0f0; border-radius: 5px; text-decoration: none; color: #333; flex-grow: 1; text-align: center; }
-        .weather-link:hover { background-color: #ddd; }
-        
-        /* Draggable Item Styling */
-        .card.card-item { cursor: grab; }
-    </style>
+  <!-- Cormorant Garamond -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-    <main id="main-content">
+  <!-- HEADER -->
+  <header class="main-header">
+    <div class="header-top">
+      <div>
         <h1>Paris December 2025</h1>
-        <p>December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
-
-        <p>Paris time: --:--</p>
-        <p>
-            <a href="https://www.ratp.fr/itineraires">RATP directions</a> |
-            <a href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris">Open home in Maps</a>
+        <p class="subtitle">
+          December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton
         </p>
+      </div>
+      <div class="paris-time">
+        <i class="fas fa-clock"></i>
+        <span id="parisTime">Paris time: --:--</span>
+      </div>
+    </div>
 
-        <hr>
+    <div class="header-buttons">
+      <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
+        <i class="fas fa-route"></i> RATP directions
+      </a>
+      <a class="header-btn"
+         href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
+         target="_blank">
+        <i class="fas fa-map-pin"></i> Open home in Maps
+      </a>
+    </div>
+  </header>
 
-        <section id="weather-forecast-row">
-            <h2>Paris Weather Forecast</h2>
-            <div class="weather-links-container">
-                <a href="[Meteo-France Link]" class="weather-link today-weather">Today</a>
-                <a href="[Meteo-France Link]" class="weather-link day-1-weather">Day 2 (Dec 3)</a>
-                <a href="[Meteo-France Link]" class="weather-link day-2-weather">Day 3 (Dec 4)</a>
-                <a href="[Meteo-France Link]" class="weather-link day-3-weather">Day 4 (Dec 5)</a>
-                <a href="[Meteo-France Link]" class="weather-link day-4-weather">Day 5 (Dec 6)</a>
-                <a href="[Meteo-France Link]" class="weather-link day-5-weather">Day 6 (Dec 7)</a>
-            </div>
-            <p class="weather-note">Tap a day for the full forecast on Météo-France.</p>
-        </section>
+  <!-- MAP -->
+  <section class="card map-section">
+    <h2 class="section-title">
+      <i class="fas fa-house-chimney"></i> Home base
+    </h2>
+    <p class="section-subtitle">
+      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement
+    </p>
+    <div class="map-container">
+      <iframe
+        width="100%"
+        height="100%"
+        style="border:0; border-radius: 16px;"
+        loading="lazy"
+        allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2759.6629974250623!2d2.357184576428085!3d48.83348360245892!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6718b7ec95f99%3A0x6eaf265702e5e619!2s7%20Av.%20Stephen%20Pichon%2C%2075013%20Paris%2C%20France!5e1!3m2!1sen!2sus!4v1764636856567!5m2!1sen!2sus">
+      </iframe>
+    </div>
+  </section>
 
-        <hr>
-
-        <h2>Home base</h2>
-        <p>7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement</p>
-
-        <hr>
-
-        <h2>Itinerary Planner & Sync</h2>
-        <p>Drag items between days and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub</p>
-
-        <div id="github-controls">
-            <button>Reset to defaults</button>
-            <button>Set GitHub token</button>
-            <button>Save to GitHub</button>
-            <button>Load from GitHub</button>
+  <!-- ITINERARY -->
+  <section class="card itinerary-section">
+    <div class="itinerary-header">
+      <div>
+        <h2 class="section-title">
+          <i class="fas fa-suitcase-rolling"></i> Itinerary planner
+        </h2>
+        <p class="section-subtitle">
+          Drag items between days and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
+        </p>
+      </div>
+      <div class="itinerary-header-right">
+        <button class="secondary-btn" id="resetBtn">
+          Reset to defaults
+        </button>
+        <div class="github-controls">
+          <button class="small-btn" id="githubToken">Set GitHub token</button>
+          <button class="small-btn" id="githubSave">Save to GitHub</button>
+          <button class="small-btn" id="githubLoad">Load from GitHub</button>
         </div>
+        <div id="githubStatus" class="github-status"></div>
+      </div>
+    </div>
 
-        <hr>
+    <div class="itinerary-layout">
+      <!-- Days stacked vertically (left) -->
+      <div id="daysColumn" class="days-column">
+        <!-- itinerary.js will populate -->
+      </div>
 
-        <div id="itinerary-grid">
-            <section class="day-column open-bin">
-                <h3 class="day-header">Open Bin (Dec 2)</h3>
-                <p class="day-note">Ideas live here. Drag into any day, or back again.</p>
-                <ul id="open-bin-list" class="itinerary-list">
-                    <li class="card card-item" draggable="true">Check in at Home Base</li>
-                    <li class="card card-item" draggable="true">Visit the Louvre Museum</li>
-                </ul>
-                <div class="add-item">+</div>
-            </section>
-
-            <section class="day-column day-1">
-                <h3 class="day-header">Day 1 (Dec 3)</h3>
-                <ul id="day-1-list" class="itinerary-list">
-                    <li class="card card-item" draggable="true">Eiffel Tower Visit</li>
-                </ul>
-                <div class="add-item">+</div>
-            </section>
-
-            <section class="day-column day-2">
-                <h3 class="day-header">Day 2 (Dec 4)</h3>
-                <ul id="day-2-list" class="itinerary-list">
-                    <li class="card card-item" draggable="true">Dinner in Le Marais</li>
-                </ul>
-                <div class="add-item">+</div>
-            </section>
-
+      <!-- Open Bin (right) -->
+      <aside class="open-bin-column">
+        <h3 class="open-bin-title">
+          <i class="fas fa-inbox"></i> Open Bin
+        </h3>
+        <p class="open-bin-subtitle">
+          Day 1 (Dec 2) and extra ideas live here. Drag into any day, or back again.
+        </p>
+        <div class="day-column open-bin-wrapper">
+          <div class="day-header">
+            <h4>OPEN BIN</h4>
+            <div class="add-item-container">
+              <input type="text" class="add-item-input" id="openBinInput" placeholder="Add event…" />
+              <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
+          </div>
+          <div id="openBinList" class="itinerary-list" data-day="OPEN BIN">
+            <!-- itinerary.js will populate -->
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
 
-    </main>
+  
 
-    <footer>
-        <p>Built for Dominica’s Paris 2025 trip.</p>
-    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="script.js"></script>
 
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script src="itinerary.js"></script>
 </body>
 </html>
