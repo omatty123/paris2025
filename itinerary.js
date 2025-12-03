@@ -1,6 +1,6 @@
 // itinerary.js
 // Data + rendering + drag and drop + GitHub sync
-// Now also drives the map via MapAPI so every item becomes a pin
+// Drives the map via MapAPI so each item becomes a pin
 
 // 1) Default data
 
@@ -168,7 +168,6 @@ function buildCard(text, colId, index) {
   card.appendChild(span);
   card.appendChild(del);
 
-  // Clicking a card focuses its marker on the map
   card.addEventListener("click", () => {
     if (window.MapAPI && typeof window.MapAPI.highlightPlace === "function") {
       window.MapAPI.highlightPlace(text);
@@ -209,7 +208,6 @@ function renderItinerary() {
     return;
   }
 
-  // Clear map markers and rebuild from current state
   if (window.MapAPI && typeof window.MapAPI.resetPlaces === "function") {
     window.MapAPI.resetPlaces();
   }
@@ -265,6 +263,13 @@ function renderItinerary() {
     header.appendChild(title);
     header.appendChild(addContainer);
 
+    // Mark this as the selected day for the map when header is clicked
+    header.addEventListener("click", () => {
+      if (window.MapAPI && typeof window.MapAPI.setSelectedDayId === "function") {
+        window.MapAPI.setSelectedDayId(col.id);
+      }
+    });
+
     const list = document.createElement("div");
     list.className = "itinerary-list";
     list.dataset.colId = col.id;
@@ -273,7 +278,6 @@ function renderItinerary() {
       const card = buildCard(itemText, col.id, idx);
       list.appendChild(card);
 
-      // Announce to map
       if (window.MapAPI && typeof window.MapAPI.addPlace === "function") {
         window.MapAPI.addPlace(col.id, itemText);
       }
@@ -323,7 +327,6 @@ function renderItinerary() {
     dayMap[openCol.id] = [...openCol.items];
   }
 
-  // Export mapping if you want to do fancy date based map filtering later
   window.DayColumnMap = dayMap;
 }
 
@@ -447,7 +450,9 @@ async function saveItineraryToGitHub() {
   try {
     const sha = await githubGetSHA();
     const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(itinState, null, 2))));
+    const content = btoa(
+      unescape(encodeURIComponent(JSON.stringify(itinState, null, 2)))
+    );
 
     const body = {
       message: `Update itinerary - ${new Date().toISOString()}`,
