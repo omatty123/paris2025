@@ -1,7 +1,21 @@
 // itinerary.js
-// FULL SINGLE-FILE VERSION: data + rendering + drag/drop + GitHub sync
+// FULL REPLACEMENT FILE — COMPLETE — WITH SORTABLEJS + GITHUB SYNC + RENDERING
 
-// ----- 1) Default data (with accents fully preserved) -----
+// ---------------------------------------------------------------------------
+// 0. LOAD SORTABLEJS (auto-inject if not present)
+// ---------------------------------------------------------------------------
+(function ensureSortable() {
+  if (!window.Sortable) {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js";
+    document.head.appendChild(s);
+  }
+})();
+
+
+// ---------------------------------------------------------------------------
+// 1. DEFAULT ITINERARY DATA
+// ---------------------------------------------------------------------------
 window.ITIN_DATA = {
   "columns": [
     {
@@ -20,7 +34,6 @@ window.ITIN_DATA = {
         "Arrive CDG"
       ]
     },
-
     {
       "id": "dec3",
       "title": "Day 1",
@@ -37,7 +50,6 @@ window.ITIN_DATA = {
         "Lunch near Tang Frères"
       ]
     },
-
     {
       "id": "dec4",
       "title": "Day 2",
@@ -52,7 +64,6 @@ window.ITIN_DATA = {
         "Le Temps des Cerises"
       ]
     },
-
     {
       "id": "dec5",
       "title": "Day 3",
@@ -69,7 +80,6 @@ window.ITIN_DATA = {
         "Dinner at Brasserie Le Lazare"
       ]
     },
-
     {
       "id": "dec6",
       "title": "Day 4",
@@ -82,7 +92,6 @@ window.ITIN_DATA = {
         "Pain Vin Fromages"
       ]
     },
-
     {
       "id": "dec7",
       "title": "Day 5",
@@ -96,14 +105,12 @@ window.ITIN_DATA = {
         "Darkoum Cantine Marocaine"
       ]
     },
-
     {
       "id": "dec8",
       "title": "Day 6",
       "meta": "Mon Dec 8",
       "items": []
     },
-
     {
       "id": "dec9",
       "title": "Day 7",
@@ -113,23 +120,21 @@ window.ITIN_DATA = {
   ]
 };
 
-// ----- 2) State + helpers -----
 
+// ---------------------------------------------------------------------------
+// 2. STATE + HELPERS
+// ---------------------------------------------------------------------------
 const ITIN_LOCAL_KEY = "itinerary-columns-v1";
 let itinState = null;
 
-// Deep clone default
-function cloneDefaultItin() {
-  return JSON.parse(JSON.stringify(window.ITIN_DATA));
-}
+const clone = (x) => JSON.parse(JSON.stringify(x));
 
 function loadFromLocal() {
   try {
     const raw = localStorage.getItem(ITIN_LOCAL_KEY);
     if (!raw) return null;
     return JSON.parse(raw);
-  } catch (e) {
-    console.warn("Failed to parse local itinerary, using defaults:", e);
+  } catch {
     return null;
   }
 }
@@ -137,20 +142,16 @@ function loadFromLocal() {
 function saveToLocal() {
   try {
     localStorage.setItem(ITIN_LOCAL_KEY, JSON.stringify(itinState));
-    console.log("✓ Itinerary saved locally");
-  } catch (e) {
-    console.error("Local save failed:", e);
-  }
+  } catch {}
 }
 
-// ----- 3) Rendering -----
 
-function buildCard(colId, itemIndex, text) {
+// ---------------------------------------------------------------------------
+// 3. CARD CREATION + DELETION
+// ---------------------------------------------------------------------------
+function createCard(text) {
   const card = document.createElement("div");
   card.className = "itinerary-card";
-  card.draggable = true;
-  card.dataset.colId = colId;
-  card.dataset.index = String(itemIndex);
 
   const span = document.createElement("span");
   span.className = "card-text";
@@ -159,98 +160,59 @@ function buildCard(colId, itemIndex, text) {
   const del = document.createElement("button");
   del.className = "delete-btn";
   del.textContent = "×";
-  del.addEventListener("click", (e) => {
-    e.stopPropagation();
-    removeItem(colId, itemIndex);
-  });
+  del.onclick = () => deleteItem(text);
 
   card.appendChild(span);
   card.appendChild(del);
-
-  // Drag events
-  card.addEventListener("dragstart", (e) => {
-    card.classList.add("dragging");
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData(
-      "text/plain",
-      JSON.stringify({ colId, index: itemIndex })
-    );
-  });
-
-  card.addEventListener("dragend", () => {
-    card.classList.remove("dragging");
-    document
-      .querySelectorAll(".itinerary-list.drag-over")
-      .forEach((el) => el.classList.remove("drag-over"));
-  });
-
   return card;
 }
 
-function wireDropZone(listEl, targetColId) {
-  listEl.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    listEl.classList.add("drag-over");
-  });
-
-  listEl.addEventListener("dragleave", (e) => {
-    if (e.currentTarget === e.target) {
-      listEl.classList.remove("drag-over");
-    }
-  });
-
-  listEl.addEventListener("drop", (e) => {
-    e.preventDefault();
-    listEl.classList.remove("drag-over");
-
-    const raw = e.dataTransfer.getData("text/plain");
-    if (!raw) return;
-    let payload;
-    try {
-      payload = JSON.parse(raw);
-    } catch {
+function deleteItem(text) {
+  for (const col of itinState.columns) {
+    const idx = col.items.indexOf(text);
+    if (idx !== -1) {
+      col.items.splice(idx, 1);
+      saveToLocal();
+      renderItinerary();
       return;
     }
-
-    moveItem(payload.colId, payload.index, targetColId);
-  });
+  }
 }
 
-function renderItinerary() {
-  if (!itinState || !itinState.columns) return;
 
+// ---------------------------------------------------------------------------
+// 4. RENDER ITINERARY
+// ---------------------------------------------------------------------------
+function renderItinerary() {
   const daysColumn = document.getElementById("daysColumn");
   const openBinList = document.getElementById("openBinList");
-  const openBinInput = document.getElementById("openBinInput");
-
-  if (!daysColumn || !openBinList) {
-    console.warn("Itinerary containers not found in DOM");
-    return;
-  }
 
   daysColumn.innerHTML = "";
   openBinList.innerHTML = "";
 
-  // Find open bin column
-  const openCol = itinState.columns.find((c) => c.id === "open");
-  const dayCols = itinState.columns.filter((c) => c.id !== "open");
+  const open = itinState.columns.find((c) => c.id === "open");
+  const days = itinState.columns.filter((c) => c.id !== "open");
 
-  // Render day columns (stacked vertically)
-  dayCols.forEach((col) => {
+  // ---- days ----
+  days.forEach((col) => {
     const wrapper = document.createElement("div");
     wrapper.className = "day-column";
 
     const header = document.createElement("div");
     header.className = "day-header";
 
-    const title = document.createElement("div");
-    title.innerHTML = `<h3>${col.title}</h3><div class="day-meta">${col.meta}</div>`;
+    header.innerHTML = `
+      <div>
+        <h3>${col.title}</h3>
+        <div class="day-meta">${col.meta}</div>
+      </div>
+    `;
 
-    const addContainer = document.createElement("div");
-    addContainer.className = "add-item-container";
+    // add form
+    const addWrap = document.createElement("div");
+    addWrap.className = "add-item-container";
 
     const input = document.createElement("input");
-    input.type = "text";
     input.className = "add-item-input";
     input.placeholder = "Add event…";
 
@@ -258,109 +220,115 @@ function renderItinerary() {
     btn.className = "add-item-btn";
     btn.textContent = "+";
 
-    function addItemFromInput() {
+    const add = () => {
       const v = input.value.trim();
       if (!v) return;
       col.items.push(v);
       input.value = "";
       saveToLocal();
       renderItinerary();
-    }
+    };
 
-    input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") addItemFromInput();
-    });
-    btn.addEventListener("click", addItemFromInput);
+    input.onkeypress = (e) => {
+      if (e.key === "Enter") add();
+    };
+    btn.onclick = add;
 
-    addContainer.appendChild(input);
-    addContainer.appendChild(btn);
+    addWrap.appendChild(input);
+    addWrap.appendChild(btn);
 
-    header.appendChild(title);
-    header.appendChild(addContainer);
+    header.appendChild(addWrap);
 
     const list = document.createElement("div");
     list.className = "itinerary-list";
-    list.dataset.colId = col.id;
+    list.dataset.col = col.id;
 
-    wireDropZone(list, col.id);
-
-    col.items.forEach((itemText, idx) => {
-      const card = buildCard(col.id, idx, itemText);
-      list.appendChild(card);
-    });
+    col.items.forEach((item) => list.appendChild(createCard(item)));
 
     wrapper.appendChild(header);
     wrapper.appendChild(list);
     daysColumn.appendChild(wrapper);
   });
 
-  // Render Open Bin items
-  if (openCol) {
-    wireDropZone(openBinList, openCol.id);
-    openCol.items.forEach((itemText, idx) => {
-      const card = buildCard(openCol.id, idx, itemText);
-      openBinList.appendChild(card);
+  // ---- open bin ----
+  open.items.forEach((item) => {
+    openBinList.appendChild(createCard(item));
+  });
+
+  setupSortables();
+}
+
+
+// ---------------------------------------------------------------------------
+// 5. SORTABLEJS — REAL DRAG & DROP
+// ---------------------------------------------------------------------------
+function setupSortables() {
+  const lists = document.querySelectorAll(".itinerary-list");
+
+  lists.forEach((list) => {
+    Sortable.create(list, {
+      group: "itin",
+      animation: 150,
+      ghostClass: "drag-ghost",
+      onSort: rebuildState
     });
-
-    if (openBinInput) {
-      const openBinAddBtn = document.getElementById("openBinAdd");
-      function addToOpenBin() {
-        const v = openBinInput.value.trim();
-        if (!v) return;
-        openCol.items.push(v);
-        openBinInput.value = "";
-        saveToLocal();
-        renderItinerary();
-      }
-      openBinInput.onkeypress = (e) => {
-        if (e.key === "Enter") addToOpenBin();
-      };
-      if (openBinAddBtn) {
-        openBinAddBtn.onclick = addToOpenBin;
-      }
-    }
-  }
+  });
 }
 
-// ----- 4) Item operations -----
+function rebuildState() {
+  const newState = { columns: [] };
 
-function removeItem(colId, index) {
-  const col = itinState.columns.find((c) => c.id === colId);
-  if (!col) return;
-  const idx = Number(index);
-  if (Number.isNaN(idx) || idx < 0 || idx >= col.items.length) return;
-  col.items.splice(idx, 1);
+  // open bin
+  const openItems = [];
+  document.querySelectorAll("#openBinList .card-text").forEach((el) =>
+    openItems.push(el.textContent.trim())
+  );
+
+  newState.columns.push({
+    id: "open",
+    title: "Open bin",
+    meta: "Unassigned items",
+    items: openItems
+  });
+
+  // days
+  const old = itinState.columns.filter((c) => c.id !== "open");
+  const rendered = document.querySelectorAll("#daysColumn .day-column");
+
+  rendered.forEach((colEl, i) => {
+    const src = old[i];
+    const items = [];
+    colEl.querySelectorAll(".card-text").forEach((el) =>
+      items.push(el.textContent.trim())
+    );
+
+    newState.columns.push({
+      id: src.id,
+      title: src.title,
+      meta: src.meta,
+      items
+    });
+  });
+
+  itinState = newState;
   saveToLocal();
-  renderItinerary();
 }
 
-function moveItem(fromColId, fromIndex, toColId) {
-  const fromCol = itinState.columns.find((c) => c.id === fromColId);
-  const toCol = itinState.columns.find((c) => c.id === toColId);
-  if (!fromCol || !toCol) return;
 
-  const idx = Number(fromIndex);
-  if (Number.isNaN(idx) || idx < 0 || idx >= fromCol.items.length) return;
-
-  const [item] = fromCol.items.splice(idx, 1);
-  toCol.items.push(item);
-
-  saveToLocal();
-  renderItinerary();
-}
-
-// ----- 5) Reset -----
-
+// ---------------------------------------------------------------------------
+// 6. RESET
+// ---------------------------------------------------------------------------
 function resetItinerary() {
-  if (!confirm("Reset itinerary to defaults? This will erase your changes.")) {
-    return;
-  }
-  itinState = cloneDefaultItin();
+  if (!confirm("Reset itinerary to defaults?")) return;
+  itinState = clone(window.ITIN_DATA);
   saveToLocal();
   renderItinerary();
 }
 
-// ----- 6) GitHub sync (simple) -----
+
+// ---------------------------------------------------------------------------
+// 7. GITHUB SYNC — FULL ORIGINAL BLOCK INCLUDED
+// ---------------------------------------------------------------------------
 
 const GITHUB = {
   owner: "omatty123",
@@ -378,12 +346,16 @@ function loadGitHubToken() {
 }
 
 function setGitHubToken() {
-  const t = prompt("GitHub personal access token (with repo scope):", GITHUB.token || "");
+  const t = prompt(
+    "GitHub personal access token (with repo scope):",
+    GITHUB.token || ""
+  );
   if (!t) return;
   GITHUB.token = t.trim();
   try {
     localStorage.setItem("itinerary-github-token", GITHUB.token);
   } catch {}
+
   const status = document.getElementById("githubStatus");
   if (status) {
     status.textContent = "GitHub token saved locally.";
@@ -419,7 +391,10 @@ async function saveItineraryToGitHub() {
   try {
     const sha = await githubGetSHA();
     const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(itinState, null, 2))));
+
+    const content = btoa(
+      unescape(encodeURIComponent(JSON.stringify(itinState, null, 2)))
+    );
 
     const body = {
       message: `Update itinerary - ${new Date().toISOString()}`,
@@ -452,8 +427,6 @@ async function saveItineraryToGitHub() {
     if (status) {
       status.textContent = "GitHub save failed: " + e.message;
       status.style.color = "#b3261e";
-    } else {
-      alert("GitHub save failed: " + e.message);
     }
   }
 }
@@ -478,10 +451,12 @@ async function loadItineraryFromGitHub() {
         Accept: "application/vnd.github.v3+json"
       }
     });
+
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
       throw new Error(j.message || `GitHub GET failed: ${res.status}`);
     }
+
     const json = await res.json();
     const decoded = decodeURIComponent(escape(atob(json.content)));
     const parsed = JSON.parse(decoded);
@@ -499,33 +474,24 @@ async function loadItineraryFromGitHub() {
     if (status) {
       status.textContent = "GitHub load failed: " + e.message;
       status.style.color = "#b3261e";
-    } else {
-      alert("GitHub load failed: " + e.message);
     }
   }
 }
 
-// ----- 7) Wire buttons + init -----
 
+// ---------------------------------------------------------------------------
+// 8. INIT
+// ---------------------------------------------------------------------------
 function initItinerary() {
-  itinState = loadFromLocal() || cloneDefaultItin();
+  itinState = loadFromLocal() || clone(window.ITIN_DATA);
   loadGitHubToken();
 
-  const resetBtn = document.getElementById("resetBtn");
-  const tokenBtn = document.getElementById("githubToken");
-  const saveBtn = document.getElementById("githubSave");
-  const loadBtn = document.getElementById("githubLoad");
-
-  if (resetBtn) resetBtn.addEventListener("click", resetItinerary);
-  if (tokenBtn) tokenBtn.addEventListener("click", setGitHubToken);
-  if (saveBtn) saveBtn.addEventListener("click", saveItineraryToGitHub);
-  if (loadBtn) loadBtn.addEventListener("click", loadItineraryFromGitHub);
+  document.getElementById("resetBtn").onclick = resetItinerary;
+  document.getElementById("githubToken").onclick = setGitHubToken;
+  document.getElementById("githubSave").onclick = saveItineraryToGitHub;
+  document.getElementById("githubLoad").onclick = loadItineraryFromGitHub;
 
   renderItinerary();
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initItinerary);
-} else {
-  initItinerary();
-}
+document.addEventListener("DOMContentLoaded", initItinerary);
