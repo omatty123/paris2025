@@ -1,345 +1,69 @@
-// map.js
-// Interactive map driven by the itinerary
-// Each item becomes a pin, color coded by date, with toolbar controls
+let map;
+let markers = {};
 
-let mapInstance = null;
-let geocoder = null;
+const HOME = { lat: 48.8335, lng: 2.3571 };
 
-const geocodeCache = {};
-let markers = {}; // key: `${dayId}::${name}` -> google.maps.Marker
-let pendingPlaces = [];
-
-// Trip dates mapped to itinerary ids
-const DAY_DATE_MAP = {
-  dec3: "2025-12-03",
-  dec4: "2025-12-04",
-  dec5: "2025-12-05",
-  dec6: "2025-12-06",
-  dec7: "2025-12-07",
-  dec8: "2025-12-08",
-  dec9: "2025-12-09"
+const DAY_PINS = {
+  "dec3": [
+    { lat: 48.8554, lng: 2.3444, label: "Sainte-Chapelle" },
+    { lat: 48.8600, lng: 2.3266, label: "Musée d’Orsay" }
+  ],
+  "dec4": [
+    { lat: 48.8606, lng: 2.3376, label: "Louvre" },
+    { lat: 48.8635, lng: 2.3272, label: "Tuileries" }
+  ],
+  "dec5": [
+    { lat: 49.4431, lng: 1.0993, label: "Rouen Cathedral" }
+  ],
+  "dec6": [],
+  "dec7": []
 };
-
-// Marker icons per day
-const ICONS = {
-  home: "https://maps.google.com/mapfiles/kml/shapes/star.png",
-  open: "https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png",
-  dec3: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-  dec4: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-  dec5: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
-  dec6: "https://maps.google.com/mapfiles/ms/icons/purple-dot.png",
-  dec7: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png",
-  dec8: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
-  dec9: "https://maps.google.com/mapfiles/ms/icons/pink-dot.png",
-  default: "https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png"
-};
-
-function getMarkerKey(dayId, name) {
-  return `${dayId}::${name}`;
-}
 
 function initLiveMap() {
-  const mapEl = document.getElementById("liveMap");
-  if (!mapEl) return;
-
-  mapInstance = new google.maps.Map(mapEl, {
-    center: { lat: 48.8566, lng: 2.3522 },
-    zoom: 12,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: true
+  map = new google.maps.Map(document.getElementById("liveMap"), {
+    center: HOME,
+    zoom: 14
   });
 
-  geocoder = new google.maps.Geocoder();
-
-  createHomeMarker();
-
-  if (pendingPlaces.length > 0) {
-    const queued = [...pendingPlaces];
-    pendingPlaces = [];
-    queued.forEach((p) => ensureMarker(p.dayId, p.name));
-  }
-
-  wireMapToolbar();
-}
-
-function createHomeMarker() {
-  if (!mapInstance || !geocoder) return;
-
-  const name = "Home base";
-  const query = "7 Avenue Stephen Pichon, 75013 Paris, France";
-  const dayId = "home";
-  const key = getMarkerKey(dayId, name);
-
-  if (markers[key]) return;
-
-  if (geocodeCache[query]) {
-    const loc = geocodeCache[query];
-    const position = new google.maps.LatLng(loc.lat, loc.lng);
-    markers[key] = createMarker(name, position, ICONS.home, dayId);
-    return;
-  }
-
-  geocoder.geocode({ address: query }, (results, status) => {
-    if (status === "OK" && results[0]) {
-      const loc = results[0].geometry.location;
-      geocodeCache[query] = { lat: loc.lat(), lng: loc.lng() };
-      markers[key] = createMarker(name, loc, ICONS.home, dayId);
-    } else {
-      console.warn("Geocode failed for home base", status);
+  new google.maps.Marker({
+    position: HOME,
+    map,
+    title: "Home Base",
+    icon: {
+      path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+      scale: 6,
+      fillColor: "#7a4f2e",
+      fillOpacity: 1,
+      strokeColor: "#3a2a1a",
+      strokeWeight: 1
     }
   });
+
+  for (const day in DAY_PINS) {
+    markers[day] = DAY_PINS[day].map(p =>
+      new google.maps.Marker({
+        position: { lat: p.lat, lng: p.lng },
+        map,
+        title: p.label
+      })
+    );
+  }
+
+  document.querySelectorAll(".day-btn").forEach(btn => {
+    btn.onclick = () => filterMarkers(btn.dataset.day);
+  });
 }
 
-function buildQueryForItem(name) {
-  const lower = name.toLowerCase();
-
-  if (lower.includes("rouen") || lower.includes("croisset")) {
-    return `${name}, Rouen, France`;
-  }
-  if (lower.includes("vegan & cie")) {
-    return "Vegan & Cie, Rouen, France";
+function filterMarkers(day) {
+  for (const d in markers) {
+    markers[d].forEach(m => m.setMap(null));
   }
 
-  return `${name}, Paris, France`;
-}
-
-function ensureMarker(dayId, name) {
-  if (!name) return;
-  if (!dayId) dayId = "open";
-
-  const key = getMarkerKey(dayId, name);
-
-  if (!mapInstance || !geocoder) {
-    pendingPlaces.push({ dayId, name });
-    return;
-  }
-
-  if (markers[key]) {
-    markers[key].setVisible(true);
-    const iconUrl = ICONS[dayId] || ICONS.default;
-    markers[key].setIcon(iconUrl);
-    return;
-  }
-
-  const query = buildQueryForItem(name);
-  const iconUrl = ICONS[dayId] || ICONS.default;
-
-  if (geocodeCache[query]) {
-    const loc = geocodeCache[query];
-    const position = new google.maps.LatLng(loc.lat, loc.lng);
-    markers[key] = createMarker(name, position, iconUrl, dayId);
-    return;
-  }
-
-  geocoder.geocode({ address: query }, (results, status) => {
-    if (status === "OK" && results[0]) {
-      const loc = results[0].geometry.location;
-      geocodeCache[query] = { lat: loc.lat(), lng: loc.lng() };
-      markers[key] = createMarker(name, loc, iconUrl, dayId);
-    } else {
-      console.warn("Geocode failed for", name, query, status);
+  if (day === "all") {
+    for (const d in markers) {
+      markers[d].forEach(m => m.setMap(map));
     }
-  });
-}
-
-function createMarker(name, position, iconUrl, dayId) {
-  const marker = new google.maps.Marker({
-    position,
-    map: mapInstance,
-    title: name,
-    icon: iconUrl
-  });
-
-  const prettyDay =
-    dayId === "home"
-      ? "Home base"
-      : dayId === "open"
-      ? "Open bin"
-      : `Itinerary group: ${dayId}`;
-
-  const info = new google.maps.InfoWindow({
-    content: `<div style="font-family: 'Cormorant Garamond', serif; font-size: 14px;">
-                <strong>${name}</strong><br/>
-                <span>${prettyDay}</span>
-              </div>`
-  });
-
-  marker.addListener("click", () => {
-    info.open(mapInstance, marker);
-  });
-
-  return marker;
-}
-
-// API used by itinerary.js
-
-function resetPlaces() {
-  Object.entries(markers).forEach(([key, marker]) => {
-    if (key.startsWith("home::")) return;
-    marker.setMap(null);
-  });
-  markers = Object.fromEntries(
-    Object.entries(markers).filter(([key]) => key.startsWith("home::"))
-  );
-  pendingPlaces = [];
-}
-
-function addPlace(dayId, name) {
-  ensureMarker(dayId, name);
-}
-
-function highlightPlace(name) {
-  if (!mapInstance) return;
-
-  const matching = Object.entries(markers).filter(([key]) => {
-    const parts = key.split("::");
-    const n = parts.slice(1).join("::");
-    return n === name;
-  });
-
-  if (!matching.length) return;
-
-  const marker = matching[0][1];
-  const pos = marker.getPosition();
-  if (!pos) return;
-
-  mapInstance.panTo(pos);
-  mapInstance.setZoom(Math.max(mapInstance.getZoom(), 14));
-
-  marker.setAnimation(google.maps.Animation.BOUNCE);
-  setTimeout(() => {
-    marker.setAnimation(null);
-  }, 1500);
-}
-
-function showAllMarkers() {
-  if (!mapInstance) return;
-  Object.values(markers).forEach((marker) => marker.setVisible(true));
-
-  const list = Object.values(markers);
-  if (!list.length) return;
-
-  const bounds = new google.maps.LatLngBounds();
-  list.forEach((m) => {
-    const pos = m.getPosition();
-    if (pos) bounds.extend(pos);
-  });
-  mapInstance.fitBounds(bounds);
-}
-
-function clearHighlights() {
-  showAllMarkers();
-}
-
-// Marker filtering
-
-function showMarkersForDayList(dayId, names) {
-  if (!mapInstance) return;
-
-  const nameSet = new Set(names);
-
-  Object.entries(markers).forEach(([key, marker]) => {
-    const parts = key.split("::");
-    const markerDayId = parts[0];
-    const markerName = parts.slice(1).join("::");
-
-    const visible =
-      markerDayId === "home" || (markerDayId === dayId && nameSet.has(markerName));
-    marker.setVisible(visible);
-  });
-
-  const visibleMarkers = Object.values(markers).filter((m) => m.getVisible());
-  if (!visibleMarkers.length) return;
-
-  const bounds = new google.maps.LatLngBounds();
-  visibleMarkers.forEach((m) => {
-    const pos = m.getPosition();
-    if (pos) bounds.extend(pos);
-  });
-  mapInstance.fitBounds(bounds);
-}
-
-function filterMarkersByDateString(dateString, dayColumnsMap) {
-  const dayId = Object.keys(DAY_DATE_MAP).find(
-    (id) => DAY_DATE_MAP[id] === dateString
-  );
-
-  if (!dayId) {
-    alert("Today is outside the trip range.");
-    return;
+  } else {
+    markers[day].forEach(m => m.setMap(map));
   }
-
-  const names = dayColumnsMap[dayId] || [];
-  if (!names.length) {
-    alert("No items mapped for this date.");
-    return;
-  }
-
-  showMarkersForDayList(dayId, names);
 }
-
-function wireMapToolbar() {
-  const toolbar = document.getElementById("mapToolbar");
-  if (!toolbar) return;
-
-  toolbar.addEventListener("click", (e) => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-
-    const dayId = btn.dataset.dayId;
-    const action = btn.dataset.action;
-
-    if (!window.MapAPI) return;
-
-    if (dayId) {
-      // Date specific button
-      window.MapAPI.filterByDay(dayId);
-      return;
-    }
-
-    if (!action) return;
-
-    if (action === "showAll") {
-      window.MapAPI.showAllMarkers();
-    } else if (action === "today") {
-      const today = new Date();
-      const y = today.getFullYear();
-      const m = String(today.getMonth() + 1).padStart(2, "0");
-      const d = String(today.getDate()).padStart(2, "0");
-      const dateStr = `${y}-${m}-${d}`;
-      window.MapAPI.filterToday(dateStr);
-    } else if (action === "clear") {
-      window.MapAPI.clearHighlights();
-    }
-  });
-}
-
-// Expose for itinerary.js
-
-window.MapAPI = {
-  resetPlaces,
-  addPlace,
-  highlightPlace,
-  showAllMarkers,
-  clearHighlights,
-  filterToday(dateStr) {
-    if (!window.DayColumnMap) {
-      alert("Day data not available yet.");
-      return;
-    }
-    filterMarkersByDateString(dateStr, window.DayColumnMap);
-  },
-  filterByDay(dayId) {
-    if (!window.DayColumnMap) {
-      alert("Day data not available yet.");
-      return;
-    }
-    const names = window.DayColumnMap[dayId] || [];
-    if (!names.length) {
-      alert("No items mapped for this date.");
-      return;
-    }
-    showMarkersForDayList(dayId, names);
-  }
-};
