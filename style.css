@@ -1,69 +1,27 @@
-/* =============== */
-/*     BASE        */
-/* =============== */
+/* =========================================
+   BASE + GLOBAL FONT
+========================================= */
 
-/* Import the correct font — the REAL one you're using */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
 
-/* Apply globally */
-html, body, button, input, select, textarea, .token, .day-column {
+html, body, button, input, select, textarea {
   font-family: 'Cormorant Garamond', serif !important;
 }
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
   padding: 0;
   background: #f6f3ee;
   color: #2b2620;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }
 
-h1, h2, h3, h4 {
-  margin: 0;
-  font-family: "Cormorant Garamond", serif;
-}
+h1, h2, h3, h4 { margin: 0; }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Ensure UI elements use the same font */
-button,
-input,
-.itinerary-card,
-.itinerary-card span,
-.add-item-input,
-.add-item-btn,
-.delete-btn,
-.small-btn,
-.secondary-btn {
-  font-family: inherit !important;
-}
-
-
-/* =============== */
-/*     CARDS       */
-/* =============== */
-
-.card {
-  background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  padding: 20px 24px 24px;
-  margin: 16px auto;
-  max-width: 1100px;
-}
-
-
-/* =============== */
-/*     HEADER      */
-/* =============== */
+/* =========================================
+   HEADER
+========================================= */
 
 .main-header {
   max-width: 1100px;
@@ -74,179 +32,108 @@ input,
 .header-top {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.main-header h1 {
-  font-size: 2.3rem;
-  letter-spacing: 0.03em;
+  align-items: flex-start;
 }
 
 .subtitle {
   margin-top: 4px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #6f645a;
 }
 
 .paris-time {
-  font-size: 0.95rem;
-  color: #4b4138;
+  font-size: 1rem;
   display: flex;
-  align-items: center;
   gap: 6px;
 }
 
-.header-buttons {
-  margin-top: 10px;
+/* =========================================
+   BUTTONS
+========================================= */
+
+.header-buttons,
+.itinerary-controls {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
-.header-btn {
+.header-btn,
+.itinerary-controls button {
   border-radius: 999px;
-  padding: 7px 14px;
+  padding: 6px 14px;
   border: 1px solid #d5cfc7;
-  background: #fff;
+  background: #faf7f3;
   font-size: 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   cursor: pointer;
 }
 
-.header-btn:hover {
-  background: #f0e9df;
+.header-btn:hover,
+.itinerary-controls button:hover {
+  background: #eee6db;
 }
 
+/* =========================================
+   CARDS + MAP
+========================================= */
 
-/* =============== */
-/*       MAP       */
-/* =============== */
+.card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px;
+  margin: 18px auto;
+  max-width: 1100px;
+}
 
-.map-section .map-container {
+.map-container {
   margin-top: 10px;
-  height: 460px;
+  height: 450px;
   border-radius: 16px;
   overflow: hidden;
 }
 
-/* live Google map fills container */
 #liveMap {
   width: 100%;
   height: 100%;
-  border-radius: 16px;
 }
 
-.section-title {
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-subtitle {
-  margin-top: 4px;
-  font-size: 0.93rem;
-  color: #7a7267;
-}
-
-
-/* =============== */
-/*   ITINERARY     */
-/* =============== */
-
-.itinerary-section {
-  margin-top: 12px;
-}
+/* =========================================
+   ITINERARY — NEW CLEAN LOOK
+========================================= */
 
 .itinerary-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.itinerary-header-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.secondary-btn {
-  border-radius: 999px;
-  border: 1px solid #d3cdc4;
-  background: #faf7f3;
-  padding: 6px 14px;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.secondary-btn:hover {
-  background: #f0e9e0;
-}
-
-
-/* =============== */
-/*   GITHUB + UI   */
-/* =============== */
-
-.github-controls {
-  display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  justify-content: flex-end;
+  margin-bottom: 1.2rem;
 }
 
-.small-btn {
-  border-radius: 999px;
-  border: 1px solid #d3cdc4;
-  background: #f8f3eb;
-  padding: 4px 10px;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.small-btn:hover {
-  background: #eee0d1;
+.section-title {
+  font-size: 1.6rem;
 }
 
 .github-status {
-  font-size: 0.78rem;
-  color: #7a7267;
-  min-height: 1em;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  color: #6e6458;
 }
 
-
-/* =============== */
-/*   TWO COLUMNS   */
-/* =============== */
-
+/* Layout with aligned columns */
 .itinerary-layout {
   display: flex;
-  gap: 24px;
+  gap: 32px;
+  align-items: flex-start; /* Critical: aligns Open Bin with Day 1 */
 }
 
-/* Left column = Days (slightly wider) */
 .days-column {
-  flex: 0 0 52%;
-  max-width: 520px;
+  width: 52%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-/* Right column = Open Bin (sticky) */
 .open-bin-column {
-  flex: 0 0 48%;
-  max-width: 480px;
+  width: 48%;
   align-self: flex-start;
-  position: sticky;
-  top: 16px;
 }
 
 .open-bin-wrapper {
@@ -255,200 +142,99 @@ input,
   padding-right: 6px;
 }
 
-
-/* =============== */
-/*  DAY BLOCKS     */
-/* =============== */
+/* =========================================
+   DAY BLOCKS
+========================================= */
 
 .day-column {
   background: #fbf9f6;
+  border: 1px solid #e5dfd8;
   border-radius: 16px;
-  padding: 12px 14px 10px;
-  box-shadow: inset 0 0 0 1px #efe7dd;
+  padding: 1.1rem 1.25rem;
 }
 
 .day-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
 }
 
-.day-header h3,
-.day-header h4 {
-  font-size: 1.2rem;
-  margin: 0;
+.day-header h3 {
+  font-size: 1.4rem;
+}
+
+.day-meta {
+  color: #6a625a;
+  font-size: 1rem;
 }
 
 .add-item-container {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .add-item-input {
   flex: 1;
-  min-width: 0;
-  border-radius: 999px;
-  border: 1px solid #dacfbf;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  background: #fff;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid #d8d1c9;
 }
 
+/* Add button */
 .add-item-btn {
-  border-radius: 999px;
-  border: 1px solid #dacfbf;
-  background: #e9e1d6;
-  padding: 0 10px;
-  height: 28px;
-  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+  background: #d8cfc4;
+  width: 34px;
+  height: 34px;
+  font-size: 1.2rem;
 }
 
+.add-item-btn:hover {
+  background: #c7bdb1;
+}
 
-/* =============== */
-/*     TOKENS      */
-/* =============== */
+/* =========================================
+   EVENT CARDS
+========================================= */
 
 .itinerary-list {
-  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .itinerary-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 9px 11px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-  margin-bottom: 6px;
-  font-size: 0.94rem;
+  border: 1px solid #eee7e1;
+  font-size: 1.05rem;
   cursor: grab;
 }
 
-.itinerary-card.dragging {
-  opacity: 0.6;
-}
-
-.card-text {
-  flex: 1;
-  padding-right: 8px;
+.itinerary-card:hover {
+  background: #f3f0eb;
 }
 
 .delete-btn {
   border: none;
-  border-radius: 999px;
-  background: #f3ddd8;
-  width: 22px;
-  height: 22px;
-  font-size: 0.9rem;
-  cursor: pointer;
+  border-radius: 50%;
+  background: #eaded9;
+  width: 26px;
+  height: 26px;
 }
 
 .delete-btn:hover {
-  background: #e8c6be;
+  background: #dacbc4;
 }
 
+/* Drag indicator */
 .itinerary-list.drag-over {
   outline: 2px dashed #c9b39a;
   outline-offset: 4px;
-}
-
-
-/* =============== */
-/*    FOOTER       */
-/* =============== */
-
-.page-footer {
-  max-width: 1100px;
-  margin: 12px auto 30px;
-  font-size: 0.85rem;
-  color: #91857a;
-  text-align: center;
-}
-
-
-/* =============== */
-/*   RESPONSIVE    */
-/* =============== */
-
-@media (max-width: 900px) {
-  .itinerary-layout {
-    flex-direction: column;
-  }
-  .open-bin-column {
-    position: static;
-    max-width: none;
-  }
-  .days-column {
-    flex-basis: 100%;
-    max-width: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .main-header h1 {
-    font-size: 1.8rem;
-  }
-  .header-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-/* MAP TOOLBAR */
-.map-toolbar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.map-toolbar button {
-  border-radius: 999px;
-  border: 1px solid #d3cdc4;
-  background: #faf7f3;
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.map-toolbar button:hover {
-  background: #eee4d7;
-}
-
-/* MAP CONTAINER */
-#liveMap {
-  width: 100%;
-  height: 520px;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.map-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.map-toolbar button {
-  border-radius: 999px;
-  border: 1px solid #d3cdc4;
-  background: #faf7f3;
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  font-family: "Cormorant Garamond", serif;
-}
-
-.map-toolbar button:hover {
-  background: #eee4d7;
-}
-
-.map-container {
-  width: 100%;
-  height: 520px;
-  border-radius: 16px;
-  overflow: hidden;
 }
