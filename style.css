@@ -1,14 +1,18 @@
-/* =========================================
-   BASE + GLOBAL FONT
-========================================= */
+/* =============== */
+/*     BASE        */
+/* =============== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
 
-html, body, button, input, select, textarea {
+html, body, button, input, select, textarea, .token, .day-column {
   font-family: 'Cormorant Garamond', serif !important;
 }
 
-* { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -17,11 +21,44 @@ body {
   color: #2b2620;
 }
 
-h1, h2, h3, h4 { margin: 0; }
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+}
 
-/* =========================================
-   HEADER
-========================================= */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+.itinerary-card,
+.itinerary-card span,
+.add-item-input,
+.add-item-btn,
+.delete-btn,
+.small-btn,
+.secondary-btn {
+  font-family: inherit !important;
+}
+
+/* =============== */
+/*     CARDS       */
+/* =============== */
+
+.card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  padding: 20px 24px 24px;
+  margin: 16px auto;
+  max-width: 1100px;
+}
+
+/* =============== */
+/*     HEADER      */
+/* =============== */
 
 .main-header {
   max-width: 1100px;
@@ -32,61 +69,59 @@ h1, h2, h3, h4 { margin: 0; }
 .header-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.main-header h1 {
+  font-size: 2.3rem;
+  letter-spacing: 0.03em;
 }
 
 .subtitle {
   margin-top: 4px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #6f645a;
 }
 
 .paris-time {
-  font-size: 1rem;
+  font-size: 0.95rem;
+  color: #4b4138;
   display: flex;
+  align-items: center;
   gap: 6px;
 }
 
-/* =========================================
-   BUTTONS
-========================================= */
-
-.header-buttons,
-.itinerary-controls {
+.header-buttons {
+  margin-top: 10px;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
-.header-btn,
-.itinerary-controls button {
+.header-btn {
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 7px 14px;
   border: 1px solid #d5cfc7;
-  background: #faf7f3;
+  background: #fff;
   font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
 }
 
-.header-btn:hover,
-.itinerary-controls button:hover {
-  background: #eee6db;
+.header-btn:hover {
+  background: #f0e9df;
 }
 
-/* =========================================
-   CARDS + MAP
-========================================= */
+/* =============== */
+/*       MAP       */
+/* =============== */
 
-.card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 24px;
-  margin: 18px auto;
-  max-width: 1100px;
-}
-
-.map-container {
+.map-section .map-container {
   margin-top: 10px;
-  height: 450px;
+  height: 460px;
   border-radius: 16px;
   overflow: hidden;
 }
@@ -96,43 +131,90 @@ h1, h2, h3, h4 { margin: 0; }
   height: 100%;
 }
 
-/* =========================================
-   ITINERARY — NEW CLEAN LOOK
-========================================= */
+.section-title {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-subtitle {
+  margin-top: 4px;
+  font-size: 0.93rem;
+  color: #7a7267;
+}
+
+/* =============== */
+/*   ITINERARY     */
+/* =============== */
+
+.itinerary-section {
+  margin-top: 12px;
+}
 
 .itinerary-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.2rem;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
-.section-title {
-  font-size: 1.6rem;
+.itinerary-header-left .section-title {
+  margin-bottom: 4px;
+}
+
+.itinerary-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.itinerary-controls button {
+  border-radius: 999px;
+  border: 1px solid #d3cdc4;
+  background: #faf7f3;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.itinerary-controls button:hover {
+  background: #eee0d1;
 }
 
 .github-status {
-  font-size: 0.8rem;
-  margin-top: 6px;
-  color: #6e6458;
+  font-size: 0.78rem;
+  color: #7a7267;
+  min-height: 1em;
+  margin-bottom: 8px;
 }
 
-/* Layout with aligned columns */
+/* =============== */
+/*   TWO COLUMNS   */
+/* =============== */
+
 .itinerary-layout {
   display: flex;
-  gap: 32px;
-  align-items: flex-start; /* Critical: aligns Open Bin with Day 1 */
+  gap: 24px;
+  align-items: flex-start; /* Align Open Bin with first day */
 }
 
+/* Left column = Days */
 .days-column {
-  width: 52%;
+  flex: 0 0 52%;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
+/* Right column = Open Bin */
 .open-bin-column {
-  width: 48%;
+  flex: 0 0 48%;
+  max-width: 480px;
   align-self: flex-start;
 }
 
@@ -142,99 +224,138 @@ h1, h2, h3, h4 { margin: 0; }
   padding-right: 6px;
 }
 
-/* =========================================
-   DAY BLOCKS
-========================================= */
+/* =============== */
+/*  DAY BLOCKS     */
+/* =============== */
 
 .day-column {
   background: #fbf9f6;
-  border: 1px solid #e5dfd8;
   border-radius: 16px;
-  padding: 1.1rem 1.25rem;
+  padding: 12px 14px 10px;
+  box-shadow: inset 0 0 0 1px #efe7dd;
 }
 
 .day-header {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  margin-bottom: 0.7rem;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
-.day-header h3 {
-  font-size: 1.4rem;
+.day-header h3,
+.day-header h4 {
+  font-size: 1.2rem;
+  margin: 0;
 }
 
 .day-meta {
+  font-size: 0.95rem;
   color: #6a625a;
-  font-size: 1rem;
 }
 
+/* Add event row */
 .add-item-container {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 4px;
 }
 
 .add-item-input {
   flex: 1;
-  padding: 7px 14px;
-  border-radius: 20px;
-  border: 1px solid #d8d1c9;
+  min-width: 0;
+  border-radius: 999px;
+  border: 1px solid #dacfbf;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  background: #fff;
 }
 
-/* Add button */
 .add-item-btn {
-  border-radius: 50%;
-  border: none;
-  background: #d8cfc4;
-  width: 34px;
-  height: 34px;
-  font-size: 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #dacfbf;
+  background: #e9e1d6;
+  padding: 0 10px;
+  height: 28px;
+  cursor: pointer;
 }
 
 .add-item-btn:hover {
-  background: #c7bdb1;
+  background: #ddcfbf;
 }
 
-/* =========================================
-   EVENT CARDS
-========================================= */
+/* =============== */
+/*     TOKENS      */
+/* =============== */
 
 .itinerary-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  margin-top: 4px;
 }
 
 .itinerary-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 8px 12px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 9px 11px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid #eee7e1;
-  font-size: 1.05rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  margin-bottom: 6px;
+  font-size: 0.94rem;
   cursor: grab;
 }
 
-.itinerary-card:hover {
-  background: #f3f0eb;
+.itinerary-card.dragging {
+  opacity: 0.6;
+}
+
+.card-text {
+  flex: 1;
+  padding-right: 8px;
 }
 
 .delete-btn {
   border: none;
-  border-radius: 50%;
-  background: #eaded9;
-  width: 26px;
-  height: 26px;
+  border-radius: 999px;
+  background: #f3ddd8;
+  width: 22px;
+  height: 22px;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
 .delete-btn:hover {
-  background: #dacbc4;
+  background: #e8c6be;
 }
 
-/* Drag indicator */
 .itinerary-list.drag-over {
   outline: 2px dashed #c9b39a;
   outline-offset: 4px;
+}
+
+/* =============== */
+/*   RESPONSIVE    */
+/* =============== */
+
+@media (max-width: 900px) {
+  .itinerary-layout {
+    flex-direction: column;
+  }
+  .open-bin-column {
+    position: static;
+    max-width: none;
+  }
+  .days-column {
+    flex-basis: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-header h1 {
+    font-size: 1.8rem;
+  }
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
