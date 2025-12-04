@@ -37,9 +37,7 @@ input,
 .itinerary-card span,
 .add-item-input,
 .add-item-btn,
-.delete-btn,
-.small-btn,
-.secondary-btn {
+.delete-btn {
   font-family: inherit !important;
 }
 
@@ -144,6 +142,38 @@ input,
   color: #7a7267;
 }
 
+/* Map filter buttons row */
+
+.map-filters {
+  margin-top: 12px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.map-filter-btn {
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 1px solid #d5cfc7;
+  background: #fff;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.map-filter-btn:hover {
+  background: #f0e9df;
+}
+
+.map-filter-btn.active {
+  background: #e3d5c5;
+  border-color: #c3aa8b;
+}
+
 /* =============== */
 /*   ITINERARY     */
 /* =============== */
@@ -199,7 +229,7 @@ input,
 .itinerary-layout {
   display: flex;
   gap: 24px;
-  align-items: flex-start; /* Align Open Bin with first day */
+  align-items: flex-start;
 }
 
 /* Left column = Days */
@@ -254,6 +284,7 @@ input,
 }
 
 /* Add event row */
+
 .add-item-container {
   display: flex;
   align-items: center;
