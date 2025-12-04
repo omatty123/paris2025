@@ -47,11 +47,32 @@
   <!-- MAP -->
   <section class="card map-section">
     <h2 class="section-title">
-      <i class="fas fa-house-chimney"></i> Home base
+      <i class="fas fa-house-chimney"></i> Home base and daily pins
     </h2>
     <p class="section-subtitle">
-      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement
+      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement · Each itinerary item is pinned on this map by date
     </p>
+
+    <!-- Map filter buttons -->
+    <div class="map-filters">
+      <button class="map-filter-btn" id="mapShowAll">
+        <i class="fas fa-globe"></i> Show all pins
+      </button>
+      <button class="map-filter-btn" id="mapToday">
+        <i class="fas fa-calendar-day"></i> Today
+      </button>
+      <button class="map-filter-btn" data-day="dec3" id="mapDec3">Dec 3</button>
+      <button class="map-filter-btn" data-day="dec4" id="mapDec4">Dec 4</button>
+      <button class="map-filter-btn" data-day="dec5" id="mapDec5">Dec 5</button>
+      <button class="map-filter-btn" data-day="dec6" id="mapDec6">Dec 6</button>
+      <button class="map-filter-btn" data-day="dec7" id="mapDec7">Dec 7</button>
+      <button class="map-filter-btn" data-day="dec8" id="mapDec8">Dec 8</button>
+      <button class="map-filter-btn" data-day="dec9" id="mapDec9">Dec 9</button>
+      <button class="map-filter-btn" id="mapClear">
+        <i class="fas fa-eye-slash"></i> Clear filters
+      </button>
+    </div>
+
     <div class="map-container">
       <div id="liveMap"></div>
     </div>
