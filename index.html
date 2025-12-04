@@ -6,23 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Cormorant Garamond -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- Core CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+
   <!-- HEADER -->
   <header class="main-header">
     <div class="header-top">
@@ -32,6 +28,7 @@
           December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton
         </p>
       </div>
+
       <div class="paris-time">
         <i class="fas fa-clock"></i>
         <span id="parisTime">Paris time: --:--</span>
@@ -42,11 +39,9 @@
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
         <i class="fas fa-route"></i> RATP directions
       </a>
-      <a
-        class="header-btn"
-        href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
-        target="_blank"
-      >
+      <a class="header-btn"
+         href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
+         target="_blank">
         <i class="fas fa-map-pin"></i> Open home in Maps
       </a>
     </div>
@@ -55,120 +50,82 @@
   <!-- MAP -->
   <section class="card map-section">
     <h2 class="section-title">
-      <i class="fas fa-house-chimney"></i> Home base and daily pins
+      <i class="fas fa-house-chimney"></i> Home base
     </h2>
     <p class="section-subtitle">
-      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement · Each itinerary item is pinned on this map by date
+      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement
     </p>
-
-    <!-- Toolbar above the map -->
-    <div
-      id="mapToolbar"
-      style="margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px;"
-    >
-      <button class="small-btn" data-action="showAll">
-        <i class="fas fa-globe"></i> Show all pins
-      </button>
-
-      <button class="small-btn" data-action="today">
-        <i class="fas fa-calendar-day"></i> Today
-      </button>
-
-      <!-- Date filters -->
-      <button class="small-btn" data-day-id="dec3">Dec 3</button>
-      <button class="small-btn" data-day-id="dec4">Dec 4</button>
-      <button class="small-btn" data-day-id="dec5">Dec 5</button>
-      <button class="small-btn" data-day-id="dec6">Dec 6</button>
-      <button class="small-btn" data-day-id="dec7">Dec 7</button>
-      <button class="small-btn" data-day-id="dec8">Dec 8</button>
-      <button class="small-btn" data-day-id="dec9">Dec 9</button>
-
-      <button class="small-btn" data-action="clear">
-        <i class="fas fa-eye-slash"></i> Clear filters
-      </button>
-    </div>
-
     <div class="map-container">
-      <div id="liveMap" style="width: 100%; height: 100%;"></div>
+      <div id="liveMap"></div>
     </div>
   </section>
 
   <!-- ITINERARY -->
   <section class="card itinerary-section">
+
+    <!-- Clean new header -->
     <div class="itinerary-header">
-      <div>
+      <div class="itinerary-header-left">
         <h2 class="section-title">
           <i class="fas fa-suitcase-rolling"></i> Itinerary planner
         </h2>
         <p class="section-subtitle">
-          Drag items between dates and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
+          Drag items between days and the Open Bin · Add or delete freely · Saved in this browser and can sync to GitHub
         </p>
       </div>
-      <div class="itinerary-header-right">
-        <button class="secondary-btn" id="resetBtn">Reset to defaults</button>
-        <div class="github-controls">
-          <button class="small-btn" id="githubToken">Set GitHub token</button>
-          <button class="small-btn" id="githubSave">Save to GitHub</button>
-          <button class="small-btn" id="githubLoad">Load from GitHub</button>
-        </div>
-        <div id="githubStatus" class="github-status"></div>
+
+      <div class="itinerary-controls">
+        <button id="resetBtn">Reset</button>
+        <button id="githubToken">Token</button>
+        <button id="githubSave">Save</button>
+        <button id="githubLoad">Load</button>
       </div>
     </div>
 
-    <div class="itinerary-layout">
-      <!-- Days stacked vertically (left) -->
-      <div id="daysColumn" class="days-column">
-        <!-- itinerary.js will populate -->
-      </div>
+    <div id="githubStatus" class="github-status"></div>
 
-      <!-- Open Bin (right) -->
+    <div class="itinerary-layout">
+
+      <!-- Days -->
+      <div id="daysColumn" class="days-column"></div>
+
+      <!-- OPEN BIN -->
       <aside class="open-bin-column">
-        <h3 class="open-bin-title">
-          <i class="fas fa-inbox"></i> Open Bin
-        </h3>
+        <h3 class="open-bin-title"><i class="fas fa-inbox"></i> Open Bin</h3>
         <p class="open-bin-subtitle">
-          Keep arrivals, unscheduled ideas, and overflow here. Drag into any date, or back again.
+          Keep arrivals, unscheduled ideas, and overflow here. Drag into any date.
         </p>
+
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
             <h4>OPEN BIN</h4>
             <div class="add-item-container">
-              <input
-                type="text"
-                class="add-item-input"
-                id="openBinInput"
-                placeholder="Add event…"
-              />
+              <input type="text" class="add-item-input" id="openBinInput" placeholder="Add event…" />
               <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
           </div>
-          <div id="openBinList" class="itinerary-list" data-col-id="open">
-            <!-- itinerary.js will populate -->
-          </div>
+
+          <div id="openBinList" class="itinerary-list" data-day="OPEN BIN"></div>
         </div>
       </aside>
+
     </div>
   </section>
-
-  <!-- FOOTER -->
-  <footer class="page-footer">
-    Itinerary data is saved in this browser and can be synced to GitHub on demand.
-  </footer>
 
   <!-- Scripts -->
   <script src="app.js"></script>
   <script src="map.js"></script>
 
-  <!-- Google Maps JS API: insert your real key -->
+  <!-- Google Maps JS API -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap"
-    async
-    defer
-  ></script>
+    async>
+  </script>
 
-  <!-- SortableJS for drag and drop -->
+  <!-- Sortable for drag/drop -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 
   <script src="itinerary.js"></script>
+
 </body>
 </html>
