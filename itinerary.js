@@ -128,7 +128,6 @@ const DAY_LABELS = {
   dec9: { title: "Dec 9", meta: "Tue Dec 9" }
 };
 
-// Normalize titles for any loaded state so "Day 1" vanishes everywhere
 function normalizeTitles(state) {
   if (!state || !state.columns) return;
   state.columns.forEach(col => {
@@ -145,7 +144,6 @@ function normalizeTitles(state) {
 const ITIN_LOCAL_KEY = "itinerary-columns-v1";
 let itinState = null;
 
-// Deep clone default
 function cloneDefaultItin() {
   return JSON.parse(JSON.stringify(window.ITIN_DATA));
 }
@@ -194,7 +192,6 @@ function buildCard(colId, itemIndex, text) {
   card.appendChild(span);
   card.appendChild(del);
 
-  // Drag events
   card.addEventListener("dragstart", (e) => {
     card.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
@@ -262,7 +259,7 @@ function renderItinerary() {
   const openCol = itinState.columns.find((c) => c.id === "open");
   const dayCols = itinState.columns.filter((c) => c.id !== "open");
 
-  // Render day columns (stacked vertically)
+  // Render day columns
   dayCols.forEach((col) => {
     const wrapper = document.createElement("div");
     wrapper.className = "day-column";
