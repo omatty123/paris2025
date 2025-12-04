@@ -2,8 +2,8 @@
   "columns": [
     {
       "id": "open",
-      "title": "Open bin",
-      "meta": "Unassigned items",
+      "title": "Open Bin",
+      "meta": "",
       "items": [
         "Conciergerie",
         "Sainte-Chapelle",
@@ -19,12 +19,14 @@
         "Drink at Le Train Bleu",
         "Dinner at Afrik’N’Fusion",
         "Walk home",
-        "Arrive CDG"
+        "Arrive CDG",
+        "Lunch at Vegan & Cie",
+        "Musée Flaubert"
       ]
     },
     {
       "id": "dec3",
-      "title": "Day 1",
+      "title": "Dec 3",
       "meta": "Wed Dec 3",
       "items": [
         "Arrive apartment",
@@ -35,7 +37,7 @@
     },
     {
       "id": "dec4",
-      "title": "Day 2",
+      "title": "Dec 4",
       "meta": "Thu Dec 4",
       "items": [
         "La Halte Paris 13",
@@ -50,23 +52,22 @@
     },
     {
       "id": "dec5",
-      "title": "Day 3",
+      "title": "Dec 5",
       "meta": "Fri Dec 5",
       "items": [
         "Metro to Opéra then walk to Gare Saint-Lazare",
         "Train to Rouen",
         "Taxi to Cathedral and Gros Horloge",
-        "Lunch at Vegan & Cie",
-        "Musée Flaubert",
         "Cimetière Monumental",
         "Croisset",
         "Train back",
-        "Dinner at Brasserie Le Lazare"
+        "Dinner at Brasserie Le Lazare",
+        "Musee Flaubert"
       ]
     },
     {
       "id": "dec6",
-      "title": "Day 4",
+      "title": "Dec 6",
       "meta": "Sat Dec 6",
       "items": [
         "Belleville",
@@ -78,7 +79,7 @@
     },
     {
       "id": "dec7",
-      "title": "Day 5",
+      "title": "Dec 7",
       "meta": "Sun Dec 7",
       "items": [
         "Parc Montsouris",
@@ -92,13 +93,13 @@
     },
     {
       "id": "dec8",
-      "title": "Day 6",
+      "title": "Dec 8",
       "meta": "Mon Dec 8",
       "items": []
     },
     {
       "id": "dec9",
-      "title": "Day 7",
+      "title": "Dec 9",
       "meta": "Tue Dec 9",
       "items": []
     }
