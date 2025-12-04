@@ -428,6 +428,36 @@ async function githubGetSHA() {
   return json.sha || null;
 }
 
+async function githubPutItinerary(sha) {
+  const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
+  const content = btoa(
+    unescape(encodeURIComponent(JSON.stringify(itinState, null, 2)))
+  );
+
+  const body = {
+    message: `Update itinerary - ${new Date().toISOString()}`,
+    content,
+    branch: GITHUB.branch
+  };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `token ${GITHUB.token}`,
+      Accept: "application/vnd.github.v3+json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const j = await res.json().catch(() => ({}));
+    const msg = j.message || `GitHub PUT failed: ${res.status}`;
+    throw new Error(msg);
+  }
+}
+
 async function saveItineraryToGitHub() {
   if (!GITHUB.token) {
     setGitHubToken();
@@ -441,32 +471,19 @@ async function saveItineraryToGitHub() {
   }
 
   try {
-    const sha = await githubGetSHA();
-    const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
-    const content = btoa(
-      unescape(encodeURIComponent(JSON.stringify(itinState, null, 2)))
-    );
+    let sha = await githubGetSHA();
 
-    const body = {
-      message: `Update itinerary - ${new Date().toISOString()}`,
-      content,
-      branch: GITHUB.branch
-    };
-    if (sha) body.sha = sha;
-
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${GITHUB.token}`,
-        Accept: "application/vnd.github.v3+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.message || `GitHub PUT failed: ${res.status}`);
+    try {
+      await githubPutItinerary(sha);
+    } catch (inner) {
+      const msg = inner && inner.message ? inner.message : "";
+      if (msg.includes("does not match") || msg.includes("sha does not match")) {
+        // Repo changed since we fetched SHA, refetch and retry once
+        const freshSha = await githubGetSHA();
+        await githubPutItinerary(freshSha);
+      } else {
+        throw inner;
+      }
     }
 
     if (status) {
