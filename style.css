@@ -205,6 +205,46 @@ h1, h2, h3, h4 {
   border-color: #888;
 }
 
+.map-search-container {
+  margin: 12px 0;
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.map-search-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 16px;
+  font-family: "Cormorant Garamond", serif;
+}
+
+.map-search-input:focus {
+  outline: none;
+  border-color: #888;
+}
+
+.map-search-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #888;
+  background: #333;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: "Cormorant Garamond", serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.map-search-btn:hover {
+  background: #555;
+}
+
 .map-container {
   margin-top: 12px;
   height: 500px;
