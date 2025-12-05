@@ -56,47 +56,25 @@ async function fetchParisWeather() {
     updateWeatherDisplay();
   } catch (error) {
     console.error("Weather error:", error);
-    const weatherText = document.getElementById("weatherText");
-    if (weatherText) {
-      weatherText.textContent = "Weather unavailable";
+    const weatherDays = document.getElementById("weatherDays");
+    if (weatherDays) {
+      weatherDays.innerHTML = '<span class="weather-loading">Weather unavailable</span>';
     }
   }
 }
 
 function updateWeatherDisplay() {
-  const weatherText = document.getElementById("weatherText");
-  if (!weatherText || !weatherData) return;
+  const weatherDays = document.getElementById("weatherDays");
+  if (!weatherDays || !weatherData) return;
   
-  const today = weatherData.daily;
-  const todayHigh = Math.round(today.temperature_2m_max[0]);
-  const todayLow = Math.round(today.temperature_2m_min[0]);
-  const todayCode = today.weathercode[0];
-  const emoji = getWeatherEmoji(todayCode);
-  
-  weatherText.textContent = `${emoji} ${todayHigh}°/${todayLow}°C`;
-}
-
-function createWeatherPopup() {
-  if (!weatherData) return;
-  
-  const widget = document.getElementById("weatherWidget");
-  if (!widget) return;
-  
-  // Remove existing popup if any
-  const existingPopup = widget.querySelector(".weather-popup");
-  if (existingPopup) {
-    existingPopup.remove();
-  }
-  
-  const popup = document.createElement("div");
-  popup.className = "weather-popup";
+  weatherDays.innerHTML = "";
   
   const daily = weatherData.daily;
   const dates = daily.time;
   
   dates.forEach((dateStr, i) => {
     const date = new Date(dateStr);
-    const dayName = date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
     
     const high = Math.round(daily.temperature_2m_max[i]);
     const low = Math.round(daily.temperature_2m_min[i]);
@@ -104,60 +82,20 @@ function createWeatherPopup() {
     const emoji = getWeatherEmoji(code);
     
     const dayDiv = document.createElement("div");
-    dayDiv.className = "weather-day";
+    dayDiv.className = "weather-day-item";
     dayDiv.innerHTML = `
-      <span class="weather-date">${dayName}</span>
-      <span class="weather-icon">${emoji}</span>
-      <span class="weather-temps">
-        <span class="weather-high">${high}°</span>
-        <span class="weather-low">${low}°</span>
-      </span>
+      <span class="weather-date-short">${dayName}</span>
+      <span class="weather-icon-large">${emoji}</span>
+      <span class="weather-temp">${high}°/${low}°</span>
     `;
     
-    popup.appendChild(dayDiv);
+    weatherDays.appendChild(dayDiv);
   });
-  
-  widget.appendChild(popup);
 }
-
-function toggleWeatherPopup() {
-  const widget = document.getElementById("weatherWidget");
-  if (!widget) return;
-  
-  let popup = widget.querySelector(".weather-popup");
-  
-  if (!popup && weatherData) {
-    createWeatherPopup();
-    popup = widget.querySelector(".weather-popup");
-  }
-  
-  if (popup) {
-    popup.classList.toggle("show");
-  }
-}
-
-// Close popup when clicking outside
-document.addEventListener("click", (e) => {
-  const widget = document.getElementById("weatherWidget");
-  if (!widget) return;
-  
-  const popup = widget.querySelector(".weather-popup");
-  if (popup && !widget.contains(e.target)) {
-    popup.classList.remove("show");
-  }
-});
 
 // Initialize weather
 document.addEventListener("DOMContentLoaded", () => {
   fetchParisWeather();
-  
-  const widget = document.getElementById("weatherWidget");
-  if (widget) {
-    widget.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleWeatherPopup();
-    });
-  }
   
   // Refresh weather every hour
   setInterval(fetchParisWeather, 3600000);
