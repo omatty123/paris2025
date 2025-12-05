@@ -565,12 +565,15 @@ function setGitHubToken() {
 }
 
 async function githubGetSHA() {
-  const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?ref=${GITHUB.branch}`;
+  // Add timestamp to bust cache
+  const timestamp = Date.now();
+  const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?ref=${GITHUB.branch}&_=${timestamp}`;
   const res = await fetch(url, {
     headers: {
       Authorization: `token ${GITHUB.token}`,
       Accept: "application/vnd.github.v3+json"
-    }
+    },
+    cache: 'no-store' // Force no caching
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error("GitHub GET failed: " + res.status);
