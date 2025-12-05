@@ -368,11 +368,12 @@ h1, h2, h3, h4 {
   cursor: move;
   cursor: grab;
   font-size: 16px;
-  display: inline-flex;
+  display: flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s ease;
   user-select: none;
+  width: fit-content;
   max-width: 100%;
 }
 
