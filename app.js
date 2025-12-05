@@ -73,8 +73,15 @@ function updateWeatherDisplay() {
   const dates = daily.time;
   
   dates.forEach((dateStr, i) => {
-    const date = new Date(dateStr);
-    const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+    // API returns dates in format "2025-12-05" which are already in Paris timezone
+    // We need to parse them as local Paris dates, not UTC
+    const [year, month, day] = dateStr.split('-').map(Number);
+    
+    // Create date in Paris timezone by using the API's timezone field
+    // The API is already giving us Paris dates, so just format the day name
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const date = new Date(year, month - 1, day);
+    const dayName = dayNames[date.getDay()];
     
     const high = Math.round(daily.temperature_2m_max[i]);
     const low = Math.round(daily.temperature_2m_min[i]);
