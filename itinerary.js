@@ -1,5 +1,5 @@
 // itinerary.js
-// FIXED VERSION with improved drag and drop
+// FIXED VERSION with improved drag and drop + past days at bottom
 
 // ----- 1) Default data -----
 window.ITIN_DATA = {
@@ -109,6 +109,17 @@ window.ITIN_DATA = {
   ]
 };
 
+// Map day IDs to actual dates
+const DAY_DATES = {
+  dec3: "2025-12-03",
+  dec4: "2025-12-04",
+  dec5: "2025-12-05",
+  dec6: "2025-12-06",
+  dec7: "2025-12-07",
+  dec8: "2025-12-08",
+  dec9: "2025-12-09"
+};
+
 // Map of correct labels - simplified to just title
 const DAY_LABELS = {
   open: { title: "Open Bin" },
@@ -130,6 +141,41 @@ function normalizeTitles(state) {
       col.meta = "";
     }
   });
+}
+
+// Get today's date in Paris timezone as YYYY-MM-DD
+function getTodayParis() {
+  const now = new Date();
+  const parisNow = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Paris" }));
+  const y = parisNow.getFullYear();
+  const m = String(parisNow.getMonth() + 1).padStart(2, "0");
+  const d = String(parisNow.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// Sort day columns: today & future first, then past days
+function sortDayColumns(dayCols) {
+  const todayStr = getTodayParis();
+  
+  const future = [];
+  const past = [];
+  
+  dayCols.forEach(col => {
+    const dateStr = DAY_DATES[col.id];
+    if (!dateStr) {
+      future.push(col); // Unknown dates go to future
+    } else if (dateStr >= todayStr) {
+      future.push(col);
+    } else {
+      past.push(col);
+    }
+  });
+  
+  // Sort each group by date
+  future.sort((a, b) => (DAY_DATES[a.id] || "").localeCompare(DAY_DATES[b.id] || ""));
+  past.sort((a, b) => (DAY_DATES[a.id] || "").localeCompare(DAY_DATES[b.id] || ""));
+  
+  return [...future, ...past];
 }
 
 // ----- 2) State + helpers -----
@@ -281,11 +327,21 @@ function renderItinerary() {
 
   const openCol = itinState.columns.find((c) => c.id === "open");
   const dayCols = itinState.columns.filter((c) => c.id !== "open");
+  
+  // Sort: today & future first, past days at bottom
+  const sortedDayCols = sortDayColumns(dayCols);
+  const todayStr = getTodayParis();
 
   // Render day columns
-  dayCols.forEach((col) => {
+  sortedDayCols.forEach((col) => {
     const wrapper = document.createElement("div");
     wrapper.className = "day-column";
+    
+    // Add "past-day" class for styling if needed
+    const dateStr = DAY_DATES[col.id];
+    if (dateStr && dateStr < todayStr) {
+      wrapper.classList.add("past-day");
+    }
 
     const header = document.createElement("div");
     header.className = "day-header";
