@@ -368,11 +368,12 @@ h1, h2, h3, h4 {
   cursor: move;
   cursor: grab;
   font-size: 16px;
-  display: flex;
+  display: inline-flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s ease;
   user-select: none;
+  max-width: 100%;
 }
 
 .itinerary-card:hover {
@@ -392,7 +393,6 @@ h1, h2, h3, h4 {
 }
 
 .card-text {
-  flex: 1;
   font-family: 'Cormorant Garamond', serif;
   font-size: 16px;
   color: #3a3330;
