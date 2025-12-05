@@ -123,9 +123,9 @@ const DAY_DATES = {
 // Map of correct labels - simplified to just title
 const DAY_LABELS = {
   open: { title: "Open Bin" },
-  dec3: { title: "Wed Dec 3" },
-  dec4: { title: "Thu Dec 4" },
-  dec5: { title: "Fri Dec 5" },
+  dec3: { title: "Wed Dec 3", photoUrl: "https://www.amazon.com/photos/shared/ePLmduWLQXGeruQEcrnDjg.wz42P01vnEpGuxrHB5VChn" },
+  dec4: { title: "Thu Dec 4", photoUrl: "https://www.amazon.com/photos/shared/tQm07DL3RKeav08LMOu2gg.qQAWz56zAlUSg03OgxvA7U" },
+  dec5: { title: "Fri Dec 5", photoUrl: "https://www.amazon.com/photos/shared/GqMnmVE5Q_2mVoqie28YjA.o9PKGuPBVooDvT44cVqi8_" },
   dec6: { title: "Sat Dec 6" },
   dec7: { title: "Sun Dec 7" },
   dec8: { title: "Mon Dec 8" },
@@ -347,8 +347,24 @@ function renderItinerary() {
     header.className = "day-header";
 
     // FIXED: Only show title, no meta (was causing duplicate dates)
+    const titleContainer = document.createElement("div");
+    titleContainer.className = "day-title-container";
+    
     const title = document.createElement("h3");
     title.textContent = col.title;
+    titleContainer.appendChild(title);
+    
+    // Add photo link if available
+    const dayLabel = DAY_LABELS[col.id];
+    if (dayLabel && dayLabel.photoUrl) {
+      const photoLink = document.createElement("a");
+      photoLink.href = dayLabel.photoUrl;
+      photoLink.target = "_blank";
+      photoLink.className = "day-photo-link";
+      photoLink.innerHTML = '<i class="fas fa-camera"></i>';
+      photoLink.title = "View photos";
+      titleContainer.appendChild(photoLink);
+    }
 
     const addContainer = document.createElement("div");
     addContainer.className = "add-item-container";
@@ -378,7 +394,7 @@ function renderItinerary() {
 
     addContainer.appendChild(input);
     addContainer.appendChild(btn);
-    header.appendChild(title);
+    header.appendChild(titleContainer);
     header.appendChild(addContainer);
 
     const list = document.createElement("div");
