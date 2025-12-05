@@ -16,7 +16,6 @@ h1, h2, h3, h4 {
   font-weight: 600;
 }
 
-/* Generic card container */
 .card {
   background: white;
   padding: 24px;
@@ -54,7 +53,6 @@ h1, h2, h3, h4 {
   gap: 6px;
 }
 
-/* Header link buttons */
 .header-buttons {
   margin-top: 16px;
   display: flex;
@@ -78,7 +76,7 @@ h1, h2, h3, h4 {
 }
 
 /* =========================================================
-   MAP SECTION
+   MAP
    ========================================================= */
 
 .section-title {
@@ -125,59 +123,37 @@ h1, h2, h3, h4 {
 }
 
 /* =========================================================
-   ITINERARY SECTION
+   ITINERARY
    ========================================================= */
 
-.itinerary-section {
-  margin-top: 12px;
-}
-
-/* --- HEADER ROW --- */
-.itinerary-header {
+/* BUTTONS ONLY — no title block */
+.itinerary-controls-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-start;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
-/* Left side (title only) */
-.itinerary-header-left {
-  display: flex;
-  align-items: center;
-}
-
-/* Right side (buttons row) */
-.itinerary-controls {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-}
-
-.itinerary-controls button {
-  padding: 6px 12px;
+.itinerary-controls-row button {
+  padding: 8px 14px;
   background: #333;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 17px;
   cursor: pointer;
 }
 
-.itinerary-controls button:hover {
+.itinerary-controls-row button:hover {
   background: #555;
 }
 
 .github-status {
-  margin-top: 8px;
-  font-size: 18px;
   min-height: 20px;
+  font-size: 18px;
   color: #444;
+  margin-bottom: 12px;
 }
-
-/* =========================================================
-   ITINERARY LAYOUT
-   ========================================================= */
 
 .itinerary-layout {
   display: flex;
@@ -185,7 +161,6 @@ h1, h2, h3, h4 {
   align-items: flex-start;
 }
 
-/* Days column (left) */
 .days-column {
   flex: 2;
   display: flex;
@@ -193,7 +168,6 @@ h1, h2, h3, h4 {
   gap: 20px;
 }
 
-/* Open Bin column (right) */
 .open-bin-column {
   flex: 1;
 }
@@ -202,10 +176,6 @@ h1, h2, h3, h4 {
   font-size: 22px;
   margin-bottom: 12px;
 }
-
-/* =========================================================
-   DAY BLOCKS
-   ========================================================= */
 
 .day-column {
   background: #fafafa;
@@ -220,10 +190,6 @@ h1, h2, h3, h4 {
   align-items: center;
 }
 
-.day-header h3, .day-header h4 {
-  font-size: 20px;
-}
-
 .add-item-container {
   display: flex;
   gap: 6px;
@@ -234,27 +200,22 @@ h1, h2, h3, h4 {
   border: 1px solid #444;
   border-radius: 4px;
   font-size: 16px;
-  font-family: "Cormorant Garamond", serif;
+  font-family: inherit;
 }
 
 .add-item-btn {
   padding: 4px 10px;
-  border-radius: 4px;
   background: #333;
   color: white;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
 }
 
-/* List area for tokens */
 .itinerary-list {
-  min-height: 40px;
   margin-top: 10px;
+  min-height: 40px;
 }
-
-/* =========================================================
-   TOKEN STYLING
-   ========================================================= */
 
 .itinerary-item {
   padding: 6px 10px;
@@ -262,22 +223,6 @@ h1, h2, h3, h4 {
   border-radius: 6px;
   border: 1px solid #ccc;
   margin-bottom: 6px;
-  cursor: grab;
   font-size: 17px;
-}
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 900px) {
-  .header-top {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .itinerary-layout {
-    flex-direction: column;
-  }
+  cursor: grab;
 }
