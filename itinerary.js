@@ -423,6 +423,12 @@ function renderItinerary() {
       if (!v) return;
       col.items.push(v);
       input.value = "";
+      
+      // Add pin to map for this new item (skip for Open Bin)
+      if (col.id !== "open" && typeof window.addPinForItineraryItem === "function") {
+        window.addPinForItineraryItem(col.id, v);
+      }
+      
       saveToLocal();
       renderItinerary();
     }
