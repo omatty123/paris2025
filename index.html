@@ -26,7 +26,7 @@
     <div class="header-top">
       <div class="title-row">
         <h1>Paris December 2025</h1>
-        <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris/Rouen → Detroit → Appleton</p>
+        <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
       </div>
 
       <div class="paris-time">
@@ -106,33 +106,35 @@
     <div id="githubStatus" class="github-status"></div>
 
     <div class="itinerary-layout">
-      <!-- Top: dynamic days -->
+      <!-- Left: dynamic days -->
       <div id="daysColumn" class="days-column"></div>
-    </div>
 
-    <!-- Bottom: Open Bin -->
-    <div class="open-bin-section">
-      <div class="day-column open-bin-wrapper">
-        <div class="day-header">
-          <h4><i class="fas fa-inbox"></i> Open Bin</h4>
+      <!-- Right: Fixed Open Bin -->
+      <aside class="open-bin-section">
+        <div class="day-column open-bin-wrapper">
+          <div class="day-header">
+            <div class="day-title-container">
+              <h4><i class="fas fa-inbox"></i> Open Bin</h4>
+            </div>
 
-          <div class="add-item-container">
-            <input
-              type="text"
-              class="add-item-input"
-              id="openBinInput"
-              placeholder="Add event…"
-            />
-            <button class="add-item-btn" id="openBinAdd">+</button>
+            <div class="add-item-container">
+              <input
+                type="text"
+                class="add-item-input"
+                id="openBinInput"
+                placeholder="Add event…"
+              />
+              <button class="add-item-btn" id="openBinAdd">+</button>
+            </div>
           </div>
-        </div>
 
-        <div
-          id="openBinList"
-          class="itinerary-list"
-          data-day="OPEN BIN"
-        ></div>
-      </div>
+          <div
+            id="openBinList"
+            class="itinerary-list"
+            data-day="OPEN BIN"
+          ></div>
+        </div>
+      </aside>
     </div>
   </section>
 
