@@ -180,28 +180,34 @@ input,
 
 .itinerary-section {
   margin-top: 12px;
+
+  /* Option C: header aligns directly above days column */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Title + buttons row */
+/* Title + buttons row aligned with days column */
 .itinerary-header {
+  width: 100%;
+  max-width: 520px;   /* EXACT match to days-column */
+  padding-left: 0;
+  margin-left: 0;
+
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 4px;
+  gap: 12px;
 }
 
+/* Left: Title + subtitle */
 .itinerary-header-left {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  gap: 2px;
 }
 
-.itinerary-header-left .section-title {
-  margin-bottom: 2px;
-}
-
-/* GitHub buttons row */
+/* Right: Buttons */
 .itinerary-controls {
   display: flex;
   flex-wrap: nowrap;
@@ -227,7 +233,7 @@ input,
   font-size: 0.78rem;
   color: #7a7267;
   min-height: 1em;
-  margin-bottom: 8px;
+  margin-top: -10px;
 }
 
 /* =============== */
@@ -238,6 +244,7 @@ input,
   display: flex;
   gap: 24px;
   align-items: flex-start;
+  width: 100%;
 }
 
 /* Left column = Days */
@@ -380,11 +387,12 @@ input,
     flex-direction: column;
   }
   .open-bin-column {
-    position: static;
     max-width: none;
   }
   .days-column {
-    flex-basis: 100%;
+    max-width: none;
+  }
+  .itinerary-header {
     max-width: none;
   }
 }
