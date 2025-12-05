@@ -99,33 +99,33 @@
     <div id="githubStatus" class="github-status"></div>
 
     <div class="itinerary-layout">
-      <!-- Left: dynamic days -->
+      <!-- Top: dynamic days -->
       <div id="daysColumn" class="days-column"></div>
+    </div>
 
-      <!-- Right: Open Bin -->
-      <aside class="open-bin-column">
-        <div class="day-column open-bin-wrapper">
-          <div class="day-header">
-            <h4><i class="fas fa-inbox"></i> Open Bin</h4>
+    <!-- Bottom: Open Bin -->
+    <div class="open-bin-section">
+      <div class="day-column open-bin-wrapper">
+        <div class="day-header">
+          <h4><i class="fas fa-inbox"></i> Open Bin</h4>
 
-            <div class="add-item-container">
-              <input
-                type="text"
-                class="add-item-input"
-                id="openBinInput"
-                placeholder="Add event…"
-              />
-              <button class="add-item-btn" id="openBinAdd">+</button>
-            </div>
+          <div class="add-item-container">
+            <input
+              type="text"
+              class="add-item-input"
+              id="openBinInput"
+              placeholder="Add event…"
+            />
+            <button class="add-item-btn" id="openBinAdd">+</button>
           </div>
-
-          <div
-            id="openBinList"
-            class="itinerary-list"
-            data-day="OPEN BIN"
-          ></div>
         </div>
-      </aside>
+
+        <div
+          id="openBinList"
+          class="itinerary-list"
+          data-day="OPEN BIN"
+        ></div>
+      </div>
     </div>
   </section>
 
