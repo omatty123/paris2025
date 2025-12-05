@@ -26,8 +26,8 @@
     },
     {
       "id": "dec3",
-      "title": "Dec 3",
-      "meta": "Wed Dec 3",
+      "title": "Wed Dec 3",
+      "meta": "",
       "items": [
         "Arrive apartment",
         "Musée d’Orsay",
@@ -37,8 +37,8 @@
     },
     {
       "id": "dec4",
-      "title": "Dec 4",
-      "meta": "Thu Dec 4",
+      "title": "Thu Dec 4",
+      "meta": "",
       "items": [
         "La Halte Paris 13",
         "Nationale",
@@ -52,8 +52,8 @@
     },
     {
       "id": "dec5",
-      "title": "Dec 5",
-      "meta": "Fri Dec 5",
+      "title": "Fri Dec 5",
+      "meta": "",
       "items": [
         "Metro to Opéra then walk to Gare Saint-Lazare",
         "Train to Rouen",
@@ -67,20 +67,21 @@
     },
     {
       "id": "dec6",
-      "title": "Dec 6",
-      "meta": "Sat Dec 6",
+      "title": "Sat Dec 6",
+      "meta": "",
       "items": [
         "Belleville",
         "Promenade Dora Bruder",
         "Montmartre and Sacré-Cœur",
         "Père Lachaise",
-        "Pain Vin Fromages"
+        "Pain Vin Fromages",
+        "Go to movies"
       ]
     },
     {
       "id": "dec7",
-      "title": "Dec 7",
-      "meta": "Sun Dec 7",
+      "title": "Sun Dec 7",
+      "meta": "",
       "items": [
         "Parc Montsouris",
         "Covered passages",
@@ -93,14 +94,14 @@
     },
     {
       "id": "dec8",
-      "title": "Dec 8",
-      "meta": "Mon Dec 8",
+      "title": "Mon Dec 8",
+      "meta": "",
       "items": []
     },
     {
       "id": "dec9",
-      "title": "Dec 9",
-      "meta": "Tue Dec 9",
+      "title": "Tue Dec 9",
+      "meta": "",
       "items": []
     }
   ]
