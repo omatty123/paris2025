@@ -74,6 +74,7 @@ h1, h2, h3, h4 {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .header-btn {
@@ -92,71 +93,57 @@ h1, h2, h3, h4 {
   background: #555;
 }
 
-.weather-btn {
-  background: #2c5f7a;
-  cursor: pointer;
-  position: relative;
-}
-
-.weather-btn:hover {
-  background: #3a7a99;
-}
-
-/* Weather popup */
-.weather-popup {
-  display: none;
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  padding: 16px;
-  min-width: 320px;
-  z-index: 1000;
-  color: #222;
-}
-
-.weather-popup.show {
-  display: block;
-}
-
-.weather-day {
+/* Weather widget - inline 5-day display */
+.weather-widget {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.weather-day:last-child {
-  border-bottom: none;
-}
-
-.weather-date {
-  font-weight: 600;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #2c5f7a;
+  color: white;
   font-size: 16px;
-  min-width: 80px;
 }
 
-.weather-icon {
-  font-size: 20px;
-  min-width: 30px;
-  text-align: center;
-}
-
-.weather-temps {
-  font-size: 16px;
+.weather-label {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  white-space: nowrap;
 }
 
-.weather-high {
+.weather-days {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.weather-day-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 45px;
+}
+
+.weather-date-short {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.weather-icon-large {
+  font-size: 22px;
+}
+
+.weather-temp {
+  font-size: 13px;
   font-weight: 600;
 }
 
-.weather-low {
-  color: #666;
+.weather-loading {
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 /* =========================================================
