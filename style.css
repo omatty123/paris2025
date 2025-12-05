@@ -104,7 +104,6 @@ h1, h2, h3, h4 {
   background: #2c5f7a;
   color: white;
   font-size: 14px;
-  flex-basis: 100%;
 }
 
 .weather-widget > i {
@@ -115,7 +114,7 @@ h1, h2, h3, h4 {
   display: flex;
   gap: 8px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .weather-day-item {
