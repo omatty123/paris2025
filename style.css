@@ -1,127 +1,88 @@
-/* =============== */
-/*     BASE        */
-/* =============== */
-
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
-
-html, body, button, input, select, textarea, .token, .day-column {
-  font-family: 'Cormorant Garamond', serif !important;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
+/* GLOBAL ------------------------------------------------------- */
 body {
   margin: 0;
   padding: 0;
-  background: #f6f3ee;
-  color: #2b2620;
+  font-family: "Cormorant Garamond", serif;
+  background: #f5f3ef;
+  color: #222;
 }
 
 h1, h2, h3, h4 {
   margin: 0;
-  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
 }
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-.itinerary-card,
-.itinerary-card span,
-.add-item-input,
-.add-item-btn,
-.delete-btn {
-  font-family: inherit !important;
-}
-
-/* =============== */
-/*     CARDS       */
-/* =============== */
 
 .card {
-  background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  padding: 20px 24px 24px;
-  margin: 16px auto;
+  background: white;
+  padding: 24px;
+  margin: 24px auto;
   max-width: 1100px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-/* =============== */
-/*     HEADER      */
-/* =============== */
-
+/* HEADER ------------------------------------------------------- */
 .main-header {
+  padding: 24px;
   max-width: 1100px;
-  margin: 20px auto 8px;
-  padding: 8px 4px 0;
+  margin: auto;
 }
 
 .header-top {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.main-header h1 {
-  font-size: 2.3rem;
-  letter-spacing: 0.03em;
+  align-items: center;
 }
 
 .subtitle {
   margin-top: 4px;
-  font-size: 0.95rem;
-  color: #6f645a;
+  font-size: 18px;
 }
 
 .paris-time {
-  font-size: 0.95rem;
-  color: #4b4138;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 18px;
 }
 
+/* HEADER BUTTONS */
 .header-buttons {
-  margin-top: 10px;
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.header-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #333;
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.header-btn i {
+  margin-right: 6px;
+}
+
+/* MAP ---------------------------------------------------------- */
+.map-section .map-filters {
+  margin: 16px 0;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.header-btn {
-  border-radius: 999px;
-  padding: 7px 14px;
-  border: 1px solid #d5cfc7;
-  background: #fff;
-  font-size: 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.map-filter-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #777;
+  background: white;
   cursor: pointer;
+  font-size: 18px;
 }
 
-.header-btn:hover {
-  background: #f0e9df;
-}
-
-/* =============== */
-/*       MAP       */
-/* =============== */
-
-.map-section .map-container {
-  margin-top: 10px;
-  height: 460px;
-  border-radius: 16px;
-  overflow: hidden;
+.map-container {
+  margin-top: 16px;
+  height: 500px;
 }
 
 #liveMap {
@@ -129,280 +90,111 @@ input,
   height: 100%;
 }
 
-.section-title {
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-subtitle {
-  margin-top: 4px;
-  font-size: 0.93rem;
-  color: #7a7267;
-}
-
-/* Map filter buttons row */
-
-.map-filters {
-  margin-top: 12px;
-  margin-bottom: 6px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.map-filter-btn {
-  border-radius: 999px;
-  padding: 6px 12px;
-  border: 1px solid #d5cfc7;
-  background: #fff;
-  font-size: 0.85rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.map-filter-btn:hover {
-  background: #f0e9df;
-}
-
-.map-filter-btn.active {
-  background: #e3d5c5;
-  border-color: #c3aa8b;
-}
-
-/* =============== */
-/*   ITINERARY     */
-/* =============== */
-
-.itinerary-section {
-  margin-top: 12px;
-
-  /* Option C: header aligns directly above days column */
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Title + buttons row aligned with days column */
+/* ITINERARY ---------------------------------------------------- */
 .itinerary-header {
-  width: 100%;
-  max-width: 520px;   /* EXACT match to days-column */
-  padding-left: 0;
-  margin-left: 0;
-
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
-/* Left: Title + subtitle */
-.itinerary-header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-/* Right: Buttons */
 .itinerary-controls {
   display: flex;
-  flex-wrap: nowrap;
   gap: 8px;
-  align-items: flex-start;
 }
 
 .itinerary-controls button {
-  border-radius: 999px;
-  border: 1px solid #d3cdc4;
-  background: #faf7f3;
+  font-size: 16px;
   padding: 6px 12px;
-  font-size: 0.85rem;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  white-space: nowrap;
 }
 
-.itinerary-controls button:hover {
-  background: #eee0d1;
+.itinerary-subtitle {
+  margin-top: 4px;
+  margin-bottom: 16px;
+  font-size: 18px;
 }
-
-.github-status {
-  font-size: 0.78rem;
-  color: #7a7267;
-  min-height: 1em;
-  margin-top: -10px;
-}
-
-/* =============== */
-/*   TWO COLUMNS   */
-/* =============== */
 
 .itinerary-layout {
   display: flex;
   gap: 24px;
   align-items: flex-start;
-  width: 100%;
 }
 
-/* Left column = Days */
+/* Days column */
 .days-column {
-  flex: 0 0 52%;
-  max-width: 520px;
+  flex: 2;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-/* Right column = Open Bin */
+/* OPEN BIN */
 .open-bin-column {
-  flex: 0 0 48%;
-  max-width: 480px;
-  align-self: flex-start;
+  flex: 1;
 }
 
-.open-bin-wrapper {
-  max-height: 520px;
-  overflow-y: auto;
-  padding-right: 6px;
+.open-bin-title {
+  margin-bottom: 12px;
+  font-size: 22px;
 }
-
-/* =============== */
-/*  DAY BLOCKS     */
-/* =============== */
 
 .day-column {
-  background: #fbf9f6;
-  border-radius: 16px;
-  padding: 12px 14px 10px;
-  box-shadow: inset 0 0 0 1px #efe7dd;
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid #ddd;
 }
 
 .day-header {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 6px;
+  justify-content: space-between;
+  align-items: center;
 }
-
-.day-header h3,
-.day-header h4 {
-  font-size: 1.2rem;
-  margin: 0;
-}
-
-.day-meta {
-  font-size: 0.95rem;
-  color: #6a625a;
-}
-
-/* Add event row */
 
 .add-item-container {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .add-item-input {
-  flex: 1;
-  min-width: 0;
-  border-radius: 999px;
-  border: 1px solid #dacfbf;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  background: #fff;
+  padding: 4px 8px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
 .add-item-btn {
-  border-radius: 999px;
-  border: 1px solid #dacfbf;
-  background: #e9e1d6;
-  padding: 0 10px;
-  height: 28px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #333;
+  color: white;
+  border: none;
   cursor: pointer;
 }
-
-.add-item-btn:hover {
-  background: #ddcfbf;
-}
-
-/* =============== */
-/*     TOKENS      */
-/* =============== */
 
 .itinerary-list {
-  margin-top: 4px;
+  min-height: 40px;
+  margin-top: 10px;
 }
 
-.itinerary-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 9px 11px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+/* TOKEN STYLING */
+.itinerary-item {
+  padding: 6px 10px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #ccc;
   margin-bottom: 6px;
-  font-size: 0.94rem;
   cursor: grab;
+  font-size: 17px;
 }
 
-.itinerary-card.dragging {
-  opacity: 0.6;
-}
-
-.card-text {
-  flex: 1;
-  padding-right: 8px;
-}
-
-.delete-btn {
-  border: none;
-  border-radius: 999px;
-  background: #f3ddd8;
-  width: 22px;
-  height: 22px;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.delete-btn:hover {
-  background: #e8c6be;
-}
-
-.itinerary-list.drag-over {
-  outline: 2px dashed #c9b39a;
-  outline-offset: 4px;
-}
-
-/* =============== */
-/*   RESPONSIVE    */
-/* =============== */
-
-@media (max-width: 900px) {
-  .itinerary-layout {
-    flex-direction: column;
-  }
-  .open-bin-column {
-    max-width: none;
-  }
-  .days-column {
-    max-width: none;
-  }
-  .itinerary-header {
-    max-width: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .main-header h1 {
-    font-size: 1.8rem;
-  }
-  .header-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+/* GitHub status */
+.github-status {
+  margin-top: 8px;
+  font-size: 18px;
 }
