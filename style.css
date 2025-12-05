@@ -116,6 +116,11 @@ h1, h2, h3, h4 {
   background: #eee;
 }
 
+.map-filter-btn.active {
+  background: #e0e0e0;
+  border-color: #888;
+}
+
 .map-container {
   margin-top: 16px;
   height: 500px;
@@ -166,6 +171,10 @@ h1, h2, h3, h4 {
   background: #f0f0f0;
 }
 
+.itinerary-subtitle {
+  margin-top: 8px;
+}
+
 .github-status {
   margin-top: 8px;
   font-size: 18px;
@@ -199,6 +208,9 @@ h1, h2, h3, h4 {
 .open-bin-title {
   font-size: 22px;
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* =========================================================
@@ -216,10 +228,17 @@ h1, h2, h3, h4 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
 }
 
 .day-header h3, .day-header h4 {
   font-size: 20px;
+}
+
+.day-meta {
+  font-size: 16px;
+  color: #666;
+  margin-top: 2px;
 }
 
 .add-item-container {
@@ -242,26 +261,108 @@ h1, h2, h3, h4 {
   color: white;
   border: none;
   cursor: pointer;
+  font-size: 18px;
+}
+
+.add-item-btn:hover {
+  background: #555;
 }
 
 /* List area for tokens */
 .itinerary-list {
-  min-height: 40px;
+  min-height: 60px;
   margin-top: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.itinerary-list.drag-over {
+  background: #e8e8e8;
+  border: 2px dashed #999;
+}
+
+.itinerary-list:empty {
+  min-height: 60px;
 }
 
 /* =========================================================
-   TOKEN STYLING
+   CARD/TOKEN STYLING (FIXED - renamed from .itinerary-item)
    ========================================================= */
 
-.itinerary-item {
-  padding: 6px 10px;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-bottom: 6px;
+.itinerary-card {
+  padding: 8px 12px;
+  background: #f5ebe0;
+  border-radius: 8px;
+  border: 1px solid #d4c4b0;
+  margin-bottom: 8px;
+  cursor: move;
   cursor: grab;
   font-size: 17px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.itinerary-card:hover {
+  background: #ede4d9;
+  border-color: #c0b0a0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.itinerary-card:active {
+  cursor: grabbing;
+}
+
+.itinerary-card.dragging {
+  opacity: 0.5;
+  background: #e0d5c7;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-text {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  color: #3a3330;
+  line-height: 1.4;
+}
+
+.delete-btn {
+  background: #d4b5a0;
+  color: #3a3330;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn:hover {
+  background: #c0a090;
+  transform: scale(1.1);
+}
+
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* Open Bin specific wrapper */
+.open-bin-wrapper {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid #ddd;
 }
 
 /* =========================================================
@@ -277,5 +378,9 @@ h1, h2, h3, h4 {
 
   .itinerary-layout {
     flex-direction: column;
+  }
+
+  .open-bin-column {
+    order: -1;
   }
 }
