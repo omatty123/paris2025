@@ -87,6 +87,7 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .header-btn:hover {
@@ -97,52 +98,51 @@ h1, h2, h3, h4 {
 .weather-widget {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 14px;
+  gap: 10px;
+  padding: 6px 12px;
   border-radius: 8px;
   background: #2c5f7a;
   color: white;
-  font-size: 16px;
+  font-size: 14px;
+  flex-basis: 100%;
 }
 
-.weather-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.weather-widget > i {
   font-size: 16px;
-  white-space: nowrap;
 }
 
 .weather-days {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .weather-day-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  min-width: 45px;
+  gap: 1px;
+  min-width: 40px;
 }
 
 .weather-date-short {
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.9;
 }
 
 .weather-icon-large {
-  font-size: 22px;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .weather-temp {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .weather-loading {
-  font-size: 14px;
+  font-size: 13px;
   opacity: 0.8;
 }
 
