@@ -170,6 +170,48 @@ function addMarkerForPlace(place) {
   });
 }
 
+// Function to add a pin for a new itinerary item
+window.addPinForItineraryItem = function(dayId, itemText) {
+  if (!map || !geocoder) {
+    console.warn("Map not initialized yet");
+    return;
+  }
+  
+  const place = {
+    dayId: dayId,
+    label: itemText,
+    query: itemText + ", Paris, France"
+  };
+  
+  addMarkerForPlace(place);
+};
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 14px;">
+        <strong>${place.label}</strong><br/>
+        <span>${cfg.label || ""}</span>
+      </div>
+    `;
+    const infoWindow = new google.maps.InfoWindow({ content: infoHtml });
+
+    marker.addListener("click", () => {
+      infoWindow.open(map, marker);
+    });
+
+    allMarkers.push(marker);
+    if (!markersByDay[place.dayId]) {
+      markersByDay[place.dayId] = [];
+    }
+    markersByDay[place.dayId].push(marker);
+
+    // If a day filter is active, respect it as new markers arrive
+    if (activeFilter !== "all") {
+      marker.setMap(null);
+      if (activeFilter === place.dayId) {
+        marker.setMap(map);
+      }
+    }
+  });
+}
+
 function setActiveMapButton(buttonId) {
   const buttons = document.querySelectorAll(".map-filter-btn");
   buttons.forEach(btn => btn.classList.remove("active"));
