@@ -578,7 +578,7 @@ async function githubGetSHA() {
   return json.sha || null;
 }
 
-async function saveItineraryToGitHub() {
+async function saveItineraryToGitHub(forceSave = false) {
   if (!GITHUB.token) {
     setGitHubToken();
     if (!GITHUB.token) return;
@@ -591,8 +591,10 @@ async function saveItineraryToGitHub() {
   }
 
   try {
-    const sha = await githubGetSHA();
     const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
+    
+    // Get fresh SHA
+    const sha = await githubGetSHA();
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(itinState, null, 2))));
 
     const body = {
@@ -614,11 +616,22 @@ async function saveItineraryToGitHub() {
 
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
+      
+      // If SHA mismatch and not already retrying, try once more
+      if (!forceSave && j.message && j.message.includes("does not match")) {
+        if (status) {
+          status.textContent = "Conflict detected, retrying...";
+        }
+        // Wait a moment and retry
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return saveItineraryToGitHub(true);
+      }
+      
       throw new Error(j.message || `GitHub PUT failed: ${res.status}`);
     }
 
     if (status) {
-      status.textContent = "✓ Saved to GitHub";
+      status.textContent = forceSave ? "✓ Saved to GitHub (retried)" : "✓ Saved to GitHub";
       status.style.color = "#2f7d32";
     }
   } catch (e) {
