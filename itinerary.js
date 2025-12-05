@@ -291,7 +291,7 @@ function renderItinerary() {
     header.className = "day-header";
 
     const title = document.createElement("div");
-    title.innerHTML = `<h3>${col.title}</h3><div class="day-meta">${col.meta}</div>`;
+    title.innerHTML = `<h3>${col.title}</h3>${col.meta ? `<div class="day-meta">${col.meta}</div>` : ''}`;
 
     const addContainer = document.createElement("div");
     addContainer.className = "add-item-container";
