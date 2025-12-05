@@ -9,10 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Font Awesome -->
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
 
   <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
@@ -40,9 +42,11 @@
         <i class="fas fa-route"></i> RATP directions
       </a>
 
-      <a class="header-btn"
-         href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
-         target="_blank">
+      <a
+        class="header-btn"
+        href="https://maps.apple.com/?address=7%20Avenue%20Stephen%20Pichon,%2075013,Paris"
+        target="_blank"
+      >
         <i class="fas fa-map-pin"></i> Open home in Maps
       </a>
     </div>
@@ -60,16 +64,22 @@
 
     <!-- FILTER BUTTONS -->
     <div class="map-filters">
-      <button class="map-filter-btn" id="mapShowAll"><i class="fas fa-globe"></i> Show all pins</button>
-      <button class="map-filter-btn" id="mapToday"><i class="fas fa-calendar-day"></i> Today</button>
-      <button class="map-filter-btn" data-day="dec3">Dec 3</button>
-      <button class="map-filter-btn" data-day="dec4">Dec 4</button>
-      <button class="map-filter-btn" data-day="dec5">Dec 5</button>
-      <button class="map-filter-btn" data-day="dec6">Dec 6</button>
-      <button class="map-filter-btn" data-day="dec7">Dec 7</button>
-      <button class="map-filter-btn" data-day="dec8">Dec 8</button>
-      <button class="map-filter-btn" data-day="dec9">Dec 9</button>
-      <button class="map-filter-btn" id="mapClear"><i class="fas fa-eye-slash"></i> Clear filters</button>
+      <button class="map-filter-btn" id="mapShowAll">
+        <i class="fas fa-globe"></i> Show all pins
+      </button>
+      <button class="map-filter-btn" id="mapToday">
+        <i class="fas fa-calendar-day"></i> Today
+      </button>
+      <button class="map-filter-btn" id="mapDec3" data-day="dec3">Dec 3</button>
+      <button class="map-filter-btn" id="mapDec4" data-day="dec4">Dec 4</button>
+      <button class="map-filter-btn" id="mapDec5" data-day="dec5">Dec 5</button>
+      <button class="map-filter-btn" id="mapDec6" data-day="dec6">Dec 6</button>
+      <button class="map-filter-btn" id="mapDec7" data-day="dec7">Dec 7</button>
+      <button class="map-filter-btn" id="mapDec8" data-day="dec8">Dec 8</button>
+      <button class="map-filter-btn" id="mapDec9" data-day="dec9">Dec 9</button>
+      <button class="map-filter-btn" id="mapClear">
+        <i class="fas fa-eye-slash"></i> Clear filters
+      </button>
     </div>
 
     <div class="map-container">
@@ -80,8 +90,8 @@
   <!-- ITINERARY -->
   <section class="card itinerary-section">
 
-    <!-- BUTTONS ONLY — no title -->
-    <div class="itinerary-controls-row">
+    <!-- BUTTON ROW ONLY -->
+    <div class="itinerary-controls-row itinerary-controls">
       <button id="resetBtn">Reset to defaults</button>
       <button id="githubToken">Set GitHub token</button>
       <button id="githubSave">Save to GitHub</button>
@@ -95,28 +105,37 @@
     <div id="githubStatus" class="github-status"></div>
 
     <div class="itinerary-layout">
-
       <!-- Left: dynamic days -->
       <div id="daysColumn" class="days-column"></div>
 
       <!-- Right: Open Bin -->
       <aside class="open-bin-column">
-        <h3 class="open-bin-title"><i class="fas fa-inbox"></i> Open Bin</h3>
+        <h3 class="open-bin-title">
+          <i class="fas fa-inbox"></i> Open Bin
+        </h3>
 
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
             <h4>OPEN BIN</h4>
 
             <div class="add-item-container">
-              <input type="text" class="add-item-input" id="openBinInput" placeholder="Add event…">
+              <input
+                type="text"
+                class="add-item-input"
+                id="openBinInput"
+                placeholder="Add event…"
+              />
               <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
           </div>
 
-          <div id="openBinList" class="itinerary-list" data-day="OPEN BIN"></div>
+          <div
+            id="openBinList"
+            class="itinerary-list"
+            data-day="OPEN BIN"
+          ></div>
         </div>
       </aside>
-
     </div>
   </section>
 
@@ -130,6 +149,5 @@
   ></script>
 
   <script src="itinerary.js"></script>
-
 </body>
 </html>
