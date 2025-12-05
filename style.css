@@ -201,23 +201,22 @@ h1, h2, h3, h4 {
 
 .itinerary-layout {
   display: flex;
-  gap: 24px;
-  align-items: flex-start;
-}
-
-/* Days column (left) - narrower */
-.days-column {
-  flex: 0 0 420px;
-  max-width: 420px;
-  display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
-/* Open Bin column (right) - narrower */
-.open-bin-column {
-  flex: 0 0 320px;
-  max-width: 320px;
+/* Days column - now full width */
+.days-column {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+/* Open Bin section - full width at bottom */
+.open-bin-section {
+  margin-top: 8px;
+  width: 100%;
 }
 
 .open-bin-title {
@@ -397,17 +396,7 @@ h1, h2, h3, h4 {
     gap: 4px;
   }
 
-  .itinerary-layout {
-    flex-direction: column;
-  }
-
-  .days-column,
-  .open-bin-column {
-    flex: 1;
-    max-width: 100%;
-  }
-
-  .open-bin-column {
-    order: -1;
+  .days-column {
+    grid-template-columns: 1fr;
   }
 }
