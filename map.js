@@ -42,7 +42,7 @@ const HOME_ICON =
 const PLACES = [
   // Dec 3
   { dayId: "dec3", label: "Arrive apartment", query: "Place d'Italie, Paris" },
-  { dayId: "dec3", label: "Musée d’Orsay", query: "Musée d'Orsay, Paris" },
+  { dayId: "dec3", label: "Musée d'Orsay", query: "Musée d'Orsay, Paris" },
   { dayId: "dec3", label: "Pont Neuf", query: "Pont Neuf, Paris" },
   { dayId: "dec3", label: "Notre-Dame exterior", query: "Cathédrale Notre-Dame de Paris" },
 
@@ -126,7 +126,7 @@ function addMarkerForPlace(place) {
     }
     markersByDay[place.dayId].push(marker);
 
-    // If a day filter is active, respect it as new markers arrive
+    // Default: show all pins (activeFilter is "all" on load)
     if (activeFilter !== "all") {
       marker.setMap(null);
       if (activeFilter === place.dayId) {
@@ -233,10 +233,13 @@ function initLiveMap() {
 
   allMarkers = [];
   markersByDay = {};
+  activeFilter = "all"; // Default to showing all pins
 
   PLACES.forEach(place => addMarkerForPlace(place));
   wireMapButtons();
-  setActiveMapButton("mapShowAll");
+  
+  // Set "Show all pins" as active by default
+  showAllPins();
 }
 
 // Expose for the Google Maps callback
