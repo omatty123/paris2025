@@ -28,8 +28,8 @@ window.ITIN_DATA = {
     },
     {
       "id": "dec3",
-      "title": "Dec 3",
-      "meta": "Wed Dec 3",
+      "title": "Wed Dec 3",
+      "meta": "",
       "items": [
         "Arrive apartment",
         "Musée d'Orsay",
@@ -39,8 +39,8 @@ window.ITIN_DATA = {
     },
     {
       "id": "dec4",
-      "title": "Dec 4",
-      "meta": "Thu Dec 4",
+      "title": "Thu Dec 4",
+      "meta": "",
       "items": [
         "La Halte Paris 13",
         "Nationale",
@@ -54,8 +54,8 @@ window.ITIN_DATA = {
     },
     {
       "id": "dec5",
-      "title": "Dec 5",
-      "meta": "Fri Dec 5",
+      "title": "Fri Dec 5",
+      "meta": "",
       "items": [
         "Metro to Opéra then walk to Gare Saint-Lazare",
         "Train to Rouen",
@@ -70,8 +70,8 @@ window.ITIN_DATA = {
     },
     {
       "id": "dec6",
-      "title": "Dec 6",
-      "meta": "Sat Dec 6",
+      "title": "Sat Dec 6",
+      "meta": "",
       "items": [
         "Belleville",
         "Promenade Dora Bruder",
@@ -82,8 +82,8 @@ window.ITIN_DATA = {
     },
     {
       "id": "dec7",
-      "title": "Dec 7",
-      "meta": "Sun Dec 7",
+      "title": "Sun Dec 7",
+      "meta": "",
       "items": [
         "Parc Montsouris",
         "Covered passages",
@@ -96,29 +96,29 @@ window.ITIN_DATA = {
     },
     {
       "id": "dec8",
-      "title": "Dec 8",
-      "meta": "Mon Dec 8",
+      "title": "Mon Dec 8",
+      "meta": "",
       "items": []
     },
     {
       "id": "dec9",
-      "title": "Dec 9",
-      "meta": "Tue Dec 9",
+      "title": "Tue Dec 9",
+      "meta": "",
       "items": []
     }
   ]
 };
 
-// Map of correct labels
+// Map of correct labels - simplified to just title
 const DAY_LABELS = {
-  open: { title: "Open Bin", meta: "" },
-  dec3: { title: "Dec 3", meta: "Wed Dec 3" },
-  dec4: { title: "Dec 4", meta: "Thu Dec 4" },
-  dec5: { title: "Dec 5", meta: "Fri Dec 5" },
-  dec6: { title: "Dec 6", meta: "Sat Dec 6" },
-  dec7: { title: "Dec 7", meta: "Sun Dec 7" },
-  dec8: { title: "Dec 8", meta: "Mon Dec 8" },
-  dec9: { title: "Dec 9", meta: "Tue Dec 9" }
+  open: { title: "Open Bin" },
+  dec3: { title: "Wed Dec 3" },
+  dec4: { title: "Thu Dec 4" },
+  dec5: { title: "Fri Dec 5" },
+  dec6: { title: "Sat Dec 6" },
+  dec7: { title: "Sun Dec 7" },
+  dec8: { title: "Mon Dec 8" },
+  dec9: { title: "Tue Dec 9" }
 };
 
 function normalizeTitles(state) {
@@ -127,7 +127,7 @@ function normalizeTitles(state) {
     const fix = DAY_LABELS[col.id];
     if (fix) {
       col.title = fix.title;
-      col.meta = fix.meta;
+      col.meta = "";
     }
   });
 }
@@ -290,8 +290,9 @@ function renderItinerary() {
     const header = document.createElement("div");
     header.className = "day-header";
 
-    const title = document.createElement("div");
-    title.innerHTML = `<h3>${col.title}</h3>${col.meta ? `<div class="day-meta">${col.meta}</div>` : ''}`;
+    // FIXED: Only show title, no meta (was causing duplicate dates)
+    const title = document.createElement("h3");
+    title.textContent = col.title;
 
     const addContainer = document.createElement("div");
     addContainer.className = "add-item-container";
@@ -340,7 +341,7 @@ function renderItinerary() {
     daysColumn.appendChild(wrapper);
   });
 
-  // Render Open Bin
+  // Render Open Bin items (no extra title - it's already in HTML)
   if (openCol) {
     wireDropZone(openBinList, openCol.id);
     openCol.items.forEach((itemText, idx) => {
