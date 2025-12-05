@@ -246,6 +246,105 @@ function wireMapButtons() {
   });
 }
 
+// Search and add pin functionality
+let customMarkers = [];
+
+function searchAndAddPin() {
+  const searchInput = document.getElementById("mapSearchInput");
+  const query = searchInput.value.trim();
+  
+  if (!query) {
+    alert("Please enter a place to search for");
+    return;
+  }
+  
+  if (!geocoder) {
+    alert("Map not ready yet");
+    return;
+  }
+  
+  // Geocode the search query
+  geocoder.geocode({ address: query + ", Paris, France" }, (results, status) => {
+    if (status !== "OK" || !results[0]) {
+      alert("Location not found. Try a different search term.");
+      return;
+    }
+    
+    const location = results[0].geometry.location;
+    const placeName = results[0].formatted_address;
+    
+    // Create a custom marker
+    const marker = new google.maps.Marker({
+      position: location,
+      map: map,
+      title: placeName,
+      icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+      animation: google.maps.Animation.DROP
+    });
+    
+    // Info window
+    const infoWindow = new google.maps.InfoWindow({
+      content: `
+        <div style="font-family: 'Cormorant Garamond', serif;">
+          <strong>${query}</strong><br/>
+          <span style="font-size: 12px;">${placeName}</span><br/>
+          <button onclick="removeCustomMarker(${customMarkers.length})" 
+                  style="margin-top: 8px; padding: 4px 8px; cursor: pointer;">
+            Remove Pin
+          </button>
+        </div>
+      `
+    });
+    
+    marker.addListener("click", () => {
+      infoWindow.open(map, marker);
+    });
+    
+    customMarkers.push(marker);
+    allMarkers.push(marker);
+    
+    // Center map on new marker
+    map.setCenter(location);
+    map.setZoom(15);
+    
+    // Clear search input
+    searchInput.value = "";
+    
+    // Show info window briefly
+    infoWindow.open(map, marker);
+    setTimeout(() => infoWindow.close(), 3000);
+  });
+}
+
+// Remove custom marker
+window.removeCustomMarker = function(index) {
+  if (customMarkers[index]) {
+    customMarkers[index].setMap(null);
+    const allIndex = allMarkers.indexOf(customMarkers[index]);
+    if (allIndex > -1) {
+      allMarkers.splice(allIndex, 1);
+    }
+    customMarkers[index] = null;
+  }
+};
+
+function wireSearchButton() {
+  const searchBtn = document.getElementById("mapSearchBtn");
+  const searchInput = document.getElementById("mapSearchInput");
+  
+  if (searchBtn) {
+    searchBtn.addEventListener("click", searchAndAddPin);
+  }
+  
+  if (searchInput) {
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        searchAndAddPin();
+      }
+    });
+  }
+}
+
 // Google callback
 function initLiveMap() {
   const el = document.getElementById("liveMap");
@@ -273,6 +372,7 @@ function initLiveMap() {
 
   PLACES.forEach(place => addMarkerForPlace(place));
   wireMapButtons();
+  wireSearchButton();
   
   // Set "Show all pins" as active and fit bounds after markers load
   setActiveMapButton("mapShowAll");
