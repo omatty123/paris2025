@@ -1,7 +1,7 @@
 // itinerary.js
-// FULL SINGLE-FILE VERSION: data + rendering + drag/drop + GitHub sync
+// FIXED VERSION with improved drag and drop
 
-// ----- 1) Default data with your exact tokens -----
+// ----- 1) Default data -----
 window.ITIN_DATA = {
   "columns": [
     {
@@ -21,24 +21,22 @@ window.ITIN_DATA = {
         "Metro to Bastille",
         "Walk the Coulée Verte",
         "Drink at Le Train Bleu",
-        "Dinner at Afrik’N’Fusion",
+        "Dinner at Afrik'N'Fusion",
         "Walk home",
         "Arrive CDG"
       ]
     },
-
     {
       "id": "dec3",
       "title": "Dec 3",
       "meta": "Wed Dec 3",
       "items": [
         "Arrive apartment",
-        "Musée d’Orsay",
+        "Musée d'Orsay",
         "Pont Neuf",
         "Notre-Dame exterior"
       ]
     },
-
     {
       "id": "dec4",
       "title": "Dec 4",
@@ -54,7 +52,6 @@ window.ITIN_DATA = {
         "Le Temps des Cerises"
       ]
     },
-
     {
       "id": "dec5",
       "title": "Dec 5",
@@ -71,7 +68,6 @@ window.ITIN_DATA = {
         "Dinner at Brasserie Le Lazare"
       ]
     },
-
     {
       "id": "dec6",
       "title": "Dec 6",
@@ -84,7 +80,6 @@ window.ITIN_DATA = {
         "Pain Vin Fromages"
       ]
     },
-
     {
       "id": "dec7",
       "title": "Dec 7",
@@ -99,14 +94,12 @@ window.ITIN_DATA = {
         "Meet Person"
       ]
     },
-
     {
       "id": "dec8",
       "title": "Dec 8",
       "meta": "Mon Dec 8",
       "items": []
     },
-
     {
       "id": "dec9",
       "title": "Dec 9",
@@ -116,7 +109,7 @@ window.ITIN_DATA = {
   ]
 };
 
-// Map of correct labels for migration of old saves
+// Map of correct labels
 const DAY_LABELS = {
   open: { title: "Open Bin", meta: "" },
   dec3: { title: "Dec 3", meta: "Wed Dec 3" },
@@ -140,9 +133,9 @@ function normalizeTitles(state) {
 }
 
 // ----- 2) State + helpers -----
-
 const ITIN_LOCAL_KEY = "itinerary-columns-v1";
 let itinState = null;
+let draggedElement = null;
 
 function cloneDefaultItin() {
   return JSON.parse(JSON.stringify(window.ITIN_DATA));
@@ -154,7 +147,7 @@ function loadFromLocal() {
     if (!raw) return null;
     return JSON.parse(raw);
   } catch (e) {
-    console.warn("Failed to parse local itinerary, using defaults:", e);
+    console.warn("Failed to parse local itinerary:", e);
     return null;
   }
 }
@@ -162,13 +155,13 @@ function loadFromLocal() {
 function saveToLocal() {
   try {
     localStorage.setItem(ITIN_LOCAL_KEY, JSON.stringify(itinState));
-    console.log("✓ Itinerary saved locally");
+    console.log("✓ Saved locally");
   } catch (e) {
     console.error("Local save failed:", e);
   }
 }
 
-// ----- 3) Rendering -----
+// ----- 3) Rendering with FIXED drag and drop -----
 
 function buildCard(colId, itemIndex, text) {
   const card = document.createElement("div");
@@ -192,47 +185,78 @@ function buildCard(colId, itemIndex, text) {
   card.appendChild(span);
   card.appendChild(del);
 
+  // FIXED: Enhanced drag start
   card.addEventListener("dragstart", (e) => {
+    console.log("Drag started:", colId, itemIndex);
+    draggedElement = card;
     card.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData(
-      "text/plain",
-      JSON.stringify({ colId, index: itemIndex })
-    );
+    e.dataTransfer.setData("text/plain", JSON.stringify({ colId, index: itemIndex }));
+    
+    // Firefox fix
+    e.dataTransfer.setData("application/json", JSON.stringify({ colId, index: itemIndex }));
   });
 
-  card.addEventListener("dragend", () => {
+  // FIXED: Enhanced drag end
+  card.addEventListener("dragend", (e) => {
+    console.log("Drag ended");
     card.classList.remove("dragging");
-    document
-      .querySelectorAll(".itinerary-list.drag-over")
-      .forEach((el) => el.classList.remove("drag-over"));
+    draggedElement = null;
+    document.querySelectorAll(".itinerary-list.drag-over").forEach((el) => {
+      el.classList.remove("drag-over");
+    });
   });
 
   return card;
 }
 
 function wireDropZone(listEl, targetColId) {
+  // FIXED: Prevent default to allow drop
   listEl.addEventListener("dragover", (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    listEl.classList.add("drag-over");
+  });
+
+  listEl.addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     listEl.classList.add("drag-over");
   });
 
   listEl.addEventListener("dragleave", (e) => {
-    if (e.currentTarget === e.target) {
+    e.stopPropagation();
+    // Only remove if actually leaving the element
+    if (e.currentTarget === listEl && !listEl.contains(e.relatedTarget)) {
       listEl.classList.remove("drag-over");
     }
   });
 
+  // FIXED: Enhanced drop handler
   listEl.addEventListener("drop", (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    console.log("Drop detected on:", targetColId);
+    
     listEl.classList.remove("drag-over");
 
-    const raw = e.dataTransfer.getData("text/plain");
-    if (!raw) return;
+    // Try multiple data types for cross-browser compatibility
+    let raw = e.dataTransfer.getData("text/plain");
+    if (!raw) {
+      raw = e.dataTransfer.getData("application/json");
+    }
+    
+    if (!raw) {
+      console.error("No drag data found");
+      return;
+    }
+
     let payload;
     try {
       payload = JSON.parse(raw);
-    } catch {
+      console.log("Moving from", payload.colId, "index", payload.index, "to", targetColId);
+    } catch (err) {
+      console.error("Failed to parse drag data:", err);
       return;
     }
 
@@ -248,14 +272,13 @@ function renderItinerary() {
   const openBinInput = document.getElementById("openBinInput");
 
   if (!daysColumn || !openBinList) {
-    console.warn("Itinerary containers not found in DOM");
+    console.warn("Itinerary containers not found");
     return;
   }
 
   daysColumn.innerHTML = "";
   openBinList.innerHTML = "";
 
-  // Find open bin column
   const openCol = itinState.columns.find((c) => c.id === "open");
   const dayCols = itinState.columns.filter((c) => c.id !== "open");
 
@@ -298,7 +321,6 @@ function renderItinerary() {
 
     addContainer.appendChild(input);
     addContainer.appendChild(btn);
-
     header.appendChild(title);
     header.appendChild(addContainer);
 
@@ -318,7 +340,7 @@ function renderItinerary() {
     daysColumn.appendChild(wrapper);
   });
 
-  // Render Open Bin items
+  // Render Open Bin
   if (openCol) {
     wireDropZone(openBinList, openCol.id);
     openCol.items.forEach((itemText, idx) => {
@@ -361,14 +383,21 @@ function removeItem(colId, index) {
 function moveItem(fromColId, fromIndex, toColId) {
   const fromCol = itinState.columns.find((c) => c.id === fromColId);
   const toCol = itinState.columns.find((c) => c.id === toColId);
-  if (!fromCol || !toCol) return;
+  if (!fromCol || !toCol) {
+    console.error("Column not found:", fromColId, toColId);
+    return;
+  }
 
   const idx = Number(fromIndex);
-  if (Number.isNaN(idx) || idx < 0 || idx >= fromCol.items.length) return;
+  if (Number.isNaN(idx) || idx < 0 || idx >= fromCol.items.length) {
+    console.error("Invalid index:", idx);
+    return;
+  }
 
   const [item] = fromCol.items.splice(idx, 1);
   toCol.items.push(item);
 
+  console.log("Moved:", item, "from", fromColId, "to", toColId);
   saveToLocal();
   renderItinerary();
 }
@@ -385,7 +414,7 @@ function resetItinerary() {
   renderItinerary();
 }
 
-// ----- 6) GitHub sync (simple) -----
+// ----- 6) GitHub sync -----
 
 const GITHUB = {
   owner: "omatty123",
@@ -531,9 +560,10 @@ async function loadItineraryFromGitHub() {
   }
 }
 
-// ----- 7) Wire buttons + init -----
+// ----- 7) Init -----
 
 function initItinerary() {
+  console.log("Initializing itinerary...");
   itinState = loadFromLocal() || cloneDefaultItin();
   normalizeTitles(itinState);
   loadGitHubToken();
@@ -549,6 +579,7 @@ function initItinerary() {
   if (loadBtn) loadBtn.addEventListener("click", loadItineraryFromGitHub);
 
   renderItinerary();
+  console.log("Itinerary initialized");
 }
 
 if (document.readyState === "loading") {
