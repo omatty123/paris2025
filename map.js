@@ -90,6 +90,40 @@ let allMarkers = [];
 let homeMarker = null;
 let activeFilter = "all";
 
+// Fit map bounds to show all currently visible markers
+function fitMapToVisibleMarkers() {
+  const visibleMarkers = allMarkers.filter(m => m.getMap() !== null);
+  
+  if (visibleMarkers.length === 0) {
+    // No markers visible, just show home
+    map.setCenter(HOME);
+    map.setZoom(12);
+    return;
+  }
+  
+  const bounds = new google.maps.LatLngBounds();
+  
+  // Include home marker
+  if (homeMarker && homeMarker.getMap() !== null) {
+    bounds.extend(homeMarker.getPosition());
+  }
+  
+  // Include all visible markers
+  visibleMarkers.forEach(m => {
+    bounds.extend(m.getPosition());
+  });
+  
+  map.fitBounds(bounds);
+  
+  // Don't zoom in too close if only a few markers
+  const listener = google.maps.event.addListener(map, "idle", () => {
+    if (map.getZoom() > 14) {
+      map.setZoom(14);
+    }
+    google.maps.event.removeListener(listener);
+  });
+}
+
 function addMarkerForPlace(place) {
   if (!geocoder) return;
 
@@ -126,7 +160,7 @@ function addMarkerForPlace(place) {
     }
     markersByDay[place.dayId].push(marker);
 
-    // Default: show all pins (activeFilter is "all" on load)
+    // If a day filter is active, respect it as new markers arrive
     if (activeFilter !== "all") {
       marker.setMap(null);
       if (activeFilter === place.dayId) {
@@ -148,6 +182,7 @@ function showAllPins() {
   allMarkers.forEach(m => m.setMap(map));
   if (homeMarker) homeMarker.setMap(map);
   setActiveMapButton("mapShowAll");
+  fitMapToVisibleMarkers();
 }
 
 function showDayPins(dayId) {
@@ -158,6 +193,7 @@ function showDayPins(dayId) {
   arr.forEach(m => m.setMap(map));
   const btnId = "map" + dayId.charAt(0).toUpperCase() + dayId.slice(1);
   setActiveMapButton(btnId);
+  fitMapToVisibleMarkers();
 }
 
 function showTodayPins() {
@@ -233,13 +269,18 @@ function initLiveMap() {
 
   allMarkers = [];
   markersByDay = {};
-  activeFilter = "all"; // Default to showing all pins
+  activeFilter = "all";
 
   PLACES.forEach(place => addMarkerForPlace(place));
   wireMapButtons();
   
-  // Set "Show all pins" as active by default
-  showAllPins();
+  // Set "Show all pins" as active and fit bounds after markers load
+  setActiveMapButton("mapShowAll");
+  
+  // Wait a moment for geocoding to complete, then fit bounds
+  setTimeout(() => {
+    fitMapToVisibleMarkers();
+  }, 2000);
 }
 
 // Expose for the Google Maps callback
