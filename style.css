@@ -166,11 +166,11 @@ h1, h2, h3, h4 {
 #githubToken,
 #githubSave,
 #githubLoad {
-  padding: 6px 18px;
-  border-radius: 22px;
+  padding: 4px 12px;
+  border-radius: 18px;
   border: 1px solid #ccc;
   background: #fff;
-  font-size: 18px;
+  font-size: 15px;
   cursor: pointer;
   font-family: "Cormorant Garamond", serif;
   transition: background 0.2s ease;
