@@ -415,3 +415,30 @@ input,
   font-size: 0.9rem;
   cursor: pointer;
 }
+
+/* FIX: Clean horizontal alignment for itinerary header */
+.itinerary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start !important;
+  gap: 16px;
+}
+
+.itinerary-header-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.itinerary-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: flex-start !important;
+}
+
+.itinerary-controls button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
