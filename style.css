@@ -73,6 +73,7 @@ h1, h2, h3, h4 {
   margin-top: 8px;
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .header-btn {
@@ -89,6 +90,73 @@ h1, h2, h3, h4 {
 
 .header-btn:hover {
   background: #555;
+}
+
+.weather-btn {
+  background: #2c5f7a;
+  cursor: pointer;
+  position: relative;
+}
+
+.weather-btn:hover {
+  background: #3a7a99;
+}
+
+/* Weather popup */
+.weather-popup {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 16px;
+  min-width: 320px;
+  z-index: 1000;
+  color: #222;
+}
+
+.weather-popup.show {
+  display: block;
+}
+
+.weather-day {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.weather-day:last-child {
+  border-bottom: none;
+}
+
+.weather-date {
+  font-weight: 600;
+  font-size: 16px;
+  min-width: 80px;
+}
+
+.weather-icon {
+  font-size: 20px;
+  min-width: 30px;
+  text-align: center;
+}
+
+.weather-temps {
+  font-size: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.weather-high {
+  font-weight: 600;
+}
+
+.weather-low {
+  color: #666;
 }
 
 /* =========================================================
