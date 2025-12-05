@@ -194,7 +194,8 @@ h1, h2, h3, h4 {
 
 /* Days column (left) */
 .days-column {
-  flex: 2;
+  flex: 1;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   gap: 20px;
