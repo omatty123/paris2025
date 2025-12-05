@@ -257,11 +257,37 @@ function buildCard(colId, itemIndex, text) {
 }
 
 function wireDropZone(listEl, targetColId) {
+  // Helper to get drop position
+  function getDragAfterElement(listEl, y) {
+    const draggableElements = [...listEl.querySelectorAll('.itinerary-card:not(.dragging)')];
+    
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+  
   // FIXED: Prevent default to allow drop
   listEl.addEventListener("dragover", (e) => {
     e.preventDefault();
     e.stopPropagation();
     listEl.classList.add("drag-over");
+    
+    // Show visual feedback of drop position
+    const afterElement = getDragAfterElement(listEl, e.clientY);
+    const draggable = document.querySelector('.dragging');
+    
+    if (afterElement == null) {
+      listEl.appendChild(draggable);
+    } else {
+      listEl.insertBefore(draggable, afterElement);
+    }
   });
 
   listEl.addEventListener("dragenter", (e) => {
@@ -278,7 +304,7 @@ function wireDropZone(listEl, targetColId) {
     }
   });
 
-  // FIXED: Enhanced drop handler
+  // FIXED: Enhanced drop handler with position detection
   listEl.addEventListener("drop", (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -306,7 +332,21 @@ function wireDropZone(listEl, targetColId) {
       return;
     }
 
-    moveItem(payload.colId, payload.index, targetColId);
+    // Calculate drop index based on position
+    const afterElement = getDragAfterElement(listEl, e.clientY);
+    let toIndex = null;
+    
+    if (afterElement) {
+      // Get index of the element we're dropping before
+      const cards = [...listEl.querySelectorAll('.itinerary-card:not(.dragging)')];
+      toIndex = cards.indexOf(afterElement);
+    } else {
+      // Drop at end
+      const cards = [...listEl.querySelectorAll('.itinerary-card:not(.dragging)')];
+      toIndex = cards.length;
+    }
+
+    moveItem(payload.colId, payload.index, targetColId, toIndex);
   });
 }
 
@@ -453,7 +493,7 @@ function removeItem(colId, index) {
   renderItinerary();
 }
 
-function moveItem(fromColId, fromIndex, toColId) {
+function moveItem(fromColId, fromIndex, toColId, toIndex = null) {
   const fromCol = itinState.columns.find((c) => c.id === fromColId);
   const toCol = itinState.columns.find((c) => c.id === toColId);
   if (!fromCol || !toCol) {
@@ -468,9 +508,16 @@ function moveItem(fromColId, fromIndex, toColId) {
   }
 
   const [item] = fromCol.items.splice(idx, 1);
-  toCol.items.push(item);
+  
+  // If toIndex is specified and valid, insert at that position
+  if (toIndex !== null && toIndex >= 0 && toIndex <= toCol.items.length) {
+    toCol.items.splice(toIndex, 0, item);
+  } else {
+    // Otherwise add to end
+    toCol.items.push(item);
+  }
 
-  console.log("Moved:", item, "from", fromColId, "to", toColId);
+  console.log("Moved:", item, "from", fromColId, "index", fromIndex, "to", toColId, "index", toIndex);
   saveToLocal();
   renderItinerary();
 }
