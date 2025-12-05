@@ -390,3 +390,28 @@ input,
     align-items: flex-start;
   }
 }
+
+.planner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.planner-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+#github-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#github-controls button {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
