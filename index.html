@@ -61,7 +61,7 @@
     </h2>
 
     <p class="section-subtitle">
-      7 Avenue Stephen Pichon · 13e arrondissement · Each itinerary item is pinned by date
+      7 Avenue Stephen Pichon · 13ᵉ arrondissement · Each itinerary item is pinned by date
     </p>
 
     <!-- FILTERS -->
@@ -75,6 +75,7 @@
       <button class="map-filter-btn" data-day="dec6">Dec 6</button>
       <button class="map-filter-btn" data-day="dec7">Dec 7</button>
       <button class="map-filter-btn" data-day="dec8">Dec 8</button>
+      <button class="map-filter-btn" data-day="dec9">Dec 9</button>
       <button class="map-filter-btn" id="mapClear">
         <i class="fas fa-eye-slash"></i> Clear filters
       </button>
@@ -142,32 +143,16 @@
     </div>
   </section>
 
-  <!-- YOUR SCRIPTS -->
+  <!-- Local JS -->
   <script src="app.js"></script>
   <script src="itinerary.js"></script>
-
-  <!-- INLINE initMap so callback works -->
-  <script>
-    let map;
-
-    function initMap() {
-      map = new google.maps.Map(document.getElementById("liveMap"), {
-        center: { lat: 48.833, lng: 2.355 },
-        zoom: 13,
-        mapTypeControl: false
-      });
-
-      console.log("Google Map initialized");
-    }
-  </script>
-
   <script src="map.js"></script>
 
-  <!-- GOOGLE MAPS WITH initMap CALLBACK -->
+  <!-- GOOGLE MAPS LOADED LAST -->
   <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initMap"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initGoogleMap"
     async
-    defer>
-  </script>
+    defer
+  ></script>
 </body>
 </html>
