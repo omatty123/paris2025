@@ -530,6 +530,19 @@ function moveItem(fromColId, fromIndex, toColId, toIndex = null) {
 
 // ----- 5) Reset -----
 
+// Add item to a specific day (called from map search)
+window.addItemToDay = function(dayId, itemText) {
+  const col = itinState.columns.find((c) => c.id === dayId);
+  if (!col) {
+    alert("Invalid day: " + dayId);
+    return;
+  }
+  
+  col.items.push(itemText);
+  saveToLocal();
+  renderItinerary();
+};
+
 function resetItinerary() {
   if (!confirm("Reset itinerary to defaults? This will erase your changes.")) {
     return;
