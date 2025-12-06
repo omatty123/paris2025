@@ -1,6 +1,7 @@
 // map.js
 // Stable Google Maps version using classic google.maps.Marker.
-// Paris-only geocoding except Dec 5 → Rouen. Home base star. Tight bounds.
+// Paris-only geocoding except Dec 5 → Rouen. Home base = star.
+// Today button fixed to use itinerary.js date logic.
 
 (function () {
   "use strict";
@@ -14,7 +15,7 @@
   const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
   const HOME_ICON = "http://maps.google.com/mapfiles/kml/shapes/star.png";
 
-  // Classic colored pin URLs
+  // Classic Google pin icons
   const DAY_ICONS = {
     dec3: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
     dec4: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -41,9 +42,20 @@
 
   const SKIP_ITEMS = ["walk home"];
 
-  // -------------------------------------------------------------
-  // INITIALIZE MAP
-  // -------------------------------------------------------------
+  // Trip date map
+  const DAY_DATES = {
+    dec3: "2025-12-03",
+    dec4: "2025-12-04",
+    dec5: "2025-12-05",
+    dec6: "2025-12-06",
+    dec7: "2025-12-07",
+    dec8: "2025-12-08",
+    dec9: "2025-12-09"
+  };
+
+  // -------------------------------------------------------------------
+  // INIT
+  // -------------------------------------------------------------------
   window.initGoogleMap = function () {
     console.log("Google Maps initializing");
 
@@ -63,9 +75,9 @@
     setupSearch();
   };
 
-  // -------------------------------------------------------------
-  // Add HOME STAR marker
-  // -------------------------------------------------------------
+  // -------------------------------------------------------------------
+  // HOME BASE STAR MARKER
+  // -------------------------------------------------------------------
   function addHomeMarker() {
     const marker = new google.maps.Marker({
       position: HOME_POSITION,
@@ -85,54 +97,46 @@
     bounds.extend(HOME_POSITION);
   }
 
-  // -------------------------------------------------------------
-  // Render pins only after itinerary.js is ready
-  // -------------------------------------------------------------
+  // Wait for itinerary.js
   function renderPinsWhenReady() {
     const state = window.getItineraryState && window.getItineraryState();
-    if (!state || !state.columns) {
-      return setTimeout(renderPinsWhenReady, 300);
-    }
+    if (!state || !state.columns) return setTimeout(renderPinsWhenReady, 300);
     renderAllPins(state);
   }
 
-  // -------------------------------------------------------------
-  // Clear all pins
-  // -------------------------------------------------------------
   function clearMarkers() {
     markers.forEach(m => m.setMap(null));
     markers = [];
     bounds = new google.maps.LatLngBounds();
   }
 
-  // -------------------------------------------------------------
-  // Render ALL itinerary pins
-  // -------------------------------------------------------------
+  // -------------------------------------------------------------------
+  // RENDER ALL PINS
+  // -------------------------------------------------------------------
   function renderAllPins(state) {
     clearMarkers();
     addHomeMarker();
 
     state.columns.forEach(col => {
       if (col.id === "open") return;
+
       col.items.forEach(item => {
         geocodeAndMark(item, col.id, false);
       });
     });
   }
 
-  // -------------------------------------------------------------
-  // GEOCODING RULES:
-  //
-  //  • Dec 5 → Everything = "..., Rouen, France"
-  //  • All other days → "..., Paris, France"
-  //  • Skip items like "Walk Home"
-  // -------------------------------------------------------------
+  // -------------------------------------------------------------------
+  // GEOCODE RULES:
+  // - Dec 5 → Rouen
+  // - All other days → Paris
+  // - Skip "Walk Home"
+  // -------------------------------------------------------------------
   function geocodeAndMark(text, dayId, centerMap) {
     const raw = text.trim().toLowerCase();
 
-    // Skip certain items
     if (SKIP_ITEMS.includes(raw)) {
-      console.log("Skipping:", text);
+      console.log("Skipping pin for:", text);
       return;
     }
 
@@ -160,16 +164,15 @@
         icon: DAY_ICONS[dayId] || DAY_ICONS.open
       });
 
+      markers.push(marker);
       marker.dayId = dayId;
+      bounds.extend(loc);
 
       const inf = new google.maps.InfoWindow({
         content: `<b>${text}</b><br>${DAY_LABELS[dayId] || ""}`
       });
 
       marker.addListener("click", () => inf.open(map, marker));
-
-      markers.push(marker);
-      bounds.extend(loc);
 
       if (centerMap) {
         map.setCenter(loc);
@@ -180,14 +183,14 @@
     });
   }
 
-  // Exposed for itinerary.js
+  // Exposed for itinerary.js (new item added → add pin)
   window.addPinForItineraryItem = function (dayId, text) {
     geocodeAndMark(text, dayId, true);
   };
 
-  // -------------------------------------------------------------
-  // FILTER BUTTONS + TODAY BUTTON
-  // -------------------------------------------------------------
+  // -------------------------------------------------------------------
+  // FILTERS + TODAY BUTTON (NOW FIXED)
+  // -------------------------------------------------------------------
   function setupFilters() {
     function filter(dayId) {
       markers.forEach(m => m.setMap(null));
@@ -201,6 +204,7 @@
       markers.forEach(m => {
         if (m.dayId === dayId) m.setMap(map);
       });
+
       refit();
     }
 
@@ -212,46 +216,49 @@
       map.fitBounds(b);
     }
 
+    // Built-in day filter buttons
     document.getElementById("mapShowAll").onclick = () => filter("all");
     document.getElementById("mapClear").onclick = () => filter("all");
-
-    // Dynamically restore TODAY button
-    const todayBtn = document.createElement("button");
-    todayBtn.className = "map-filter-btn";
-    todayBtn.textContent = "Today";
-    todayBtn.onclick = () => {
-      const col = detectTodayColumn();
-      if (col) filter(col);
-    };
-    document.querySelector(".map-filters").appendChild(todayBtn);
 
     document.querySelectorAll("[data-day]").forEach(btn => {
       btn.onclick = () => filter(btn.dataset.day);
     });
-  }
 
-  // Determine today's column (Paris time)
-  function detectTodayColumn() {
-    const today = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Europe/Paris"
-    }).format(new Date());
+    // ------ TODAY BUTTON FIXED ------
+    const todayBtn = document.createElement("button");
+    todayBtn.className = "map-filter-btn";
+    todayBtn.textContent = "Today";
 
-    const map = {
-      "2025-12-03": "dec3",
-      "2025-12-04": "dec4",
-      "2025-12-05": "dec5",
-      "2025-12-06": "dec6",
-      "2025-12-07": "dec7",
-      "2025-12-08": "dec8",
-      "2025-12-09": "dec9"
+    todayBtn.onclick = () => {
+      const state = window.getItineraryState && window.getItineraryState();
+      if (!state || !state.columns) return;
+
+      const todayParis = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Europe/Paris"
+      }).format(new Date());
+
+      // Find the FIRST date >= today
+      let chosen = null;
+      for (const col of state.columns) {
+        const d = DAY_DATES[col.id];
+        if (d && d >= todayParis) {
+          chosen = col.id;
+          break;
+        }
+      }
+
+      // If all days are past → show last day
+      if (!chosen) chosen = "dec9";
+
+      filter(chosen);
     };
 
-    return map[today] || null;
+    document.querySelector(".map-filters").appendChild(todayBtn);
   }
 
-  // -------------------------------------------------------------
-  // SEARCH BOX → Adds to Open Bin (Paris only)
-  // -------------------------------------------------------------
+  // -------------------------------------------------------------------
+  // SEARCH BOX (Paris only)
+  // -------------------------------------------------------------------
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
