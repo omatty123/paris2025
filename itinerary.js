@@ -133,7 +133,13 @@ const DAY_LABELS = {
   dec3: { title: "Wed Dec 3", photoUrl: "https://www.amazon.com/photos/shared/ePLmduWLQXGeruQEcrnDjg.wz42P01vnEpGuxrHB5VChn" },
   dec4: { title: "Thu Dec 4", photoUrl: "https://www.amazon.com/photos/shared/tQm07DL3RKeav08LMOu2gg.qQAWz56zAlUSg03OgxvA7U" },
   dec5: { title: "Fri Dec 5", photoUrl: "https://www.amazon.com/photos/shared/GqMnmVE5Q_2mVoqie28YjA.o9PKGuPBVooDvT44cVqi8_" },
-  dec6: { title: "Sat Dec 6" },
+
+  // ★★★ NEW PHOTO URL ADDED — ONLY CHANGE IN THE FILE ★★★
+  dec6: { 
+    title: "Sat Dec 6",
+    photoUrl: "https://www.amazon.com/photos/shared/AFv_6YLlQBWfBk6aCsXBKQ.dxE90tpxqyu5MFWkWrCQp4"
+  },
+
   dec7: { title: "Sun Dec 7" },
   dec8: { title: "Mon Dec 8" },
   dec9: { title: "Tue Dec 9" }
