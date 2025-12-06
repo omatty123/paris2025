@@ -1,8 +1,5 @@
 // map.js
-// Stable Google Maps version with:
-// - Home Base always visible
-// - Default map auto-fit AFTER all pins load
-// - Correct filtering
+// FINAL VERSION: France-only geocoding + Rouen on Dec 5 + Home Base always visible.
 
 (function () {
   "use strict";
@@ -11,14 +8,12 @@
   let geocoder;
   let markers = [];
 
-  // Track pins loading for proper auto-fit
   let pinsToLoad = 0;
   let pinsLoaded = 0;
 
-  // HOME BASE
+  // HOME BASE (Paris 13e)
   const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
 
-  // Pin icons
   const DAY_ICONS = {
     dec3: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
     dec4: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -29,14 +24,14 @@
     dec9: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
     open: "http://maps.google.com/mapfiles/ms/icons/grey-dot.png",
 
-    // ★ STAR for home base
+    // STAR for Home Base
     home: "https://maps.google.com/mapfiles/kml/shapes/star.png"
   };
 
   const DAY_LABELS = {
     dec3: "Dec 3",
     dec4: "Dec 4",
-    dec5: "Dec 5",
+    dec5: "Dec 5 (Rouen)",
     dec6: "Dec 6",
     dec7: "Dec 7",
     dec8: "Dec 8",
@@ -45,7 +40,7 @@
     home: "Home Base"
   };
 
-  // Google callback
+  // GOOGLE MAP INIT
   window.initGoogleMap = function () {
     geocoder = new google.maps.Geocoder();
 
@@ -62,7 +57,6 @@
     setupSearch();
   };
 
-  // Wait until itinerary.js gives state
   function renderPinsWhenReady() {
     const s = window.getItineraryState && window.getItineraryState();
     if (!s || !s.columns) {
@@ -77,7 +71,7 @@
     markers = [];
   }
 
-  // ALWAYS visible Home Base marker
+  // HOME ALWAYS SHOWN
   function addHomeMarker() {
     const marker = new google.maps.Marker({
       position: HOME_POSITION,
@@ -91,11 +85,12 @@
     });
 
     marker.addListener("click", () => inf.open(map, marker));
+
     marker.dayId = "home";
     markers.push(marker);
   }
 
-  // Render all itinerary pins
+  // RENDER ITINERARY PINS
   function renderAllPins(state) {
     clearMarkers();
     addHomeMarker();
@@ -103,9 +98,9 @@
     pinsLoaded = 0;
     pinsToLoad = 0;
 
-    // Count all pins BEFORE geocoding
     state.columns.forEach(col => {
       if (col.id === "open") return;
+
       col.items.forEach(item => {
         pinsToLoad++;
         geocodeAndMark(item, col.id, false);
@@ -113,11 +108,23 @@
     });
   }
 
-  // Geocode and place marker
-  function geocodeAndMark(text, dayId, center) {
-    const query = text;
+  // FORCE FRANCE GEOCODING
+  function getForcedLocation(query, dayId) {
 
-    geocoder.geocode({ address: query }, (results, status) => {
+    // Day 5 is Rouen ONLY
+    if (dayId === "dec5") {
+      return `${query}, Rouen, France`;
+    }
+
+    // All other days & open bin = PARIS
+    return `${query}, Paris, France`;
+  }
+
+  // GEOCODE & MARK
+  function geocodeAndMark(text, dayId, center) {
+    const forcedQuery = getForcedLocation(text, dayId);
+
+    geocoder.geocode({ address: forcedQuery }, (results, status) => {
       if (status !== "OK" || !results?.length) {
         pinsLoaded++;
         if (pinsLoaded === pinsToLoad) fitAllPins();
@@ -159,13 +166,13 @@
     geocodeAndMark(text, dayId, true);
   };
 
-  // ⭐ Always show HOME marker in all filters
+  // ALWAYS KEEP HOME BASE VISIBLE
   function setupFilters() {
     function filter(dayId) {
-      // Hide everything first
+
       markers.forEach(m => m.setMap(null));
 
-      // Always show home
+      // Always show HOME
       markers.forEach(m => {
         if (m.dayId === "home") m.setMap(map);
       });
@@ -193,16 +200,17 @@
     });
   }
 
-  // Fit the map to all visible markers
+  // FIT MAP TO ALL VISIBLE MARKERS
   function fitAllPins() {
-    if (markers.length === 0) return;
+    const visible = markers.filter(m => m.getMap());
+    if (visible.length === 0) return;
 
     const bounds = new google.maps.LatLngBounds();
-    markers.forEach(m => bounds.extend(m.getPosition()));
+    visible.forEach(m => bounds.extend(m.getPosition()));
     map.fitBounds(bounds);
   }
 
-  // Search bar add → open bin
+  // SEARCH ADDS TO OPEN BIN (Paris)
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
