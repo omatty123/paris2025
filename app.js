@@ -1,7 +1,16 @@
 // app.js
 // Paris time + weather (today + 5 days) for Paris.
 
+(function() {
+'use strict';
+
+/* Constants */
+const PARIS_TIME_UPDATE_INTERVAL_MS = 30 * 1000; // 30 seconds
+const WEATHER_UPDATE_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+
 /* Paris time */
+
+let timeUpdateInterval = null;
 
 function updateParisTime() {
   const el = document.getElementById("parisTime");
@@ -20,13 +29,26 @@ function updateParisTime() {
   el.textContent = "Paris time: " + timeStr;
 }
 
-updateParisTime();
-setInterval(updateParisTime, 30000);
+function startTimeUpdates() {
+  updateParisTime();
+  if (timeUpdateInterval) clearInterval(timeUpdateInterval);
+  timeUpdateInterval = setInterval(updateParisTime, PARIS_TIME_UPDATE_INTERVAL_MS);
+}
+
+function stopTimeUpdates() {
+  if (timeUpdateInterval) {
+    clearInterval(timeUpdateInterval);
+    timeUpdateInterval = null;
+  }
+}
+
+startTimeUpdates();
 
 
 /* Paris Weather */
 
 let weatherData = null;
+let weatherUpdateInterval = null;
 
 // Weather code to emoji mapping
 function getWeatherEmoji(code) {
@@ -66,28 +88,29 @@ async function fetchParisWeather() {
 function updateWeatherDisplay() {
   const weatherDays = document.getElementById("weatherDays");
   if (!weatherDays || !weatherData) return;
-  
+
   weatherDays.innerHTML = "";
-  
+
   const daily = weatherData.daily;
   const dates = daily.time;
-  
+
   dates.forEach((dateStr, i) => {
-    // API returns dates in format "2025-12-05" which are already in Paris timezone
-    // We need to parse them as local Paris dates, not UTC
+    // API returns dates in format "2025-12-05" in Paris timezone
+    // Parse using Date constructor which handles YYYY-MM-DD correctly
     const [year, month, day] = dateStr.split('-').map(Number);
-    
-    // Create date in Paris timezone by using the API's timezone field
-    // The API is already giving us Paris dates, so just format the day name
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Create a date using local timezone (API already gives Paris dates)
+    // Note: Month is 0-indexed in JavaScript Date
     const date = new Date(year, month - 1, day);
-    const dayName = dayNames[date.getDay()];
-    
+
+    // Format day name using Intl API for consistency
+    const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+
     const high = Math.round(daily.temperature_2m_max[i]);
     const low = Math.round(daily.temperature_2m_min[i]);
     const code = daily.weathercode[i];
     const emoji = getWeatherEmoji(code);
-    
+
     const dayDiv = document.createElement("div");
     dayDiv.className = "weather-day-item";
     dayDiv.innerHTML = `
@@ -95,15 +118,43 @@ function updateWeatherDisplay() {
       <span class="weather-icon-large">${emoji}</span>
       <span class="weather-temp">${high}°/${low}°</span>
     `;
-    
+
     weatherDays.appendChild(dayDiv);
   });
 }
 
+// Start/stop weather updates
+function startWeatherUpdates() {
+  fetchParisWeather();
+  if (weatherUpdateInterval) clearInterval(weatherUpdateInterval);
+  weatherUpdateInterval = setInterval(fetchParisWeather, WEATHER_UPDATE_INTERVAL_MS);
+}
+
+function stopWeatherUpdates() {
+  if (weatherUpdateInterval) {
+    clearInterval(weatherUpdateInterval);
+    weatherUpdateInterval = null;
+  }
+}
+
 // Initialize weather
 document.addEventListener("DOMContentLoaded", () => {
-  fetchParisWeather();
-  
-  // Refresh weather every hour
-  setInterval(fetchParisWeather, 3600000);
+  startWeatherUpdates();
+
+  // Use Page Visibility API to pause updates when tab is hidden
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopTimeUpdates();
+      stopWeatherUpdates();
+    } else {
+      // Update immediately when tab becomes visible
+      updateParisTime();
+      fetchParisWeather();
+      // Restart intervals
+      startTimeUpdates();
+      startWeatherUpdates();
+    }
+  });
 });
+
+})(); // End of IIFE
