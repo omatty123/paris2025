@@ -1,205 +1,232 @@
-// map.js
-// Google Maps version with:
-// - Default teardrop pins
-// - No forced "Paris" suffix in geocoding
-// - Correct home position (48.833469, 2.359747)
+// map.js — Google Maps with AdvancedMarkerElement, color pins, no forced Paris.
 
-(function() {
-  "use strict";
+// -----------------------------------------------------------------------------
+// GLOBALS
+// -----------------------------------------------------------------------------
+let map;
+let geocoder;
+let markers = [];
 
-  let map;
-  let geocoder;
-  let markers = [];
+// Home base coordinates
+const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
 
-  // Home address (exact coordinates you specified)
-  const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
+// Color dictionary (day → hex)
+const DAY_COLORS = {
+  dec3: "#d62828",
+  dec4: "#1d4ed8",
+  dec5: "#2a9d8f",
+  dec6: "#6a0dad",
+  dec7: "#f77f00",
+  dec8: "#8d6e63",
+  dec9: "#000000",
+  open: "#666666",
+  home: "#000000"
+};
 
-  // Day labels for info windows and filtering
-  const DAY_LABELS = {
-    dec3: "Dec 3",
-    dec4: "Dec 4",
-    dec5: "Dec 5",
-    dec6: "Dec 6",
-    dec7: "Dec 7",
-    dec8: "Dec 8",
-    dec9: "Dec 9",
-    open: "Open Bin",
-    home: "Home"
+// Label mapping
+const DAY_LABELS = {
+  dec3: "Dec 3",
+  dec4: "Dec 4",
+  dec5: "Dec 5",
+  dec6: "Dec 6",
+  dec7: "Dec 7",
+  dec8: "Dec 8",
+  dec9: "Dec 9",
+  open: "Open Bin",
+  home: "Home Base"
+};
+
+// -----------------------------------------------------------------------------
+// CALLBACK FROM GOOGLE
+// -----------------------------------------------------------------------------
+window.initGoogleMap = function () {
+  console.log("Google Maps initializing");
+
+  geocoder = new google.maps.Geocoder();
+
+  map = new google.maps.Map(document.getElementById("liveMap"), {
+    center: HOME_POSITION,
+    zoom: 13,
+    mapTypeControl: false,
+    streetViewControl: false
+  });
+
+  addHomeMarker();
+  waitForItineraryThenRenderPins();
+  setupFilters();
+  setupSearch();
+};
+
+// -----------------------------------------------------------------------------
+// WAIT FOR ITINERARY.JS
+// -----------------------------------------------------------------------------
+function waitForItineraryThenRenderPins() {
+  const state = window.getItineraryState && window.getItineraryState();
+  if (!state || !state.columns) {
+    setTimeout(waitForItineraryThenRenderPins, 200);
+    return;
+  }
+  renderAllPins(state);
+}
+
+// -----------------------------------------------------------------------------
+// MARKERS
+// -----------------------------------------------------------------------------
+function clearMarkers() {
+  markers.forEach(m => m.map = null);
+  markers = [];
+}
+
+function svgPin(color) {
+  return {
+    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
+    fillColor: color,
+    fillOpacity: 1,
+    strokeColor: "#ffffff",
+    strokeWeight: 2,
+    scale: 1.4
   };
+}
 
-  // Google callback function – matches ?callback=initGoogleMap
-  window.initGoogleMap = function() {
-    console.log("Google Maps initializing");
+function addHomeMarker() {
+  const { AdvancedMarkerElement } = google.maps.marker;
 
-    geocoder = new google.maps.Geocoder();
+  const marker = new AdvancedMarkerElement({
+    map,
+    position: HOME_POSITION,
+    title: "Home Base",
+    content: makeColoredPin("#000000")
+  });
 
-    map = new google.maps.Map(document.getElementById("liveMap"), {
-      center: { lat: 48.8566, lng: 2.3522 }, // center on Paris
-      zoom: 13,
-      mapTypeControl: false,
-      streetViewControl: false
+  marker.dayId = "home";
+
+  const info = new google.maps.InfoWindow({
+    content: "<b>Home Base</b><br>7 Avenue Stephen Pichon"
+  });
+
+  marker.addListener("click", () => info.open(map, marker));
+
+  markers.push(marker);
+}
+
+function makeColoredPin(color) {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="2">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+    </svg>
+  `;
+  return div;
+}
+
+// -----------------------------------------------------------------------------
+// RENDER ALL PINS
+// -----------------------------------------------------------------------------
+function renderAllPins(state) {
+  clearMarkers();
+  addHomeMarker();
+
+  state.columns.forEach(col => {
+    if (col.id === "open") return; // open bin handled separately by search/add
+    col.items.forEach(item => {
+      geocodeAndPlace(item, col.id, false);
     });
+  });
+}
 
-    addHomeMarker();
-    renderAllPinsStable();
-    setupFilters();
-    setupSearch();
-  };
-
-  // --------------------------------------------------------------------
-  // Safe rendering that retries until itinerary.js is ready
-  // --------------------------------------------------------------------
-
-  function renderAllPinsStable() {
-    const state = window.getItineraryState && window.getItineraryState();
-
-    if (!state || !state.columns) {
-      console.log("Itinerary not ready, retrying pins");
-      setTimeout(renderAllPinsStable, 300);
+// -----------------------------------------------------------------------------
+// GEOCODING
+// -----------------------------------------------------------------------------
+function geocodeAndPlace(text, dayId, centerMap) {
+  // DO NOT force “Paris” — allow Rouen, day trips, anything
+  geocoder.geocode({ address: text }, (results, status) => {
+    if (status !== "OK" || !results || !results.length) {
+      console.log("Geocode failed for:", text);
       return;
     }
 
-    renderAllPins(state);
+    const result = results[0];
+    const pos = result.geometry.location;
+
+    placePin(pos, text, dayId, centerMap);
+  });
+}
+
+function placePin(position, label, dayId, centerMap) {
+  const color = DAY_COLORS[dayId] || "#666";
+
+  const { AdvancedMarkerElement } = google.maps.marker;
+
+  const marker = new AdvancedMarkerElement({
+    map,
+    position,
+    title: label,
+    content: makeColoredPin(color)
+  });
+
+  marker.dayId = dayId;
+
+  const info = new google.maps.InfoWindow({
+    content: `<b>${label}</b><br>${DAY_LABELS[dayId] || ""}`
+  });
+
+  marker.addListener("click", () => info.open(map, marker));
+
+  markers.push(marker);
+
+  if (centerMap) {
+    map.setCenter(position);
+    map.setZoom(15);
   }
+}
 
-  // --------------------------------------------------------------------
-  // Marker creation and clearing
-  // --------------------------------------------------------------------
+// Add from itinerary.js
+window.addPinForItineraryItem = function (dayId, text) {
+  geocodeAndPlace(text, dayId, true);
+};
 
-  function clearMarkers() {
-    markers.forEach(m => m.setMap(null));
-    markers = [];
-  }
-
-  function addHomeMarker() {
-    const m = new google.maps.Marker({
-      position: HOME_POSITION,
-      map,
-      title: "Home Base"
-      // No custom icon here – default teardrop pin
-    });
-
-    const inf = new google.maps.InfoWindow({
-      content: "<b>Home Base</b><br>7 Avenue Stephen Pichon"
-    });
-
-    m.addListener("click", () => inf.open(map, m));
-    m.dayId = "home";
-
-    markers.push(m);
-  }
-
-  function renderAllPins(state) {
-    clearMarkers();
-    addHomeMarker();
-
-    state.columns.forEach(col => {
-      if (col.id === "open") return; // open bin is unassigned
-
-      col.items.forEach(item => {
-        geocodeAndPlace(item, col.id, false);
-      });
-    });
-  }
-
-  // --------------------------------------------------------------------
-  // Geocoding and marker placement
-  // --------------------------------------------------------------------
-
-  function geocodeAndPlace(text, dayId, shouldCenter) {
-    // Use token text as-is – do not force "Paris"
-    const query = text;
-
-    geocoder.geocode({ address: query }, (results, status) => {
-      if (status !== "OK" || !results || !results.length) {
-        console.log("No geocode result for", text, "status:", status);
-        return;
-      }
-
-      const result = results[0];
-      const pos = result.geometry.location;
-
-      const marker = new google.maps.Marker({
-        position: pos,
-        map,
-        title: text
-        // Default teardrop icon
-      });
-
-      marker.dayId = dayId;
-
-      const label = DAY_LABELS[dayId] || "?";
-      const inf = new google.maps.InfoWindow({
-        content: `<b>${text}</b><br>Day: ${label}`
-      });
-
-      marker.addListener("click", () => inf.open(map, marker));
-
-      markers.push(marker);
-
-      if (shouldCenter) {
-        map.setCenter(pos);
-        map.setZoom(15);
-      }
-    });
-  }
-
-  // Called from itinerary.js when user adds a new item
-  window.addPinForItineraryItem = function(dayId, text) {
-    geocodeAndPlace(text, dayId, true);
-  };
-
-  // --------------------------------------------------------------------
-  // Filters
-  // --------------------------------------------------------------------
-
-  function setupFilters() {
-    function apply(dayId) {
-      markers.forEach(m => m.setMap(null));
-
-      if (dayId === "all") {
-        markers.forEach(m => m.setMap(map));
-        return;
-      }
-
-      markers.forEach(m => {
-        if (m.dayId === dayId) {
-          m.setMap(map);
-        }
-      });
+// -----------------------------------------------------------------------------
+// FILTERS
+// -----------------------------------------------------------------------------
+function setupFilters() {
+  function filter(dayId) {
+    markers.forEach(m => m.map = null);
+    if (dayId === "all") {
+      markers.forEach(m => m.map = map);
+      return;
     }
-
-    const showAll = document.getElementById("mapShowAll");
-    const clear = document.getElementById("mapClear");
-    const buttons = document.querySelectorAll("[data-day]");
-
-    if (showAll) showAll.onclick = () => apply("all");
-    if (clear) clear.onclick = () => apply("all");
-
-    buttons.forEach(btn => {
-      btn.onclick = () => apply(btn.dataset.day);
+    markers.forEach(m => {
+      if (m.dayId === dayId) m.map = map;
     });
   }
 
-  // --------------------------------------------------------------------
-  // Search
-  // --------------------------------------------------------------------
+  const allBtn = document.getElementById("mapShowAll");
+  const clearBtn = document.getElementById("mapClear");
+  const dayButtons = document.querySelectorAll("[data-day]");
 
-  function setupSearch() {
-    const input = document.getElementById("mapSearchInput");
-    const btn = document.getElementById("mapSearchBtn");
+  if (allBtn) allBtn.onclick = () => filter("all");
+  if (clearBtn) clearBtn.onclick = () => filter("all");
 
-    if (!input || !btn) return;
+  dayButtons.forEach(btn => {
+    btn.onclick = () => filter(btn.dataset.day);
+  });
+}
 
-    btn.onclick = () => {
-      const text = input.value.trim();
-      if (!text) return;
+// -----------------------------------------------------------------------------
+// SEARCH → adds to Open Bin and map
+// -----------------------------------------------------------------------------
+function setupSearch() {
+  const input = document.getElementById("mapSearchInput");
+  const btn = document.getElementById("mapSearchBtn");
 
-      // Add to open bin in itinerary and drop a pin
-      window.addItemToDay("open", text);
-      geocodeAndPlace(text, "open", true);
-      input.value = "";
-    };
-  }
+  if (!input || !btn) return;
 
-})();
+  btn.onclick = () => {
+    const text = input.value.trim();
+    if (!text) return;
+
+    window.addItemToDay("open", text);
+    geocodeAndPlace(text, "open", true);
+    input.value = "";
+  };
+}
