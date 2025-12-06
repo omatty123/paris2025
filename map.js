@@ -1,16 +1,17 @@
 // map.js
-// Full Google Maps version. Working pins, working filters, working search.
-// Fixes: markers now store dayId, filters work, pins appear reliably.
+// Full Google Maps version. Stable. Pins load. Filters work. No iframe errors.
 
 (function() {
   "use strict";
 
   let map;
-  let markers = [];
   let geocoder;
+  let markers = [];
 
+  // Home
   const HOME_POSITION = { lat: 48.8287, lng: 2.3559 };
 
+  // Pin colors
   const DAY_COLORS = {
     dec3: "red",
     dec4: "blue",
@@ -22,6 +23,7 @@
     open: "gray"
   };
 
+  // Text labels
   const DAY_LABELS = {
     dec3: "Dec 3",
     dec4: "Dec 4",
@@ -33,12 +35,9 @@
     open: "Open Bin"
   };
 
-  //--------------------------------------------------------------------
-  // GOOGLE MAP INIT
-  //--------------------------------------------------------------------
-
+  // Google callback
   window.initMap = function() {
-    geocoder = new google.maps.Geocoder();
+    console.log("Google Map starting");
 
     map = new google.maps.Map(document.getElementById("liveMap"), {
       center: { lat: 48.8566, lng: 2.3522 },
@@ -47,20 +46,15 @@
       streetViewControl: false
     });
 
+    geocoder = new google.maps.Geocoder();
+
     addHomeMarker();
-    renderAllPins();
+    renderPinsWhenReady();
     setupFilters();
     setupSearch();
+
+    console.log("Google Map ready");
   };
-
-  //--------------------------------------------------------------------
-  // BASE FUNCTIONS
-  //--------------------------------------------------------------------
-
-  function clearMarkers() {
-    markers.forEach(m => m.setMap(null));
-    markers = [];
-  }
 
   function addHomeMarker() {
     const m = new google.maps.Marker({
@@ -69,29 +63,34 @@
       title: "Home Base"
     });
 
-    m.dayId = "home";
-
     const info = new google.maps.InfoWindow({
       content: "<b>Home Base</b><br>7 Avenue Stephen Pichon"
     });
 
     m.addListener("click", () => info.open(map, m));
+
+    m.dayId = "home";
     markers.push(m);
   }
 
-  //--------------------------------------------------------------------
-  // RENDER PINS FROM ITINERARY
-  //--------------------------------------------------------------------
+  function clearMarkers() {
+    markers.forEach(m => m.setMap(null));
+    markers = [];
+  }
 
-  function renderAllPins() {
-    clearMarkers();
-    addHomeMarker();
-
+  function renderPinsWhenReady() {
     const state = window.getItineraryState();
-    if (!state || !state.columns) {
-      setTimeout(renderAllPins, 300);
+    if (!state) {
+      console.log("Itinerary not ready, retrying pins");
+      setTimeout(renderPinsWhenReady, 300);
       return;
     }
+    renderAllPins(state);
+  }
+
+  function renderAllPins(state) {
+    clearMarkers();
+    addHomeMarker();
 
     state.columns.forEach(col => {
       if (col.id === "open") return;
@@ -102,27 +101,24 @@
     });
   }
 
-  //--------------------------------------------------------------------
-  // GEOCODING + MARKER CREATION
-  //--------------------------------------------------------------------
-
-  function geocodeAndPlace(itemText, dayId, centerMap) {
-    const query = itemText + " Paris";
+  function geocodeAndPlace(text, dayId, center) {
+    const query = text + " Paris";
 
     geocoder.geocode({ address: query }, (results, status) => {
-      if (status !== "OK" || !results || results.length === 0) return;
+      if (status !== "OK" || !results || results.length === 0) {
+        console.warn("Geocode failed for", text, status);
+        return;
+      }
 
       const pos = results[0].geometry.location;
-      const color = DAY_COLORS[dayId] || "gray";
-      const label = DAY_LABELS[dayId] || "Unassigned";
 
-      const marker = new google.maps.Marker({
+      const m = new google.maps.Marker({
         position: pos,
         map,
-        title: itemText,
+        title: text,
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          fillColor: color,
+          fillColor: DAY_COLORS[dayId] || "gray",
           fillOpacity: 1,
           strokeColor: "white",
           strokeWeight: 2,
@@ -130,35 +126,29 @@
         }
       });
 
-      // FIX: store dayId so filtering works
-      marker.dayId = dayId;
+      m.dayId = dayId;
 
       const info = new google.maps.InfoWindow({
-        content: `<b>${itemText}</b><br>Day: ${label}`
+        content: `<b>${text}</b><br>Day: ${DAY_LABELS[dayId] || "Unassigned"}`
       });
 
-      marker.addListener("click", () => info.open(map, marker));
+      m.addListener("click", () => info.open(map, m));
 
-      markers.push(marker);
+      markers.push(m);
 
-      if (centerMap) {
+      if (center) {
         map.setCenter(pos);
         map.setZoom(15);
       }
     });
   }
 
-  // Exposed function for itinerary.js
   window.addPinForItineraryItem = function(dayId, text) {
     geocodeAndPlace(text, dayId, true);
   };
 
-  //--------------------------------------------------------------------
-  // FILTERS
-  //--------------------------------------------------------------------
-
   function setupFilters() {
-    function applyFilter(dayId) {
+    function apply(dayId) {
       markers.forEach(m => m.setMap(null));
 
       if (dayId === "all") {
@@ -166,26 +156,29 @@
         return;
       }
 
-      markers
-        .filter(m => m.dayId === dayId)
-        .forEach(m => m.setMap(map));
+      markers.forEach(m => {
+        if (m.dayId === dayId) m.setMap(map);
+      });
     }
 
-    document.getElementById("mapShowAll").onclick = () => applyFilter("all");
-    document.getElementById("mapClear").onclick = () => applyFilter("all");
+    const showAll = document.getElementById("mapShowAll");
+    const clear = document.getElementById("mapClear");
+    const dayBtns = document.querySelectorAll("[data-day]");
 
-    document.querySelectorAll("[data-day]").forEach(btn => {
-      btn.onclick = () => applyFilter(btn.dataset.day);
+    if (showAll) showAll.onclick = () => apply("all");
+    if (clear) clear.onclick = () => apply("all");
+
+    dayBtns.forEach(btn => {
+      const id = btn.dataset.day;
+      btn.onclick = () => apply(id);
     });
   }
-
-  //--------------------------------------------------------------------
-  // SEARCH + ADD TO OPEN BIN
-  //--------------------------------------------------------------------
 
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
+
+    if (!input || !btn) return;
 
     btn.onclick = () => {
       const text = input.value.trim();
