@@ -170,48 +170,6 @@ function addMarkerForPlace(place) {
   });
 }
 
-// Function to add a pin for a new itinerary item
-window.addPinForItineraryItem = function(dayId, itemText) {
-  if (!map || !geocoder) {
-    console.warn("Map not initialized yet");
-    return;
-  }
-  
-  const place = {
-    dayId: dayId,
-    label: itemText,
-    query: itemText + ", Paris, France"
-  };
-  
-  addMarkerForPlace(place);
-};
-      <div style="font-family: 'Cormorant Garamond', serif; font-size: 14px;">
-        <strong>${place.label}</strong><br/>
-        <span>${cfg.label || ""}</span>
-      </div>
-    `;
-    const infoWindow = new google.maps.InfoWindow({ content: infoHtml });
-
-    marker.addListener("click", () => {
-      infoWindow.open(map, marker);
-    });
-
-    allMarkers.push(marker);
-    if (!markersByDay[place.dayId]) {
-      markersByDay[place.dayId] = [];
-    }
-    markersByDay[place.dayId].push(marker);
-
-    // If a day filter is active, respect it as new markers arrive
-    if (activeFilter !== "all") {
-      marker.setMap(null);
-      if (activeFilter === place.dayId) {
-        marker.setMap(map);
-      }
-    }
-  });
-}
-
 function setActiveMapButton(buttonId) {
   const buttons = document.querySelectorAll(".map-filter-btn");
   buttons.forEach(btn => btn.classList.remove("active"));
@@ -305,8 +263,7 @@ function searchAndAddPin() {
     return;
   }
   
-  // Geocode the search query
-  geocoder.geocode({ address: query + ", Paris, France" }, (results, status) => {
+  geocoder.geocode({ address: query + ", Paris, France" }, function(results, status) {
     if (status !== "OK" || !results[0]) {
       alert("Location not found. Try a different search term.");
       return;
@@ -315,7 +272,6 @@ function searchAndAddPin() {
     const location = results[0].geometry.location;
     const placeName = results[0].formatted_address;
     
-    // Create a custom marker
     const marker = new google.maps.Marker({
       position: location,
       map: map,
@@ -324,51 +280,25 @@ function searchAndAddPin() {
       animation: google.maps.Animation.DROP
     });
     
-    // Info window
-    const infoWindow = new google.maps.InfoWindow({
-      content: `
-        <div style="font-family: 'Cormorant Garamond', serif;">
-          <strong>${query}</strong><br/>
-          <span style="font-size: 12px;">${placeName}</span><br/>
-          <button onclick="removeCustomMarker(${customMarkers.length})" 
-                  style="margin-top: 8px; padding: 4px 8px; cursor: pointer;">
-            Remove Pin
-          </button>
-        </div>
-      `
-    });
+    const infoContent = '<div style="font-family: \'Cormorant Garamond\', serif;"><strong>' + query + '</strong><br/><span style="font-size: 12px;">' + placeName + '</span></div>';
+    const infoWindow = new google.maps.InfoWindow({ content: infoContent });
     
-    marker.addListener("click", () => {
+    marker.addListener("click", function() {
       infoWindow.open(map, marker);
     });
     
     customMarkers.push(marker);
     allMarkers.push(marker);
     
-    // Center map on new marker
     map.setCenter(location);
     map.setZoom(15);
     
-    // Clear search input
     searchInput.value = "";
     
-    // Show info window briefly
     infoWindow.open(map, marker);
-    setTimeout(() => infoWindow.close(), 3000);
+    setTimeout(function() { infoWindow.close(); }, 3000);
   });
 }
-
-// Remove custom marker
-window.removeCustomMarker = function(index) {
-  if (customMarkers[index]) {
-    customMarkers[index].setMap(null);
-    const allIndex = allMarkers.indexOf(customMarkers[index]);
-    if (allIndex > -1) {
-      allMarkers.splice(allIndex, 1);
-    }
-    customMarkers[index] = null;
-  }
-};
 
 function wireSearchButton() {
   const searchBtn = document.getElementById("mapSearchBtn");
@@ -379,7 +309,7 @@ function wireSearchButton() {
   }
   
   if (searchInput) {
-    searchInput.addEventListener("keypress", (e) => {
+    searchInput.addEventListener("keypress", function(e) {
       if (e.key === "Enter") {
         searchAndAddPin();
       }
@@ -424,6 +354,22 @@ function initLiveMap() {
     fitMapToVisibleMarkers();
   }, 2000);
 }
+
+// Function to add a pin for a new itinerary item
+window.addPinForItineraryItem = function(dayId, itemText) {
+  if (!map || !geocoder) {
+    console.warn("Map not initialized yet");
+    return;
+  }
+  
+  const place = {
+    dayId: dayId,
+    label: itemText,
+    query: itemText + ", Paris, France"
+  };
+  
+  addMarkerForPlace(place);
+};
 
 // Expose for the Google Maps callback
 window.initLiveMap = initLiveMap;
