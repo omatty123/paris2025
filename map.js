@@ -1,9 +1,5 @@
 // map.js
-// Google Maps with:
-// - Home Base star marker
-// - All geocoding anchored to France
-// - Fit bounds for visible markers
-// - Today filter using Paris time
+// Google Maps with France anchored geocoding, Paris overrides, home star, bounds fit.
 
 (function () {
   "use strict";
@@ -13,10 +9,10 @@
   let markers = [];
   let bounds;
 
-  // Home Base coordinates
+  // Home coordinates
   const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
 
-  // Classic pin icons
+  // Icon set
   const DAY_ICONS = {
     dec3: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
     dec4: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -26,10 +22,10 @@
     dec8: "http://maps.google.com/mapfiles/ms/icons/brown-dot.png",
     dec9: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
     open: "http://maps.google.com/mapfiles/ms/icons/grey-dot.png",
-    // star for home
     home: "http://maps.google.com/mapfiles/kml/shapes/star.png"
   };
 
+  // Labels
   const DAY_LABELS = {
     dec3: "Dec 3",
     dec4: "Dec 4",
@@ -42,32 +38,17 @@
     home: "Home Base"
   };
 
-  function getTodayDayId() {
-    const parisDate = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Europe/Paris",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    }).format(new Date());
+  // Hard overrides for vague Paris items
+  const PARIS_OVERRIDES = {
+    "nationale": "Nationale Metro Station, Paris",
+    "la halte": "La Halte, 12 Rue Philibert Lucot, 75013 Paris",
+    "les chiffonniers": "Les Chiffonniers, 108 Rue de Patay, 75013 Paris",
+    "walk home": null
+  };
 
-    const mapDates = {
-      "2025-12-03": "dec3",
-      "2025-12-04": "dec4",
-      "2025-12-05": "dec5",
-      "2025-12-06": "dec6",
-      "2025-12-07": "dec7",
-      "2025-12-08": "dec8",
-      "2025-12-09": "dec9"
-    };
-
-    return mapDates[parisDate] || null;
-  }
-
+  // Google callback
   window.initGoogleMap = function () {
-    console.log("Google Maps initializing");
-
     geocoder = new google.maps.Geocoder();
-    bounds = new google.maps.LatLngBounds();
 
     map = new google.maps.Map(document.getElementById("liveMap"), {
       center: HOME_POSITION,
@@ -75,6 +56,8 @@
       mapTypeControl: false,
       streetViewControl: false
     });
+
+    bounds = new google.maps.LatLngBounds();
 
     addHomeMarker();
     renderPinsWhenReady();
@@ -97,6 +80,7 @@
     bounds = new google.maps.LatLngBounds();
   }
 
+  // Add the fixed home marker
   function addHomeMarker() {
     const marker = new google.maps.Marker({
       position: HOME_POSITION,
@@ -114,28 +98,49 @@
     marker.dayId = "home";
     markers.push(marker);
     bounds.extend(HOME_POSITION);
-    map.fitBounds(bounds);
   }
 
+  // Render every itinerary entry
   function renderAllPins(state) {
     clearMarkers();
     addHomeMarker();
 
     state.columns.forEach(col => {
-      if (col.id === "open") return;
       col.items.forEach(item => {
         geocodeAndMark(item, col.id, false);
       });
     });
+
+    map.fitBounds(bounds);
   }
 
+  // Geocode with France anchoring and Paris override
   function geocodeAndMark(text, dayId, centerMap) {
-    // Option A: always keep results inside France
-    const query = `${text}, France`;
+    let key = text.trim().toLowerCase();
+    let query = text;
 
-    geocoder.geocode({ address: query }, (results, status) => {
-      if (status !== "OK" || !results || !results.length) {
-        console.log("Geocode failed:", text, status);
+    // Override block
+    if (PARIS_OVERRIDES.hasOwnProperty(key)) {
+      const override = PARIS_OVERRIDES[key];
+
+      if (!override) {
+        console.log("No pin generated for", text);
+        return;
+      }
+
+      query = override;
+    }
+
+    // Force France for every location
+    let q = query;
+    const lowerQ = q.toLowerCase();
+    if (!lowerQ.includes("france")) {
+      q = q + ", France";
+    }
+
+    geocoder.geocode({ address: q }, (results, status) => {
+      if (status !== "OK" || !results || results.length === 0) {
+        console.log("Geocode failed for", text, "query was", q);
         return;
       }
 
@@ -151,7 +156,7 @@
       marker.dayId = dayId;
 
       const inf = new google.maps.InfoWindow({
-        content: `<b>${text}</b><br>${DAY_LABELS[dayId] || ""}`
+        content: "<b>" + text + "</b><br>" + (DAY_LABELS[dayId] || "")
       });
 
       marker.addListener("click", () => inf.open(map, marker));
@@ -168,64 +173,53 @@
     });
   }
 
+  // Exposed for itinerary dragging
   window.addPinForItineraryItem = function (dayId, text) {
     geocodeAndMark(text, dayId, true);
   };
 
+  // Filter buttons
   function setupFilters() {
-    function applyFilter(dayId) {
+    function filter(dayId) {
+      clearMarkers();
+      addHomeMarker();
+
       const visible = [];
-      const newBounds = new google.maps.LatLngBounds();
 
-      markers.forEach(m => {
-        m.setMap(null);
-      });
+      markers.forEach(m => m.setMap(null));
 
-      markers.forEach(m => {
-        if (
-          dayId === "all" ||
-          m.dayId === dayId ||
-          m.dayId === "home"
-        ) {
-          m.setMap(map);
-          visible.push(m);
-          newBounds.extend(m.getPosition());
-        }
-      });
-
-      if (visible.length > 0) {
-        map.fitBounds(newBounds);
+      if (dayId === "all") {
+        renderPinsWhenReady();
+        return;
       }
-    }
 
-    const showAllBtn = document.getElementById("mapShowAll");
-    if (showAllBtn) showAllBtn.onclick = () => applyFilter("all");
+      const state = window.getItineraryState && window.getItineraryState();
+      if (!state) return;
 
-    const clearBtn = document.getElementById("mapClear");
-    if (clearBtn) clearBtn.onclick = () => applyFilter("all");
-
-    document.querySelectorAll("[data-day]").forEach(btn => {
-      btn.onclick = () => applyFilter(btn.dataset.day);
-    });
-
-    const todayBtn = document.getElementById("mapToday");
-    if (todayBtn) {
-      todayBtn.onclick = () => {
-        const todayId = getTodayDayId();
-        if (todayId) {
-          applyFilter(todayId);
-        } else {
-          applyFilter("all");
+      state.columns.forEach(col => {
+        if (col.id === dayId) {
+          col.items.forEach(item => {
+            geocodeAndMark(item, col.id, false);
+          });
         }
-      };
+      });
+
+      map.fitBounds(bounds);
     }
+
+    document.getElementById("mapShowAll").onclick = () => filter("all");
+    document.getElementById("mapClear").onclick = () => filter("all");
+
+    const btns = document.querySelectorAll("[data-day]");
+    btns.forEach(btn => {
+      btn.onclick = () => filter(btn.dataset.day);
+    });
   }
 
+  // Search field
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
-
-    if (!input || !btn) return;
 
     btn.onclick = () => {
       const text = input.value.trim();
@@ -233,7 +227,9 @@
 
       window.addItemToDay("open", text);
       geocodeAndMark(text, "open", true);
+
       input.value = "";
     };
   }
+
 })();
