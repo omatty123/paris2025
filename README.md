@@ -104,20 +104,10 @@ paris2025/
 ├── paris-christmas-markets.jpg  # Background image
 ├── CODE_REVIEW.md               # Comprehensive code review document
 ├── README.md                    # This file
-├── .gitignore                   # Git ignore rules
-├── places.json                  # ⚠️ DEPRECATED - Location data (not used)
-├── data/
-│   └── itinerary.json           # Alternative itinerary storage (for modules/)
-└── modules/                     # Alternative/modular HTML components (legacy)
-    ├── itinerary.html
-    ├── map.html
-    ├── flight-status.html
-    ├── flight-weather.html
-    ├── itinerary.js
-    └── paris-weather.html
+└── .gitignore                   # Git ignore rules
 ```
 
-**Note:** The main application uses files in the root directory. The `modules/` directory contains alternative layouts and components that are not actively used by the main application.
+All files are actively used by the application. Legacy and deprecated files have been removed.
 
 ## Browser Support
 
