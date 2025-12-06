@@ -1,5 +1,5 @@
 // itinerary.js
-// FIXED VERSION with improved drag and drop + past days at bottom
+// FIXED VERSION with improved drag and drop and past days at bottom
 
 (function() {
 'use strict';
@@ -127,19 +127,25 @@ const DAY_DATES = {
   dec9: "2025-12-09"
 };
 
-// Map of correct labels - simplified to just title
+// Map of correct labels and photo links
 const DAY_LABELS = {
   open: { title: "Open Bin" },
-  dec3: { title: "Wed Dec 3", photoUrl: "https://www.amazon.com/photos/shared/ePLmduWLQXGeruQEcrnDjg.wz42P01vnEpGuxrHB5VChn" },
-  dec4: { title: "Thu Dec 4", photoUrl: "https://www.amazon.com/photos/shared/tQm07DL3RKeav08LMOu2gg.qQAWz56zAlUSg03OgxvA7U" },
-  dec5: { title: "Fri Dec 5", photoUrl: "https://www.amazon.com/photos/shared/GqMnmVE5Q_2mVoqie28YjA.o9PKGuPBVooDvT44cVqi8_" },
-
-  // ★★★ NEW PHOTO URL ADDED — ONLY CHANGE IN THE FILE ★★★
-  dec6: { 
+  dec3: {
+    title: "Wed Dec 3",
+    photoUrl: "https://www.amazon.com/photos/shared/ePLmduWLQXGeruQEcrnDjg.wz42P01vnEpGuxrHB5VChn"
+  },
+  dec4: {
+    title: "Thu Dec 4",
+    photoUrl: "https://www.amazon.com/photos/shared/tQm07DL3RKeav08LMOu2gg.qQAWz56zAlUSg03OgxvA7U"
+  },
+  dec5: {
+    title: "Fri Dec 5",
+    photoUrl: "https://www.amazon.com/photos/shared/GqMnmVE5Q_2mVoqie28YjA.o9PKGuPBVooDvT44cVqi8_"
+  },
+  dec6: {
     title: "Sat Dec 6",
     photoUrl: "https://www.amazon.com/photos/shared/AFv_6YLlQBWfBk6aCsXBKQ.dxE90tpxqyu5MFWkWrCQp4"
   },
-
   dec7: { title: "Sun Dec 7" },
   dec8: { title: "Mon Dec 8" },
   dec9: { title: "Tue Dec 9" }
@@ -158,40 +164,34 @@ function normalizeTitles(state) {
 
 // Get today's date in Paris timezone as YYYY-MM-DD
 function getTodayParis() {
-  // Use Intl.DateTimeFormat to reliably get Paris date
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Paris',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
   });
-
-  // en-CA locale gives us YYYY-MM-DD format directly
   return formatter.format(new Date());
 }
 
-// Sort day columns: today & future first, then past days
+// Sort day columns: today and future first, then past days
 function sortDayColumns(dayCols) {
   const todayStr = getTodayParis();
-  
   const future = [];
   const past = [];
-  
+
   dayCols.forEach(col => {
     const dateStr = DAY_DATES[col.id];
     if (!dateStr) {
-      future.push(col); // Unknown dates go to future
+      future.push(col);
     } else if (dateStr >= todayStr) {
       future.push(col);
     } else {
       past.push(col);
     }
   });
-  
-  // Sort each group by date
+
   future.sort((a, b) => (DAY_DATES[a.id] || "").localeCompare(DAY_DATES[b.id] || ""));
   past.sort((a, b) => (DAY_DATES[a.id] || "").localeCompare(DAY_DATES[b.id] || ""));
-  
   return [...future, ...past];
 }
 
@@ -199,15 +199,9 @@ function sortDayColumns(dayCols) {
 function sanitizeInput(input) {
   if (typeof input !== 'string') return '';
 
-  // Trim whitespace
   let sanitized = input.trim();
-
-  // Remove potential HTML/script tags
   sanitized = sanitized.replace(/<[^>]*>/g, '');
-
-  // Remove null bytes
   sanitized = sanitized.replace(/\0/g, '');
-
   return sanitized;
 }
 
@@ -229,7 +223,7 @@ function validateItemText(text) {
   return { valid: true, error: null, sanitized };
 }
 
-// ----- 3) State + helpers -----
+// ----- 3) State and helpers -----
 let itinState = null;
 let draggedElement = null;
 
@@ -251,13 +245,13 @@ function loadFromLocal() {
 function saveToLocal() {
   try {
     localStorage.setItem(ITIN_LOCAL_KEY, JSON.stringify(itinState));
-    console.log("✓ Saved locally");
+    console.log("Saved locally");
   } catch (e) {
     console.error("Local save failed:", e);
   }
 }
 
-// ----- 4) Rendering with FIXED drag and drop -----
+// ----- 4) Rendering with drag and drop -----
 
 function buildCard(colId, itemIndex, text) {
   const card = document.createElement("div");
@@ -281,21 +275,15 @@ function buildCard(colId, itemIndex, text) {
   card.appendChild(span);
   card.appendChild(del);
 
-  // FIXED: Enhanced drag start
   card.addEventListener("dragstart", (e) => {
-    console.log("Drag started:", colId, itemIndex);
     draggedElement = card;
     card.classList.add("dragging");
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", JSON.stringify({ colId, index: itemIndex }));
-    
-    // Firefox fix
     e.dataTransfer.setData("application/json", JSON.stringify({ colId, index: itemIndex }));
   });
 
-  // FIXED: Enhanced drag end
-  card.addEventListener("dragend", (e) => {
-    console.log("Drag ended");
+  card.addEventListener("dragend", () => {
     card.classList.remove("dragging");
     draggedElement = null;
     document.querySelectorAll(".itinerary-list.drag-over").forEach((el) => {
@@ -307,14 +295,13 @@ function buildCard(colId, itemIndex, text) {
 }
 
 function wireDropZone(listEl, targetColId) {
-  // Helper to get drop position
   function getDragAfterElement(listEl, y) {
     const draggableElements = [...listEl.querySelectorAll('.itinerary-card:not(.dragging)')];
-    
+
     return draggableElements.reduce((closest, child) => {
       const box = child.getBoundingClientRect();
       const offset = y - box.top - box.height / 2;
-      
+
       if (offset < 0 && offset > closest.offset) {
         return { offset: offset, element: child };
       } else {
@@ -322,17 +309,15 @@ function wireDropZone(listEl, targetColId) {
       }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
-  
-  // FIXED: Prevent default to allow drop
+
   listEl.addEventListener("dragover", (e) => {
     e.preventDefault();
     e.stopPropagation();
     listEl.classList.add("drag-over");
-    
-    // Show visual feedback of drop position
+
     const afterElement = getDragAfterElement(listEl, e.clientY);
     const draggable = document.querySelector('.dragging');
-    
+
     if (afterElement == null) {
       listEl.appendChild(draggable);
     } else {
@@ -348,26 +333,21 @@ function wireDropZone(listEl, targetColId) {
 
   listEl.addEventListener("dragleave", (e) => {
     e.stopPropagation();
-    // Only remove if actually leaving the element
     if (e.currentTarget === listEl && !listEl.contains(e.relatedTarget)) {
       listEl.classList.remove("drag-over");
     }
   });
 
-  // FIXED: Enhanced drop handler with position detection
   listEl.addEventListener("drop", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Drop detected on:", targetColId);
-    
+
     listEl.classList.remove("drag-over");
 
-    // Try multiple data types for cross-browser compatibility
     let raw = e.dataTransfer.getData("text/plain");
     if (!raw) {
       raw = e.dataTransfer.getData("application/json");
     }
-    
     if (!raw) {
       console.error("No drag data found");
       return;
@@ -376,22 +356,18 @@ function wireDropZone(listEl, targetColId) {
     let payload;
     try {
       payload = JSON.parse(raw);
-      console.log("Moving from", payload.colId, "index", payload.index, "to", targetColId);
     } catch (err) {
       console.error("Failed to parse drag data:", err);
       return;
     }
 
-    // Calculate drop index based on position
     const afterElement = getDragAfterElement(listEl, e.clientY);
     let toIndex = null;
-    
+
     if (afterElement) {
-      // Get index of the element we're dropping before
       const cards = [...listEl.querySelectorAll('.itinerary-card:not(.dragging)')];
       toIndex = cards.indexOf(afterElement);
     } else {
-      // Drop at end
       const cards = [...listEl.querySelectorAll('.itinerary-card:not(.dragging)')];
       toIndex = cards.length;
     }
@@ -417,17 +393,13 @@ function renderItinerary() {
 
   const openCol = itinState.columns.find((c) => c.id === "open");
   const dayCols = itinState.columns.filter((c) => c.id !== "open");
-  
-  // Sort: today & future first, past days at bottom
   const sortedDayCols = sortDayColumns(dayCols);
   const todayStr = getTodayParis();
 
-  // Render day columns
   sortedDayCols.forEach((col) => {
     const wrapper = document.createElement("div");
     wrapper.className = "day-column";
-    
-    // Add "past-day" class for styling if needed
+
     const dateStr = DAY_DATES[col.id];
     if (dateStr && dateStr < todayStr) {
       wrapper.classList.add("past-day");
@@ -436,15 +408,13 @@ function renderItinerary() {
     const header = document.createElement("div");
     header.className = "day-header";
 
-    // FIXED: Only show title, no meta (was causing duplicate dates)
     const titleContainer = document.createElement("div");
     titleContainer.className = "day-title-container";
-    
+
     const title = document.createElement("h3");
     title.textContent = col.title;
     titleContainer.appendChild(title);
-    
-    // Add photo link if available
+
     const dayLabel = DAY_LABELS[col.id];
     if (dayLabel && dayLabel.photoUrl) {
       const photoLink = document.createElement("a");
@@ -472,7 +442,6 @@ function renderItinerary() {
       const v = input.value.trim();
       if (!v) return;
 
-      // Validate and sanitize input
       const validation = validateItemText(v);
       if (!validation.valid) {
         alert(validation.error);
@@ -482,7 +451,6 @@ function renderItinerary() {
       col.items.push(validation.sanitized);
       input.value = "";
 
-      // Add pin to map for this new item (skip for Open Bin)
       if (col.id !== "open" && typeof window.addPinForItineraryItem === "function") {
         window.addPinForItineraryItem(col.id, validation.sanitized);
       }
@@ -517,7 +485,6 @@ function renderItinerary() {
     daysColumn.appendChild(wrapper);
   });
 
-  // Render Open Bin items (no extra title - it's already in HTML)
   if (openCol) {
     wireDropZone(openBinList, openCol.id);
     openCol.items.forEach((itemText, idx) => {
@@ -531,7 +498,6 @@ function renderItinerary() {
         const v = openBinInput.value.trim();
         if (!v) return;
 
-        // Validate and sanitize input
         const validation = validateItemText(v);
         if (!validation.valid) {
           alert(validation.error);
@@ -580,23 +546,19 @@ function moveItem(fromColId, fromIndex, toColId, toIndex = null) {
   }
 
   const [item] = fromCol.items.splice(idx, 1);
-  
-  // If toIndex is specified and valid, insert at that position
+
   if (toIndex !== null && toIndex >= 0 && toIndex <= toCol.items.length) {
     toCol.items.splice(toIndex, 0, item);
   } else {
-    // Otherwise add to end
     toCol.items.push(item);
   }
 
-  console.log("Moved:", item, "from", fromColId, "index", fromIndex, "to", toColId, "index", toIndex);
   saveToLocal();
   renderItinerary();
 }
 
 // ----- 6) Reset -----
 
-// Add item to a specific day (called from map search)
 window.addItemToDay = function(dayId, itemText) {
   const col = itinState.columns.find((c) => c.id === dayId);
   if (!col) {
@@ -604,7 +566,6 @@ window.addItemToDay = function(dayId, itemText) {
     return;
   }
 
-  // Validate and sanitize input
   const validation = validateItemText(itemText);
   if (!validation.valid) {
     alert(validation.error);
@@ -653,7 +614,7 @@ function setGitHubToken() {
     localStorage.setItem("itinerary-github-token", GITHUB.token);
     const status = document.getElementById("githubStatus");
     if (status) {
-      status.textContent = "✓ GitHub token saved locally.";
+      status.textContent = "GitHub token saved locally.";
       status.style.color = "#2f7d32";
     }
   } catch (error) {
@@ -663,7 +624,6 @@ function setGitHubToken() {
 }
 
 async function githubGetSHA() {
-  // Add timestamp to bust cache
   const timestamp = Date.now();
   const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?ref=${GITHUB.branch}&_=${timestamp}`;
   const res = await fetch(url, {
@@ -671,7 +631,7 @@ async function githubGetSHA() {
       Authorization: `token ${GITHUB.token}`,
       Accept: "application/vnd.github.v3+json"
     },
-    cache: 'no-store' // Force no caching
+    cache: 'no-store'
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error("GitHub GET failed: " + res.status);
@@ -693,8 +653,6 @@ async function saveItineraryToGitHub(forceSave = false) {
 
   try {
     const url = `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}`;
-    
-    // Get fresh SHA
     const sha = await githubGetSHA();
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(itinState, null, 2))));
 
@@ -717,22 +675,18 @@ async function saveItineraryToGitHub(forceSave = false) {
 
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      
-      // If SHA mismatch and not already retrying, try once more
       if (!forceSave && j.message && j.message.includes("does not match")) {
         if (status) {
           status.textContent = "Conflict detected, retrying...";
         }
-        // Wait a moment and retry
         await new Promise(resolve => setTimeout(resolve, 500));
         return saveItineraryToGitHub(true);
       }
-      
       throw new Error(j.message || `GitHub PUT failed: ${res.status}`);
     }
 
     if (status) {
-      status.textContent = forceSave ? "✓ Saved to GitHub (retried)" : "✓ Saved to GitHub";
+      status.textContent = forceSave ? "Saved to GitHub (retried)" : "Saved to GitHub";
       status.style.color = "#2f7d32";
     }
   } catch (e) {
@@ -780,7 +734,7 @@ async function loadItineraryFromGitHub() {
     renderItinerary();
 
     if (status) {
-      status.textContent = "✓ Loaded from GitHub";
+      status.textContent = "Loaded from GitHub";
       status.style.color = "#2f7d32";
     }
   } catch (e) {
@@ -794,12 +748,11 @@ async function loadItineraryFromGitHub() {
   }
 }
 
-// Expose function to get current itinerary state for map
+// Expose for map.js
 window.getItineraryState = function() {
   return itinState;
 };
 
-// Expose function to remove an item from a day (called when deleting a pin)
 window.removeItemFromDay = function(dayId, itemText) {
   const col = itinState.columns.find((c) => c.id === dayId);
   if (!col) {
