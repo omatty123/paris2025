@@ -1,7 +1,4 @@
 // map.js
-// Full Google Maps version with stable callback initGoogleMap.
-// Pins work reliably. Filtering works. Search works.
-
 (function() {
   "use strict";
 
@@ -9,22 +6,9 @@
   let geocoder;
   let markers = [];
 
-  // Home address
+  // Home base
   const HOME_POSITION = { lat: 48.8287, lng: 2.3559 };
 
-  // Day colors for map markers
-  const DAY_COLORS = {
-    dec3: "red",
-    dec4: "blue",
-    dec5: "green",
-    dec6: "purple",
-    dec7: "orange",
-    dec8: "brown",
-    dec9: "black",
-    open: "gray"
-  };
-
-  // Label for info windows
   const DAY_LABELS = {
     dec3: "Dec 3",
     dec4: "Dec 4",
@@ -36,7 +20,18 @@
     open: "Open Bin"
   };
 
-  // Google callback function
+  const DAY_COLORS = {
+    dec3: "red",
+    dec4: "blue",
+    dec5: "green",
+    dec6: "purple",
+    dec7: "orange",
+    dec8: "brown",
+    dec9: "black",
+    open: "gray"
+  };
+
+  // Google callback
   window.initGoogleMap = function() {
     console.log("Google Maps initializing");
 
@@ -46,37 +41,23 @@
       center: { lat: 48.8566, lng: 2.3522 },
       zoom: 13,
       mapTypeControl: false,
-      streetViewControl: false,
+      streetViewControl: false
     });
 
     addHomeMarker();
-
-    // Wait for itinerary.js to finish populating its state
-    renderAllPinsStable();
-
+    waitForItineraryThenRender();
     setupFilters();
     setupSearch();
   };
 
-  // --------------------------------------------------------------------
-  // Safe rendering that retries until itinerary.js is ready
-  // --------------------------------------------------------------------
-
-  function renderAllPinsStable() {
+  function waitForItineraryThenRender() {
     const state = window.getItineraryState && window.getItineraryState();
-
     if (!state || !state.columns) {
-      console.log("Itinerary not ready, retrying pins");
-      setTimeout(renderAllPinsStable, 300);
+      setTimeout(waitForItineraryThenRender, 250);
       return;
     }
-
     renderAllPins(state);
   }
-
-  // --------------------------------------------------------------------
-  // Marker creation and clearing
-  // --------------------------------------------------------------------
 
   function clearMarkers() {
     markers.forEach(m => m.setMap(null));
@@ -84,7 +65,7 @@
   }
 
   function addHomeMarker() {
-    const m = new google.maps.Marker({
+    const marker = new google.maps.Marker({
       position: HOME_POSITION,
       map,
       title: "Home Base"
@@ -94,11 +75,9 @@
       content: "<b>Home Base</b><br>7 Avenue Stephen Pichon"
     });
 
-    m.addListener("click", () => inf.open(map, m));
-
-    m.dayId = "home";
-
-    markers.push(m);
+    marker.addListener("click", () => inf.open(map, marker));
+    marker.dayId = "home";
+    markers.push(marker);
   }
 
   function renderAllPins(state) {
@@ -107,99 +86,73 @@
 
     state.columns.forEach(col => {
       if (col.id === "open") return;
-
-      col.items.forEach(item => {
-        geocodeAndPlace(item, col.id, false);
-      });
+      col.items.forEach(item => geocodeAndPlace(item, col.id, false));
     });
   }
 
-  // --------------------------------------------------------------------
-  // Geocoding and marker placement
-  // --------------------------------------------------------------------
-
-  function geocodeAndPlace(text, dayId, shouldCenter) {
-    const query = text + " Paris";
-
-    geocoder.geocode({ address: query }, (results, status) => {
+  // NO MORE " + Paris"
+  function geocodeAndPlace(text, dayId, centerMap) {
+    geocoder.geocode({ address: text }, (results, status) => {
       if (status !== "OK" || !results || !results.length) {
-        console.log("No geocode result for", text);
+        console.log("Geocode failed for:", text);
         return;
       }
 
-      const result = results[0];
-      const pos = result.geometry.location;
+      const loc = results[0].geometry.location;
 
+      // Standard teardrop marker via Google Maps default icon
       const marker = new google.maps.Marker({
-        position: pos,
+        position: loc,
         map,
         title: text,
         icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: DAY_COLORS[dayId] || "gray",
-          fillOpacity: 1,
-          strokeColor: "white",
-          strokeWeight: 2,
-          scale: 8
+          url: `http://maps.google.com/mapfiles/ms/icons/${DAY_COLORS[dayId] || "gray"}-dot.png`
         }
       });
 
       marker.dayId = dayId;
 
       const inf = new google.maps.InfoWindow({
-        content: `<b>${text}</b><br>Day: ${DAY_LABELS[dayId] || "?"}`
+        content: `<b>${text}</b><br>${DAY_LABELS[dayId] || ""}`
       });
 
       marker.addListener("click", () => inf.open(map, marker));
 
       markers.push(marker);
 
-      if (shouldCenter) {
-        map.setCenter(pos);
+      if (centerMap) {
+        map.setCenter(loc);
         map.setZoom(15);
       }
     });
   }
 
-  // Called from itinerary.js when user adds a new item
+  // For itinerary.js
   window.addPinForItineraryItem = function(dayId, text) {
     geocodeAndPlace(text, dayId, true);
   };
 
-  // --------------------------------------------------------------------
   // Filters
-  // --------------------------------------------------------------------
-
   function setupFilters() {
-    function apply(dayId) {
-      markers.forEach(m => m.setMap(null));
-
-      if (dayId === "all") {
-        markers.forEach(m => m.setMap(map));
-        return;
-      }
-
-      markers.forEach(m => {
-        if (m.dayId === dayId) m.setMap(map);
-      });
-    }
-
     const showAll = document.getElementById("mapShowAll");
     const clear = document.getElementById("mapClear");
-    const buttons = document.querySelectorAll("[data-day]");
+    const btns = document.querySelectorAll("[data-day]");
 
-    if (showAll) showAll.onclick = () => apply("all");
-    if (clear) clear.onclick = () => apply("all");
+    if (showAll) showAll.onclick = () => markers.forEach(m => m.setMap(map));
+    if (clear) clear.onclick = () => markers.forEach(m => m.setMap(map));
 
-    buttons.forEach(btn => {
-      btn.onclick = () => apply(btn.dataset.day);
+    btns.forEach(btn => {
+      btn.onclick = () => {
+        const day = btn.dataset.day;
+        markers.forEach(m => m.setMap(null));
+        markers.forEach(m => {
+          if (m.dayId === day) m.setMap(map);
+        });
+      };
     });
   }
 
-  // --------------------------------------------------------------------
   // Search
-  // --------------------------------------------------------------------
-
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
@@ -212,8 +165,8 @@
 
       window.addItemToDay("open", text);
       geocodeAndPlace(text, "open", true);
+
       input.value = "";
     };
   }
-
 })();
