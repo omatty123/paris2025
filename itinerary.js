@@ -788,6 +788,32 @@ async function loadItineraryFromGitHub() {
   }
 }
 
+// Expose function to get current itinerary state for map
+window.getItineraryState = function() {
+  return itinState;
+};
+
+// Expose function to remove an item from a day (called when deleting a pin)
+window.removeItemFromDay = function(dayId, itemText) {
+  const col = itinState.columns.find((c) => c.id === dayId);
+  if (!col) {
+    console.warn('Column not found:', dayId);
+    return false;
+  }
+
+  const index = col.items.indexOf(itemText);
+  if (index === -1) {
+    console.warn('Item not found in column:', itemText);
+    return false;
+  }
+
+  col.items.splice(index, 1);
+  saveToLocal();
+  renderItinerary();
+  console.log('Removed item from itinerary:', itemText);
+  return true;
+};
+
 // ----- 8) Init -----
 
 function initItinerary() {

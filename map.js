@@ -150,6 +150,41 @@ function geocodeAddress(address) {
   });
 }
 
+// Delete a marker from the map and all tracking arrays
+function deleteMarker(marker, place) {
+  if (!marker) return;
+
+  // Remove from map
+  marker.setMap(null);
+
+  // Remove from allMarkers array
+  const allIndex = allMarkers.indexOf(marker);
+  if (allIndex > -1) {
+    allMarkers.splice(allIndex, 1);
+  }
+
+  // Remove from markersByDay array
+  if (place.dayId && markersByDay[place.dayId]) {
+    const dayIndex = markersByDay[place.dayId].indexOf(marker);
+    if (dayIndex > -1) {
+      markersByDay[place.dayId].splice(dayIndex, 1);
+    }
+  }
+
+  // Remove from customMarkers array if it's there
+  const customIndex = customMarkers.indexOf(marker);
+  if (customIndex > -1) {
+    customMarkers.splice(customIndex, 1);
+  }
+
+  // If this marker was from the itinerary, remove the item from itinerary too
+  if (place.fromItinerary && place.dayId && typeof window.removeItemFromDay === 'function') {
+    window.removeItemFromDay(place.dayId, place.label);
+  }
+
+  console.log('Deleted marker:', place.label);
+}
+
 async function addMarkerForPlace(place) {
   if (!geocoder) {
     console.warn('Geocoder not initialized');
@@ -168,10 +203,19 @@ async function addMarkerForPlace(place) {
       icon: markerIcon(cfg.color || "red")
     });
 
+    // Store reference to place data on the marker
+    marker.placeData = place;
+
     const infoHtml = `
       <div style="font-family: 'Cormorant Garamond', serif; font-size: 14px;">
         <strong>${place.label}</strong><br/>
-        <span>${cfg.label || ""}</span>
+        <span>${cfg.label || ""}</span><br/>
+        <button
+          onclick="window.deleteMarkerByLabel('${place.label.replace(/'/g, "\\'")}', '${place.dayId}')"
+          style="margin-top: 8px; padding: 4px 8px; cursor: pointer; background: #dc3545; color: white; border: none; border-radius: 3px; font-size: 12px;"
+        >
+          Delete Pin
+        </button>
       </div>
     `;
     const infoWindow = new google.maps.InfoWindow({ content: infoHtml });
@@ -301,10 +345,21 @@ function searchAndAddPin() {
       alert("Location not found. Try a different search term.");
       return;
     }
-    
+
     const location = results[0].geometry.location;
     const placeName = results[0].formatted_address;
-    
+
+    // Ask which day to add to
+    const dayChoice = prompt("Add '" + query + "' to which day?\n\nEnter: dec3, dec4, dec5, dec6, dec7, dec8, dec9, or 'open' for Open Bin\n(Leave blank to only add pin to map)");
+
+    let dayId = null;
+    if (dayChoice) {
+      dayId = dayChoice.toLowerCase().trim();
+      if (dayId !== 'open' && typeof window.addItemToDay === "function") {
+        window.addItemToDay(dayId, query);
+      }
+    }
+
     const marker = new google.maps.Marker({
       position: location,
       map: map,
@@ -312,31 +367,49 @@ function searchAndAddPin() {
       icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
       animation: google.maps.Animation.DROP
     });
-    
-    const infoContent = '<div style="font-family: \'Cormorant Garamond\', serif;"><strong>' + query + '</strong><br/><span style="font-size: 12px;">' + placeName + '</span></div>';
+
+    // Store place data on marker for deletion
+    marker.placeData = {
+      label: query,
+      dayId: dayId,
+      fromItinerary: !!dayId,
+      query: query + ", Paris, France"
+    };
+
+    const infoContent = `
+      <div style="font-family: 'Cormorant Garamond', serif;">
+        <strong>${query}</strong><br/>
+        <span style="font-size: 12px;">${placeName}</span><br/>
+        <button
+          onclick="window.deleteMarkerByLabel('${query.replace(/'/g, "\\'")}', '${dayId || ''}')"
+          style="margin-top: 8px; padding: 4px 8px; cursor: pointer; background: #dc3545; color: white; border: none; border-radius: 3px; font-size: 12px;"
+        >
+          Delete Pin
+        </button>
+      </div>
+    `;
     const infoWindow = new google.maps.InfoWindow({ content: infoContent });
-    
+
     marker.addListener("click", function() {
       infoWindow.open(map, marker);
     });
-    
+
     customMarkers.push(marker);
     allMarkers.push(marker);
-    
+    if (dayId && dayId !== 'open') {
+      if (!markersByDay[dayId]) {
+        markersByDay[dayId] = [];
+      }
+      markersByDay[dayId].push(marker);
+    }
+
     map.setCenter(location);
     map.setZoom(DETAIL_MAP_ZOOM);
-    
+
     searchInput.value = "";
-    
+
     infoWindow.open(map, marker);
     setTimeout(function() { infoWindow.close(); }, 3000);
-    
-    // Ask which day to add to
-    const dayChoice = prompt("Add '" + query + "' to which day?\n\nEnter: dec3, dec4, dec5, dec6, dec7, dec8, dec9, or 'open' for Open Bin\n(Leave blank to only add pin to map)");
-    
-    if (dayChoice && typeof window.addItemToDay === "function") {
-      window.addItemToDay(dayChoice.toLowerCase().trim(), query);
-    }
   });
 }
 
@@ -355,6 +428,51 @@ function wireSearchButton() {
       }
     });
   }
+}
+
+// Load pins from saved itinerary
+async function loadPinsFromItinerary() {
+  if (typeof window.getItineraryState !== 'function') {
+    console.warn('Itinerary state not available yet');
+    return;
+  }
+
+  const itinState = window.getItineraryState();
+  if (!itinState || !itinState.columns) return;
+
+  const itineraryPlaces = [];
+
+  // Convert all itinerary items (except Open Bin) to places
+  itinState.columns.forEach(col => {
+    if (col.id === 'open') return; // Skip Open Bin
+
+    col.items.forEach(itemText => {
+      // Check if this item already has a pin from PLACES array
+      const alreadyExists = PLACES.some(p =>
+        p.dayId === col.id && p.label === itemText
+      );
+
+      if (!alreadyExists) {
+        itineraryPlaces.push({
+          dayId: col.id,
+          label: itemText,
+          query: itemText + ", Paris, France",
+          fromItinerary: true
+        });
+      }
+    });
+  });
+
+  // Create pins for itinerary items
+  const itineraryPromises = itineraryPlaces.map(place =>
+    addMarkerForPlace(place).catch(err => {
+      console.warn('Failed to add itinerary pin for:', place.label, err);
+      return null;
+    })
+  );
+
+  await Promise.all(itineraryPromises);
+  console.log(`Loaded ${itineraryPlaces.length} pins from itinerary`);
 }
 
 // Google callback
@@ -392,6 +510,9 @@ async function initLiveMap() {
 
   await Promise.all(geocodePromises);
 
+  // Load additional pins from saved itinerary
+  await loadPinsFromItinerary();
+
   wireMapButtons();
   wireSearchButton();
 
@@ -411,10 +532,32 @@ window.addPinForItineraryItem = function(dayId, itemText) {
   const place = {
     dayId: dayId,
     label: itemText,
-    query: itemText + ", Paris, France"
+    query: itemText + ", Paris, France",
+    fromItinerary: true
   };
 
   addMarkerForPlace(place);
+};
+
+// Delete marker by label and dayId (called from info window button)
+window.deleteMarkerByLabel = function(label, dayId) {
+  // Find the marker with matching label and dayId
+  const marker = allMarkers.find(m =>
+    m.placeData &&
+    m.placeData.label === label &&
+    m.placeData.dayId === dayId
+  );
+
+  if (marker && marker.placeData) {
+    if (confirm(`Delete pin for "${label}"?`)) {
+      deleteMarker(marker, marker.placeData);
+
+      // Refit map to visible markers after deletion
+      fitMapToVisibleMarkers();
+    }
+  } else {
+    console.warn('Marker not found for:', label, dayId);
+  }
 };
 
 })(); // End of IIFE
