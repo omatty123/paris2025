@@ -1,5 +1,9 @@
 // map.js
-// FINAL VERSION: France-only geocoding + Rouen on Dec 5 + Home Base always visible.
+// France only geocoding
+// - Dec 5 -> Rouen, France
+// - All other days + Open Bin -> Paris, France
+// Home base star always visible
+// Today button (Paris timezone) filters to the correct day
 
 (function () {
   "use strict";
@@ -24,7 +28,7 @@
     dec9: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
     open: "http://maps.google.com/mapfiles/ms/icons/grey-dot.png",
 
-    // STAR for Home Base
+    // Star for home base
     home: "https://maps.google.com/mapfiles/kml/shapes/star.png"
   };
 
@@ -40,7 +44,7 @@
     home: "Home Base"
   };
 
-  // GOOGLE MAP INIT
+  // Google Maps init callback
   window.initGoogleMap = function () {
     geocoder = new google.maps.Geocoder();
 
@@ -57,6 +61,7 @@
     setupSearch();
   };
 
+  // Wait until itinerary.js is ready
   function renderPinsWhenReady() {
     const s = window.getItineraryState && window.getItineraryState();
     if (!s || !s.columns) {
@@ -71,7 +76,7 @@
     markers = [];
   }
 
-  // HOME ALWAYS SHOWN
+  // Always visible Home Base marker
   function addHomeMarker() {
     const marker = new google.maps.Marker({
       position: HOME_POSITION,
@@ -90,7 +95,7 @@
     markers.push(marker);
   }
 
-  // RENDER ITINERARY PINS
+  // Render all itinerary pins once
   function renderAllPins(state) {
     clearMarkers();
     addHomeMarker();
@@ -102,32 +107,54 @@
       if (col.id === "open") return;
 
       col.items.forEach(item => {
+        if (shouldSkipItem(item)) {
+          return;
+        }
         pinsToLoad++;
         geocodeAndMark(item, col.id, false);
       });
     });
+
+    // Edge case: if there are no items, just keep home base as is
+    if (pinsToLoad === 0) {
+      fitAllPins();
+    }
   }
 
-  // FORCE FRANCE GEOCODING
-  function getForcedLocation(query, dayId) {
+  // Some items should not create pins
+  function shouldSkipItem(text) {
+    if (!text) return true;
 
-    // Day 5 is Rouen ONLY
+    const lower = text.toLowerCase();
+    if (lower.includes("walk home")) return true;
+
+    return false;
+  }
+
+  // Force France geocoding with Paris vs Rouen
+  function getForcedLocation(query, dayId) {
     if (dayId === "dec5") {
+      // Rouen day
       return `${query}, Rouen, France`;
     }
-
-    // All other days & open bin = PARIS
+    // Everything else including Open Bin = Paris
     return `${query}, Paris, France`;
   }
 
-  // GEOCODE & MARK
+  // Geocode and place a marker
   function geocodeAndMark(text, dayId, center) {
+    if (!text || !text.trim()) {
+      return;
+    }
+
     const forcedQuery = getForcedLocation(text, dayId);
 
     geocoder.geocode({ address: forcedQuery }, (results, status) => {
-      if (status !== "OK" || !results?.length) {
+      if (status !== "OK" || !results || !results.length) {
         pinsLoaded++;
-        if (pinsLoaded === pinsToLoad) fitAllPins();
+        if (pinsLoaded === pinsToLoad) {
+          fitAllPins();
+        }
         return;
       }
 
@@ -162,17 +189,18 @@
     });
   }
 
+  // For itinerary.js to drop a pin on add
   window.addPinForItineraryItem = function (dayId, text) {
     geocodeAndMark(text, dayId, true);
   };
 
-  // ALWAYS KEEP HOME BASE VISIBLE
+  // FILTERS including Today
   function setupFilters() {
-    function filter(dayId) {
-
+    function applyFilter(dayId) {
+      // Hide everything
       markers.forEach(m => m.setMap(null));
 
-      // Always show HOME
+      // Always show Home Base
       markers.forEach(m => {
         if (m.dayId === "home") m.setMap(map);
       });
@@ -192,34 +220,80 @@
       fitAllPins();
     }
 
-    document.getElementById("mapShowAll").onclick = () => filter("all");
-    document.getElementById("mapClear").onclick = () => filter("all");
+    const showAllBtn = document.getElementById("mapShowAll");
+    const clearBtn = document.getElementById("mapClear");
+    const todayBtn = document.getElementById("mapToday");
 
+    if (showAllBtn) {
+      showAllBtn.onclick = () => applyFilter("all");
+    }
+
+    if (clearBtn) {
+      clearBtn.onclick = () => applyFilter("all");
+    }
+
+    // Day buttons dec3 to dec9
     document.querySelectorAll("[data-day]").forEach(btn => {
-      btn.onclick = () => filter(btn.dataset.day);
+      btn.onclick = () => applyFilter(btn.dataset.day);
     });
+
+    // Today button based on Paris date
+    if (todayBtn) {
+      todayBtn.onclick = () => {
+        const todayStr = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Europe/Paris",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        }).format(new Date());
+
+        const DAY_MAP = {
+          "2025-12-03": "dec3",
+          "2025-12-04": "dec4",
+          "2025-12-05": "dec5",
+          "2025-12-06": "dec6",
+          "2025-12-07": "dec7",
+          "2025-12-08": "dec8",
+          "2025-12-09": "dec9"
+        };
+
+        const d = DAY_MAP[todayStr];
+
+        if (!d) {
+          // Outside the travel window
+          applyFilter("all");
+          return;
+        }
+
+        applyFilter(d);
+      };
+    }
   }
 
-  // FIT MAP TO ALL VISIBLE MARKERS
+  // Fit map to all visible markers
   function fitAllPins() {
     const visible = markers.filter(m => m.getMap());
-    if (visible.length === 0) return;
+    if (!visible.length) return;
 
     const bounds = new google.maps.LatLngBounds();
     visible.forEach(m => bounds.extend(m.getPosition()));
     map.fitBounds(bounds);
   }
 
-  // SEARCH ADDS TO OPEN BIN (Paris)
+  // Search adds to Open Bin (Paris)
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
+
+    if (!input || !btn) return;
 
     btn.onclick = () => {
       const text = input.value.trim();
       if (!text) return;
 
-      window.addItemToDay("open", text);
+      if (typeof window.addItemToDay === "function") {
+        window.addItemToDay("open", text);
+      }
       geocodeAndMark(text, "open", true);
       input.value = "";
     };
