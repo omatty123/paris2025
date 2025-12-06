@@ -69,9 +69,9 @@
       <button class="map-filter-btn" id="mapShowAll">
         <i class="fas fa-globe"></i> Show all
       </button>
-      <button class="map-filter-btn" id="mapToday">
-        <i class="fas fa-sun"></i> Today
-      </button>
+
+      <!-- ❗ NO Today button here; only map.js will add it dynamically -->
+
       <button class="map-filter-btn" data-day="dec3">Dec 3</button>
       <button class="map-filter-btn" data-day="dec4">Dec 4</button>
       <button class="map-filter-btn" data-day="dec5">Dec 5</button>
@@ -79,6 +79,7 @@
       <button class="map-filter-btn" data-day="dec7">Dec 7</button>
       <button class="map-filter-btn" data-day="dec8">Dec 8</button>
       <button class="map-filter-btn" data-day="dec9">Dec 9</button>
+
       <button class="map-filter-btn" id="mapClear">
         <i class="fas fa-eye-slash"></i> Clear filters
       </button>
@@ -147,7 +148,7 @@
   <script src="itinerary.js"></script>
   <script src="map.js"></script>
 
-  <!-- GOOGLE MAPS SCRIPT -->
+  <!-- GOOGLE MAPS SCRIPT: CORRECT CALLBACK -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initGoogleMap"
     async
