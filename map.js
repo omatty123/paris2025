@@ -1,5 +1,6 @@
 // map.js
-// Google Maps with France anchored geocoding, Paris overrides, home star, bounds fit.
+// Stable Google Maps version using classic google.maps.Marker.
+// Paris-only geocoding except Dec 5 → Rouen. Home base star. Tight bounds.
 
 (function () {
   "use strict";
@@ -9,10 +10,11 @@
   let markers = [];
   let bounds;
 
-  // Home coordinates
+  // HOME BASE — STAR ICON
   const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
+  const HOME_ICON = "http://maps.google.com/mapfiles/kml/shapes/star.png";
 
-  // Icon set
+  // Classic colored pin URLs
   const DAY_ICONS = {
     dec3: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
     dec4: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -22,14 +24,13 @@
     dec8: "http://maps.google.com/mapfiles/ms/icons/brown-dot.png",
     dec9: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
     open: "http://maps.google.com/mapfiles/ms/icons/grey-dot.png",
-    home: "http://maps.google.com/mapfiles/kml/shapes/star.png"
+    home: HOME_ICON
   };
 
-  // Labels
   const DAY_LABELS = {
     dec3: "Dec 3",
     dec4: "Dec 4",
-    dec5: "Dec 5",
+    dec5: "Dec 5 (Rouen)",
     dec6: "Dec 6",
     dec7: "Dec 7",
     dec8: "Dec 8",
@@ -38,17 +39,16 @@
     home: "Home Base"
   };
 
-  // Hard overrides for vague Paris items
-  const PARIS_OVERRIDES = {
-    "nationale": "Nationale Metro Station, Paris",
-    "la halte": "La Halte, 12 Rue Philibert Lucot, 75013 Paris",
-    "les chiffonniers": "Les Chiffonniers, 108 Rue de Patay, 75013 Paris",
-    "walk home": null
-  };
+  const SKIP_ITEMS = ["walk home"];
 
-  // Google callback
+  // -------------------------------------------------------------
+  // INITIALIZE MAP
+  // -------------------------------------------------------------
   window.initGoogleMap = function () {
+    console.log("Google Maps initializing");
+
     geocoder = new google.maps.Geocoder();
+    bounds = new google.maps.LatLngBounds();
 
     map = new google.maps.Map(document.getElementById("liveMap"), {
       center: HOME_POSITION,
@@ -57,36 +57,21 @@
       streetViewControl: false
     });
 
-    bounds = new google.maps.LatLngBounds();
-
     addHomeMarker();
     renderPinsWhenReady();
     setupFilters();
     setupSearch();
   };
 
-  function renderPinsWhenReady() {
-    const state = window.getItineraryState && window.getItineraryState();
-    if (!state || !state.columns) {
-      setTimeout(renderPinsWhenReady, 300);
-      return;
-    }
-    renderAllPins(state);
-  }
-
-  function clearMarkers() {
-    markers.forEach(m => m.setMap(null));
-    markers = [];
-    bounds = new google.maps.LatLngBounds();
-  }
-
-  // Add the fixed home marker
+  // -------------------------------------------------------------
+  // Add HOME STAR marker
+  // -------------------------------------------------------------
   function addHomeMarker() {
     const marker = new google.maps.Marker({
       position: HOME_POSITION,
       map,
       title: "Home Base",
-      icon: DAY_ICONS.home
+      icon: HOME_ICON
     });
 
     const inf = new google.maps.InfoWindow({
@@ -94,53 +79,75 @@
     });
 
     marker.addListener("click", () => inf.open(map, marker));
-
     marker.dayId = "home";
+
     markers.push(marker);
     bounds.extend(HOME_POSITION);
   }
 
-  // Render every itinerary entry
+  // -------------------------------------------------------------
+  // Render pins only after itinerary.js is ready
+  // -------------------------------------------------------------
+  function renderPinsWhenReady() {
+    const state = window.getItineraryState && window.getItineraryState();
+    if (!state || !state.columns) {
+      return setTimeout(renderPinsWhenReady, 300);
+    }
+    renderAllPins(state);
+  }
+
+  // -------------------------------------------------------------
+  // Clear all pins
+  // -------------------------------------------------------------
+  function clearMarkers() {
+    markers.forEach(m => m.setMap(null));
+    markers = [];
+    bounds = new google.maps.LatLngBounds();
+  }
+
+  // -------------------------------------------------------------
+  // Render ALL itinerary pins
+  // -------------------------------------------------------------
   function renderAllPins(state) {
     clearMarkers();
     addHomeMarker();
 
     state.columns.forEach(col => {
+      if (col.id === "open") return;
       col.items.forEach(item => {
         geocodeAndMark(item, col.id, false);
       });
     });
-
-    map.fitBounds(bounds);
   }
 
-  // Geocode with France anchoring and Paris override
+  // -------------------------------------------------------------
+  // GEOCODING RULES:
+  //
+  //  • Dec 5 → Everything = "..., Rouen, France"
+  //  • All other days → "..., Paris, France"
+  //  • Skip items like "Walk Home"
+  // -------------------------------------------------------------
   function geocodeAndMark(text, dayId, centerMap) {
-    let key = text.trim().toLowerCase();
-    let query = text;
+    const raw = text.trim().toLowerCase();
 
-    // Override block
-    if (PARIS_OVERRIDES.hasOwnProperty(key)) {
-      const override = PARIS_OVERRIDES[key];
-
-      if (!override) {
-        console.log("No pin generated for", text);
-        return;
-      }
-
-      query = override;
+    // Skip certain items
+    if (SKIP_ITEMS.includes(raw)) {
+      console.log("Skipping:", text);
+      return;
     }
 
-    // Force France for every location
-    let q = query;
-    const lowerQ = q.toLowerCase();
-    if (!lowerQ.includes("france")) {
-      q = q + ", France";
+    let query;
+    if (dayId === "dec5") {
+      query = text + ", Rouen, France";
+    } else {
+      query = text + ", Paris, France";
     }
 
-    geocoder.geocode({ address: q }, (results, status) => {
-      if (status !== "OK" || !results || results.length === 0) {
-        console.log("Geocode failed for", text, "query was", q);
+    console.log("Geocoding:", query);
+
+    geocoder.geocode({ address: query }, (results, status) => {
+      if (status !== "OK" || !results?.length) {
+        console.warn("Geocode failed:", text, "→", query);
         return;
       }
 
@@ -156,7 +163,7 @@
       marker.dayId = dayId;
 
       const inf = new google.maps.InfoWindow({
-        content: "<b>" + text + "</b><br>" + (DAY_LABELS[dayId] || "")
+        content: `<b>${text}</b><br>${DAY_LABELS[dayId] || ""}`
       });
 
       marker.addListener("click", () => inf.open(map, marker));
@@ -173,50 +180,78 @@
     });
   }
 
-  // Exposed for itinerary dragging
+  // Exposed for itinerary.js
   window.addPinForItineraryItem = function (dayId, text) {
     geocodeAndMark(text, dayId, true);
   };
 
-  // Filter buttons
+  // -------------------------------------------------------------
+  // FILTER BUTTONS + TODAY BUTTON
+  // -------------------------------------------------------------
   function setupFilters() {
     function filter(dayId) {
-      clearMarkers();
-      addHomeMarker();
-
-      const visible = [];
-
       markers.forEach(m => m.setMap(null));
 
       if (dayId === "all") {
-        renderPinsWhenReady();
+        markers.forEach(m => m.setMap(map));
+        refit();
         return;
       }
 
-      const state = window.getItineraryState && window.getItineraryState();
-      if (!state) return;
-
-      state.columns.forEach(col => {
-        if (col.id === dayId) {
-          col.items.forEach(item => {
-            geocodeAndMark(item, col.id, false);
-          });
-        }
+      markers.forEach(m => {
+        if (m.dayId === dayId) m.setMap(map);
       });
+      refit();
+    }
 
-      map.fitBounds(bounds);
+    function refit() {
+      const b = new google.maps.LatLngBounds();
+      markers.forEach(m => {
+        if (m.getMap()) b.extend(m.getPosition());
+      });
+      map.fitBounds(b);
     }
 
     document.getElementById("mapShowAll").onclick = () => filter("all");
     document.getElementById("mapClear").onclick = () => filter("all");
 
-    const btns = document.querySelectorAll("[data-day]");
-    btns.forEach(btn => {
+    // Dynamically restore TODAY button
+    const todayBtn = document.createElement("button");
+    todayBtn.className = "map-filter-btn";
+    todayBtn.textContent = "Today";
+    todayBtn.onclick = () => {
+      const col = detectTodayColumn();
+      if (col) filter(col);
+    };
+    document.querySelector(".map-filters").appendChild(todayBtn);
+
+    document.querySelectorAll("[data-day]").forEach(btn => {
       btn.onclick = () => filter(btn.dataset.day);
     });
   }
 
-  // Search field
+  // Determine today's column (Paris time)
+  function detectTodayColumn() {
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Paris"
+    }).format(new Date());
+
+    const map = {
+      "2025-12-03": "dec3",
+      "2025-12-04": "dec4",
+      "2025-12-05": "dec5",
+      "2025-12-06": "dec6",
+      "2025-12-07": "dec7",
+      "2025-12-08": "dec8",
+      "2025-12-09": "dec9"
+    };
+
+    return map[today] || null;
+  }
+
+  // -------------------------------------------------------------
+  // SEARCH BOX → Adds to Open Bin (Paris only)
+  // -------------------------------------------------------------
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
@@ -227,9 +262,7 @@
 
       window.addItemToDay("open", text);
       geocodeAndMark(text, "open", true);
-
       input.value = "";
     };
   }
-
 })();
