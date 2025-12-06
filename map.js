@@ -12,9 +12,10 @@ const MAX_DETAIL_ZOOM = 14;
 let map;
 let geocoder;
 
+// Home coordinates for 7 Avenue Stephen Pichon, Bâtiment B, 13ᵉ arrondissement, Paris
 const HOME = {
-  lat: 48.8334836,
-  lng: 2.3571846
+  lat: 48.8288,
+  lng: 2.3565
 };
 
 // Trip dates for the Today button (Paris time)
@@ -441,7 +442,7 @@ async function initLiveMap() {
   homeMarker = new google.maps.Marker({
     position: HOME,
     map,
-    title: "Home base",
+    title: "Home base: 7 Avenue Stephen Pichon, Bâtiment B, 13ᵉ arrondissement",
     icon: HOME_ICON
   });
 
