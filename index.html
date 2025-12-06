@@ -8,6 +8,12 @@
   <!-- Cormorant Garamond -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Leaflet CSS (restored) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
   <!-- Font Awesome -->
   <link
     rel="stylesheet"
@@ -16,7 +22,7 @@
     referrerpolicy="no-referrer"
   />
 
-  <!-- CSS -->
+  <!-- Local CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -26,7 +32,7 @@
     <div class="header-top">
       <div class="title-row">
         <h1>Paris December 2025</h1>
-        <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris → Detroit → Appleton</p>
+        <p class="subtitle">December 2 to 8, 2025 · Appleton → Detroit → Paris / Rouen / Paris → Detroit → Appleton</p>
       </div>
 
       <div class="paris-time">
@@ -37,7 +43,7 @@
 
     <div class="header-buttons">
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
-        <i class="fas fa-route"></i> RATP directions
+        <i class="fas fa-route"></i> RRATP directions
       </a>
 
       <a
@@ -67,7 +73,7 @@
       7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement · Each itinerary item is pinned on this map by date
     </p>
 
-    <!-- FILTER BUTTONS -->
+    <!-- FILTERS -->
     <div class="map-filters">
       <button class="map-filter-btn" id="mapShowAll">
         <i class="fas fa-globe"></i> Show all pins
@@ -87,7 +93,7 @@
       </button>
     </div>
 
-    <!-- SEARCH BOX -->
+    <!-- SEARCH -->
     <div class="map-search-container">
       <input 
         type="text" 
@@ -108,7 +114,6 @@
   <!-- ITINERARY -->
   <section class="card itinerary-section">
 
-    <!-- BUTTON ROW ONLY -->
     <div class="itinerary-controls-row itinerary-controls">
       <button id="resetBtn">Reset</button>
       <button id="githubToken">Set</button>
@@ -119,10 +124,8 @@
     <div id="githubStatus" class="github-status"></div>
 
     <div class="itinerary-layout">
-      <!-- Left: dynamic days -->
       <div id="daysColumn" class="days-column"></div>
 
-      <!-- Right: Fixed Open Bin -->
       <aside class="open-bin-section">
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
@@ -151,28 +154,13 @@
     </div>
   </section>
 
-  <!-- JS -->
+  <!-- Leaflet JS (restored) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Local scripts -->
   <script src="app.js"></script>
   <script src="map.js"></script>
-
-  <!--
-    ⚠️ SECURITY WARNING ⚠️
-    The Google Maps API key below is exposed in the frontend code.
-
-    To secure this API key:
-    1. Go to Google Cloud Console → Credentials → API Keys
-    2. Add HTTP referrer restrictions for your domain
-    3. Restrict to "Maps JavaScript API" only
-    4. Set daily quota limits
-
-    For production: Use a backend proxy to hide the API key.
-    See README.md for more information.
-  -->
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap"
-    async
-  ></script>
-
   <script src="itinerary.js"></script>
+
 </body>
 </html>
