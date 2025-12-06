@@ -1,6 +1,8 @@
 // map.js
-// Stable Google Maps version using classic google.maps.Marker.
-// Home Base always visible on all filters.
+// Stable Google Maps version with:
+// - Home Base always visible
+// - Default map auto-fit AFTER all pins load
+// - Correct filtering
 
 (function () {
   "use strict";
@@ -9,10 +11,14 @@
   let geocoder;
   let markers = [];
 
-  // HOME BASE — star coordinate
+  // Track pins loading for proper auto-fit
+  let pinsToLoad = 0;
+  let pinsLoaded = 0;
+
+  // HOME BASE
   const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
 
-  // Classic colored pin URLs
+  // Pin icons
   const DAY_ICONS = {
     dec3: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
     dec4: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -23,7 +29,7 @@
     dec9: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
     open: "http://maps.google.com/mapfiles/ms/icons/grey-dot.png",
 
-    // ★ STAR for Home Base
+    // ★ STAR for home base
     home: "https://maps.google.com/mapfiles/kml/shapes/star.png"
   };
 
@@ -56,7 +62,7 @@
     setupSearch();
   };
 
-  // Wait for itinerary.js
+  // Wait until itinerary.js gives state
   function renderPinsWhenReady() {
     const s = window.getItineraryState && window.getItineraryState();
     if (!s || !s.columns) {
@@ -71,7 +77,7 @@
     markers = [];
   }
 
-  // HOME MARKER (ALWAYS SHOWN)
+  // ALWAYS visible Home Base marker
   function addHomeMarker() {
     const marker = new google.maps.Marker({
       position: HOME_POSITION,
@@ -85,7 +91,6 @@
     });
 
     marker.addListener("click", () => inf.open(map, marker));
-
     marker.dayId = "home";
     markers.push(marker);
   }
@@ -95,18 +100,29 @@
     clearMarkers();
     addHomeMarker();
 
+    pinsLoaded = 0;
+    pinsToLoad = 0;
+
+    // Count all pins BEFORE geocoding
     state.columns.forEach(col => {
       if (col.id === "open") return;
-      col.items.forEach(item => geocodeAndMark(item, col.id, false));
+      col.items.forEach(item => {
+        pinsToLoad++;
+        geocodeAndMark(item, col.id, false);
+      });
     });
   }
 
-  // Geocode + place pin
+  // Geocode and place marker
   function geocodeAndMark(text, dayId, center) {
     const query = text;
 
     geocoder.geocode({ address: query }, (results, status) => {
-      if (status !== "OK" || !results?.length) return;
+      if (status !== "OK" || !results?.length) {
+        pinsLoaded++;
+        if (pinsLoaded === pinsToLoad) fitAllPins();
+        return;
+      }
 
       const loc = results[0].geometry.location;
 
@@ -127,6 +143,11 @@
 
       markers.push(marker);
 
+      pinsLoaded++;
+      if (pinsLoaded === pinsToLoad) {
+        fitAllPins();
+      }
+
       if (center) {
         map.setCenter(loc);
         map.setZoom(15);
@@ -138,29 +159,30 @@
     geocodeAndMark(text, dayId, true);
   };
 
-  // ⭐ FILTERS — FIXED SO HOME BASE ALWAYS SHOWS
+  // ⭐ Always show HOME marker in all filters
   function setupFilters() {
     function filter(dayId) {
-      // Hide everything
+      // Hide everything first
       markers.forEach(m => m.setMap(null));
 
-      // ALWAYS show home base
+      // Always show home
       markers.forEach(m => {
         if (m.dayId === "home") m.setMap(map);
       });
 
       if (dayId === "all") {
-        // Show all non-home markers too
         markers.forEach(m => {
           if (m.dayId !== "home") m.setMap(map);
         });
+        fitAllPins();
         return;
       }
 
-      // Show only selected day’s markers + home
       markers.forEach(m => {
         if (m.dayId === dayId) m.setMap(map);
       });
+
+      fitAllPins();
     }
 
     document.getElementById("mapShowAll").onclick = () => filter("all");
@@ -171,7 +193,16 @@
     });
   }
 
-  // Search bar: add to Open Bin
+  // Fit the map to all visible markers
+  function fitAllPins() {
+    if (markers.length === 0) return;
+
+    const bounds = new google.maps.LatLngBounds();
+    markers.forEach(m => bounds.extend(m.getPosition()));
+    map.fitBounds(bounds);
+  }
+
+  // Search bar add → open bin
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
