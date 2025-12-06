@@ -1,9 +1,11 @@
 // map.js
-// France only geocoding
+// France-only geocoding
 // - Dec 5 -> Rouen, France
 // - All other days + Open Bin -> Paris, France
 // Home base star always visible
-// Today button (Paris timezone) filters to the correct day
+// Today button uses real Paris date:
+//   - If today is Dec 3–9, 2025 -> show that day's pins + home
+//   - Otherwise -> show only home base
 
 (function () {
   "use strict";
@@ -12,10 +14,11 @@
   let geocoder;
   let markers = [];
 
+  // For initial fit after all geocodes
   let pinsToLoad = 0;
   let pinsLoaded = 0;
 
-  // HOME BASE (Paris 13e)
+  // Home base coordinates (locked)
   const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
 
   const DAY_ICONS = {
@@ -61,7 +64,7 @@
     setupSearch();
   };
 
-  // Wait until itinerary.js is ready
+  // Wait until itinerary.js has set up state
   function renderPinsWhenReady() {
     const s = window.getItineraryState && window.getItineraryState();
     if (!s || !s.columns) {
@@ -76,7 +79,6 @@
     markers = [];
   }
 
-  // Always visible Home Base marker
   function addHomeMarker() {
     const marker = new google.maps.Marker({
       position: HOME_POSITION,
@@ -95,7 +97,7 @@
     markers.push(marker);
   }
 
-  // Render all itinerary pins once
+  // Render all itinerary pins at startup
   function renderAllPins(state) {
     clearMarkers();
     addHomeMarker();
@@ -107,47 +109,44 @@
       if (col.id === "open") return;
 
       col.items.forEach(item => {
-        if (shouldSkipItem(item)) {
-          return;
-        }
+        if (shouldSkipItem(item)) return;
         pinsToLoad++;
         geocodeAndMark(item, col.id, false);
       });
     });
 
-    // Edge case: if there are no items, just keep home base as is
     if (pinsToLoad === 0) {
+      // Only home base
       fitAllPins();
     }
   }
 
-  // Some items should not create pins
+  // Items that should not create pins
   function shouldSkipItem(text) {
     if (!text) return true;
-
     const lower = text.toLowerCase();
+
+    // Do not pin walking home
     if (lower.includes("walk home")) return true;
 
     return false;
   }
 
-  // Force France geocoding with Paris vs Rouen
-  function getForcedLocation(query, dayId) {
+  // Force everything into France
+  function getForcedQuery(text, dayId) {
     if (dayId === "dec5") {
       // Rouen day
-      return `${query}, Rouen, France`;
+      return text + ", Rouen, France";
     }
-    // Everything else including Open Bin = Paris
-    return `${query}, Paris, France`;
+    // Everything else including Open Bin is Paris
+    return text + ", Paris, France";
   }
 
-  // Geocode and place a marker
+  // Geocode and create marker
   function geocodeAndMark(text, dayId, center) {
-    if (!text || !text.trim()) {
-      return;
-    }
+    if (!text || !text.trim()) return;
 
-    const forcedQuery = getForcedLocation(text, dayId);
+    const forcedQuery = getForcedQuery(text, dayId);
 
     geocoder.geocode({ address: forcedQuery }, (results, status) => {
       if (status !== "OK" || !results || !results.length) {
@@ -189,34 +188,47 @@
     });
   }
 
-  // For itinerary.js to drop a pin on add
+  // For itinerary.js to add a pin when a new item is created
   window.addPinForItineraryItem = function (dayId, text) {
     geocodeAndMark(text, dayId, true);
   };
 
-  // FILTERS including Today
+  // Show only home base on map
+  function showOnlyHome() {
+    markers.forEach(m => m.setMap(null));
+    markers.forEach(m => {
+      if (m.dayId === "home") m.setMap(map);
+    });
+    fitAllPins();
+  }
+
+  // Fit map to all visible markers
+  function fitAllPins() {
+    const visible = markers.filter(m => m.getMap());
+    if (!visible.length) return;
+
+    const bounds = new google.maps.LatLngBounds();
+    visible.forEach(m => bounds.extend(m.getPosition()));
+    map.fitBounds(bounds);
+  }
+
+  // Filters including Today
   function setupFilters() {
     function applyFilter(dayId) {
-      // Hide everything
-      markers.forEach(m => m.setMap(null));
-
-      // Always show Home Base
-      markers.forEach(m => {
-        if (m.dayId === "home") m.setMap(map);
-      });
-
       if (dayId === "all") {
-        markers.forEach(m => {
-          if (m.dayId !== "home") m.setMap(map);
-        });
+        // Show everything including home
+        markers.forEach(m => m.setMap(map));
         fitAllPins();
         return;
       }
 
+      // Day specific filter: always include home
+      markers.forEach(m => m.setMap(null));
       markers.forEach(m => {
-        if (m.dayId === dayId) m.setMap(map);
+        if (m.dayId === "home" || m.dayId === dayId) {
+          m.setMap(map);
+        }
       });
-
       fitAllPins();
     }
 
@@ -237,10 +249,10 @@
       btn.onclick = () => applyFilter(btn.dataset.day);
     });
 
-    // Today button based on Paris date
+    // Today button: real Paris date, mapped to trip dates
     if (todayBtn) {
       todayBtn.onclick = () => {
-        const todayStr = new Intl.DateTimeFormat("en-CA", {
+        const parisToday = new Intl.DateTimeFormat("en-CA", {
           timeZone: "Europe/Paris",
           year: "numeric",
           month: "2-digit",
@@ -257,30 +269,20 @@
           "2025-12-09": "dec9"
         };
 
-        const d = DAY_MAP[todayStr];
+        const dayId = DAY_MAP[parisToday];
 
-        if (!d) {
-          // Outside the travel window
-          applyFilter("all");
+        // Outside trip dates: only home base
+        if (!dayId) {
+          showOnlyHome();
           return;
         }
 
-        applyFilter(d);
+        applyFilter(dayId);
       };
     }
   }
 
-  // Fit map to all visible markers
-  function fitAllPins() {
-    const visible = markers.filter(m => m.getMap());
-    if (!visible.length) return;
-
-    const bounds = new google.maps.LatLngBounds();
-    visible.forEach(m => bounds.extend(m.getPosition()));
-    map.fitBounds(bounds);
-  }
-
-  // Search adds to Open Bin (Paris)
+  // Search box: add to Open Bin as Paris locations
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
