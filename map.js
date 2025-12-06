@@ -14,8 +14,8 @@ let geocoder;
 
 // Home coordinates for 7 Avenue Stephen Pichon, Bâtiment B, 13ᵉ arrondissement, Paris
 const HOME = {
-  lat: 48.8288,
-  lng: 2.3565
+  lat: 48.8320,
+  lng: 2.3580
 };
 
 // Trip dates for the Today button (Paris time)
@@ -387,15 +387,25 @@ function wireSearchButton() {
   }
 }
 
-// Load pins from saved itinerary
-async function loadPinsFromItinerary() {
+// Load pins from saved itinerary (with retry logic for timing issues)
+async function loadPinsFromItinerary(retryCount = 0) {
+  const maxRetries = 10;
+
   if (typeof window.getItineraryState !== 'function') {
-    console.warn('Itinerary state not available yet');
+    if (retryCount < maxRetries) {
+      console.log(`Itinerary not ready yet, retry ${retryCount + 1}/${maxRetries}...`);
+      setTimeout(() => loadPinsFromItinerary(retryCount + 1), 200);
+      return;
+    }
+    console.warn('Itinerary state not available after retries');
     return;
   }
 
   const itinState = window.getItineraryState();
-  if (!itinState || !itinState.columns) return;
+  if (!itinState || !itinState.columns) {
+    console.warn('Itinerary state is empty');
+    return;
+  }
 
   const itineraryPlaces = [];
 
@@ -413,6 +423,8 @@ async function loadPinsFromItinerary() {
     });
   });
 
+  console.log(`Found ${itineraryPlaces.length} items in itinerary to create pins for`);
+
   // Create pins for itinerary items
   const itineraryPromises = itineraryPlaces.map(place =>
     addMarkerForPlace(place).catch(err => {
@@ -422,7 +434,10 @@ async function loadPinsFromItinerary() {
   );
 
   await Promise.all(itineraryPromises);
-  console.log(`Loaded ${itineraryPlaces.length} pins from itinerary`);
+  console.log(`Successfully loaded ${itineraryPlaces.length} pins from itinerary`);
+
+  // Fit map to show all markers
+  fitMapToVisibleMarkers();
 }
 
 // Google callback
