@@ -56,19 +56,14 @@
 
   <!-- MAP -->
   <section class="card map-section">
-    <h2 class="section-title">
-      <i class="fas fa-house-chimney"></i> Home base and daily pins
-    </h2>
-
+    <h2 class="section-title"><i class="fas fa-house-chimney"></i> Home base and daily pins</h2>
     <p class="section-subtitle">
       7 Avenue Stephen Pichon · 13ᵉ arrondissement · Each itinerary item is pinned by date
     </p>
 
     <!-- FILTERS -->
     <div class="map-filters">
-      <button class="map-filter-btn" id="mapShowAll">
-        <i class="fas fa-globe"></i> Show all
-      </button>
+      <button class="map-filter-btn" id="mapShowAll"><i class="fas fa-globe"></i> Show all</button>
       <button class="map-filter-btn" data-day="dec3">Dec 3</button>
       <button class="map-filter-btn" data-day="dec4">Dec 4</button>
       <button class="map-filter-btn" data-day="dec5">Dec 5</button>
@@ -76,22 +71,13 @@
       <button class="map-filter-btn" data-day="dec7">Dec 7</button>
       <button class="map-filter-btn" data-day="dec8">Dec 8</button>
       <button class="map-filter-btn" data-day="dec9">Dec 9</button>
-      <button class="map-filter-btn" id="mapClear">
-        <i class="fas fa-eye-slash"></i> Clear filters
-      </button>
+      <button class="map-filter-btn" id="mapClear"><i class="fas fa-eye-slash"></i> Clear</button>
     </div>
 
     <!-- SEARCH -->
     <div class="map-search-container">
-      <input
-        type="text"
-        id="mapSearchInput"
-        class="map-search-input"
-        placeholder="Search for a place…"
-      />
-      <button id="mapSearchBtn" class="map-search-btn">
-        <i class="fas fa-search"></i> Add
-      </button>
+      <input id="mapSearchInput" class="map-search-input" type="text" placeholder="Search for a place…" />
+      <button id="mapSearchBtn" class="map-search-btn"><i class="fas fa-search"></i> Add</button>
     </div>
 
     <div class="map-container">
@@ -117,40 +103,29 @@
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
             <div class="day-title-container">
-              <h4>
-                <i class="fas fa-inbox"></i> Open Bin
-              </h4>
+              <h4><i class="fas fa-inbox"></i> Open Bin</h4>
             </div>
 
             <div class="add-item-container">
-              <input
-                type="text"
-                id="openBinInput"
-                class="add-item-input"
-                placeholder="Add event…"
-              />
+              <input type="text" id="openBinInput" class="add-item-input" placeholder="Add event…" />
               <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
           </div>
 
-          <div
-            id="openBinList"
-            class="itinerary-list"
-            data-day="open"
-          ></div>
+          <div id="openBinList" class="itinerary-list" data-day="open"></div>
         </div>
       </aside>
     </div>
   </section>
 
-  <!-- Local Scripts -->
+  <!-- LOCAL SCRIPTS -->
   <script src="app.js"></script>
   <script src="itinerary.js"></script>
   <script src="map.js"></script>
 
-  <!-- GOOGLE MAPS LOADED LAST WITH CORRECT CALLBACK -->
+  <!-- GOOGLE MAPS SCRIPT: correct callback = initMap -->
   <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initGoogleMap"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initMap"
     async
     defer
   ></script>
