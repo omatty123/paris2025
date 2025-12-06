@@ -1,10 +1,9 @@
 // map.js
-// Google Maps version with:
-// - HOME BASE restored
-// - Auto fit-to-bounds
-// - "Today" button restored
-// - Paris-only geocoding (except Rouen)
-// - No forced country errors
+// Google Maps with:
+// - Home Base star marker
+// - All geocoding anchored to France
+// - Fit bounds for visible markers
+// - Today filter using Paris time
 
 (function () {
   "use strict";
@@ -14,10 +13,10 @@
   let markers = [];
   let bounds;
 
-  // HOME BASE — correct coordinates
+  // Home Base coordinates
   const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
 
-  // Classic pin colors
+  // Classic pin icons
   const DAY_ICONS = {
     dec3: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
     dec4: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -27,10 +26,10 @@
     dec8: "http://maps.google.com/mapfiles/ms/icons/brown-dot.png",
     dec9: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
     open: "http://maps.google.com/mapfiles/ms/icons/grey-dot.png",
-    home: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+    // star for home
+    home: "http://maps.google.com/mapfiles/kml/shapes/star.png"
   };
 
-  // Labels
   const DAY_LABELS = {
     dec3: "Dec 3",
     dec4: "Dec 4",
@@ -43,16 +42,15 @@
     home: "Home Base"
   };
 
-  // Determine today's dayId in Paris timezone
   function getTodayDayId() {
-    const paris = new Intl.DateTimeFormat("en-CA", {
+    const parisDate = new Intl.DateTimeFormat("en-CA", {
       timeZone: "Europe/Paris",
       year: "numeric",
       month: "2-digit",
       day: "2-digit"
     }).format(new Date());
 
-    const map = {
+    const mapDates = {
       "2025-12-03": "dec3",
       "2025-12-04": "dec4",
       "2025-12-05": "dec5",
@@ -61,10 +59,10 @@
       "2025-12-08": "dec8",
       "2025-12-09": "dec9"
     };
-    return map[paris] || null;
+
+    return mapDates[parisDate] || null;
   }
 
-  // Google callback
   window.initGoogleMap = function () {
     console.log("Google Maps initializing");
 
@@ -84,7 +82,6 @@
     setupSearch();
   };
 
-  // Wait for itinerary.js to load
   function renderPinsWhenReady() {
     const state = window.getItineraryState && window.getItineraryState();
     if (!state || !state.columns) {
@@ -94,14 +91,12 @@
     renderAllPins(state);
   }
 
-  // Clear markers
   function clearMarkers() {
     markers.forEach(m => m.setMap(null));
     markers = [];
     bounds = new google.maps.LatLngBounds();
   }
 
-  // Add HOME marker
   function addHomeMarker() {
     const marker = new google.maps.Marker({
       position: HOME_POSITION,
@@ -119,9 +114,9 @@
     marker.dayId = "home";
     markers.push(marker);
     bounds.extend(HOME_POSITION);
+    map.fitBounds(bounds);
   }
 
-  // Render all pins
   function renderAllPins(state) {
     clearMarkers();
     addHomeMarker();
@@ -134,20 +129,13 @@
     });
   }
 
-  // Geocode + place marker
   function geocodeAndMark(text, dayId, centerMap) {
-    let query = text;
-
-    // Force Paris EXCEPT:
-    // - Rouen day (dec5)
-    // - Open bin
-    if (["dec3","dec4","dec6","dec7","dec8","dec9"].includes(dayId)) {
-      query = `${text}, Paris, France`;
-    }
+    // Option A: always keep results inside France
+    const query = `${text}, France`;
 
     geocoder.geocode({ address: query }, (results, status) => {
-      if (status !== "OK" || !results?.length) {
-        console.log("Geocode failed:", text);
+      if (status !== "OK" || !results || !results.length) {
+        console.log("Geocode failed:", text, status);
         return;
       }
 
@@ -176,55 +164,68 @@
         map.setZoom(15);
       }
 
-      // Always auto-fit after adding
       map.fitBounds(bounds);
     });
   }
 
-  // Allow itinerary.js to add pins live
   window.addPinForItineraryItem = function (dayId, text) {
     geocodeAndMark(text, dayId, true);
   };
 
-  // FILTER LOGIC + TODAY BUTTON
   function setupFilters() {
     function applyFilter(dayId) {
-      bounds = new google.maps.LatLngBounds();
-      markers.forEach(m => m.setMap(null));
+      const visible = [];
+      const newBounds = new google.maps.LatLngBounds();
 
       markers.forEach(m => {
-        if (dayId === "all" || m.dayId === dayId) {
+        m.setMap(null);
+      });
+
+      markers.forEach(m => {
+        if (
+          dayId === "all" ||
+          m.dayId === dayId ||
+          m.dayId === "home"
+        ) {
           m.setMap(map);
-          bounds.extend(m.getPosition());
+          visible.push(m);
+          newBounds.extend(m.getPosition());
         }
       });
 
-      map.fitBounds(bounds);
+      if (visible.length > 0) {
+        map.fitBounds(newBounds);
+      }
     }
 
-    document.getElementById("mapShowAll").onclick = () => applyFilter("all");
-    document.getElementById("mapClear").onclick = () => applyFilter("all");
+    const showAllBtn = document.getElementById("mapShowAll");
+    if (showAllBtn) showAllBtn.onclick = () => applyFilter("all");
 
-    // Day buttons
+    const clearBtn = document.getElementById("mapClear");
+    if (clearBtn) clearBtn.onclick = () => applyFilter("all");
+
     document.querySelectorAll("[data-day]").forEach(btn => {
       btn.onclick = () => applyFilter(btn.dataset.day);
     });
 
-    // TODAY button
-    const todayId = getTodayDayId();
-    if (todayId) {
-      const btn = document.createElement("button");
-      btn.className = "map-filter-btn";
-      btn.textContent = "Today";
-      btn.onclick = () => applyFilter(todayId);
-      document.querySelector(".map-filters").appendChild(btn);
+    const todayBtn = document.getElementById("mapToday");
+    if (todayBtn) {
+      todayBtn.onclick = () => {
+        const todayId = getTodayDayId();
+        if (todayId) {
+          applyFilter(todayId);
+        } else {
+          applyFilter("all");
+        }
+      };
     }
   }
 
-  // SEARCH BOX LOGIC
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
+
+    if (!input || !btn) return;
 
     btn.onclick = () => {
       const text = input.value.trim();
