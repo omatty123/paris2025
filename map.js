@@ -1,5 +1,6 @@
 // map.js
-// Full Google Maps version. Stable. Pins load. Filters work. No iframe errors.
+// Full Google Maps version with stable callback initGoogleMap.
+// Pins work reliably. Filtering works. Search works.
 
 (function() {
   "use strict";
@@ -8,10 +9,10 @@
   let geocoder;
   let markers = [];
 
-  // Home
+  // Home address
   const HOME_POSITION = { lat: 48.8287, lng: 2.3559 };
 
-  // Pin colors
+  // Day colors for map markers
   const DAY_COLORS = {
     dec3: "red",
     dec4: "blue",
@@ -23,7 +24,7 @@
     open: "gray"
   };
 
-  // Text labels
+  // Label for info windows
   const DAY_LABELS = {
     dec3: "Dec 3",
     dec4: "Dec 4",
@@ -35,26 +36,52 @@
     open: "Open Bin"
   };
 
-  // Google callback
-  window.initMap = function() {
-    console.log("Google Map starting");
+  // Google callback function
+  window.initGoogleMap = function() {
+    console.log("Google Maps initializing");
+
+    geocoder = new google.maps.Geocoder();
 
     map = new google.maps.Map(document.getElementById("liveMap"), {
       center: { lat: 48.8566, lng: 2.3522 },
       zoom: 13,
       mapTypeControl: false,
-      streetViewControl: false
+      streetViewControl: false,
     });
 
-    geocoder = new google.maps.Geocoder();
-
     addHomeMarker();
-    renderPinsWhenReady();
+
+    // Wait for itinerary.js to finish populating its state
+    renderAllPinsStable();
+
     setupFilters();
     setupSearch();
-
-    console.log("Google Map ready");
   };
+
+  // --------------------------------------------------------------------
+  // Safe rendering that retries until itinerary.js is ready
+  // --------------------------------------------------------------------
+
+  function renderAllPinsStable() {
+    const state = window.getItineraryState && window.getItineraryState();
+
+    if (!state || !state.columns) {
+      console.log("Itinerary not ready, retrying pins");
+      setTimeout(renderAllPinsStable, 300);
+      return;
+    }
+
+    renderAllPins(state);
+  }
+
+  // --------------------------------------------------------------------
+  // Marker creation and clearing
+  // --------------------------------------------------------------------
+
+  function clearMarkers() {
+    markers.forEach(m => m.setMap(null));
+    markers = [];
+  }
 
   function addHomeMarker() {
     const m = new google.maps.Marker({
@@ -63,29 +90,15 @@
       title: "Home Base"
     });
 
-    const info = new google.maps.InfoWindow({
+    const inf = new google.maps.InfoWindow({
       content: "<b>Home Base</b><br>7 Avenue Stephen Pichon"
     });
 
-    m.addListener("click", () => info.open(map, m));
+    m.addListener("click", () => inf.open(map, m));
 
     m.dayId = "home";
+
     markers.push(m);
-  }
-
-  function clearMarkers() {
-    markers.forEach(m => m.setMap(null));
-    markers = [];
-  }
-
-  function renderPinsWhenReady() {
-    const state = window.getItineraryState();
-    if (!state) {
-      console.log("Itinerary not ready, retrying pins");
-      setTimeout(renderPinsWhenReady, 300);
-      return;
-    }
-    renderAllPins(state);
   }
 
   function renderAllPins(state) {
@@ -101,18 +114,23 @@
     });
   }
 
-  function geocodeAndPlace(text, dayId, center) {
+  // --------------------------------------------------------------------
+  // Geocoding and marker placement
+  // --------------------------------------------------------------------
+
+  function geocodeAndPlace(text, dayId, shouldCenter) {
     const query = text + " Paris";
 
     geocoder.geocode({ address: query }, (results, status) => {
-      if (status !== "OK" || !results || results.length === 0) {
-        console.warn("Geocode failed for", text, status);
+      if (status !== "OK" || !results || !results.length) {
+        console.log("No geocode result for", text);
         return;
       }
 
-      const pos = results[0].geometry.location;
+      const result = results[0];
+      const pos = result.geometry.location;
 
-      const m = new google.maps.Marker({
+      const marker = new google.maps.Marker({
         position: pos,
         map,
         title: text,
@@ -126,26 +144,31 @@
         }
       });
 
-      m.dayId = dayId;
+      marker.dayId = dayId;
 
-      const info = new google.maps.InfoWindow({
-        content: `<b>${text}</b><br>Day: ${DAY_LABELS[dayId] || "Unassigned"}`
+      const inf = new google.maps.InfoWindow({
+        content: `<b>${text}</b><br>Day: ${DAY_LABELS[dayId] || "?"}`
       });
 
-      m.addListener("click", () => info.open(map, m));
+      marker.addListener("click", () => inf.open(map, marker));
 
-      markers.push(m);
+      markers.push(marker);
 
-      if (center) {
+      if (shouldCenter) {
         map.setCenter(pos);
         map.setZoom(15);
       }
     });
   }
 
+  // Called from itinerary.js when user adds a new item
   window.addPinForItineraryItem = function(dayId, text) {
     geocodeAndPlace(text, dayId, true);
   };
+
+  // --------------------------------------------------------------------
+  // Filters
+  // --------------------------------------------------------------------
 
   function setupFilters() {
     function apply(dayId) {
@@ -163,16 +186,19 @@
 
     const showAll = document.getElementById("mapShowAll");
     const clear = document.getElementById("mapClear");
-    const dayBtns = document.querySelectorAll("[data-day]");
+    const buttons = document.querySelectorAll("[data-day]");
 
     if (showAll) showAll.onclick = () => apply("all");
     if (clear) clear.onclick = () => apply("all");
 
-    dayBtns.forEach(btn => {
-      const id = btn.dataset.day;
-      btn.onclick = () => apply(id);
+    buttons.forEach(btn => {
+      btn.onclick = () => apply(btn.dataset.day);
     });
   }
+
+  // --------------------------------------------------------------------
+  // Search
+  // --------------------------------------------------------------------
 
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
@@ -186,7 +212,6 @@
 
       window.addItemToDay("open", text);
       geocodeAndPlace(text, "open", true);
-
       input.value = "";
     };
   }
