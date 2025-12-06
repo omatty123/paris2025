@@ -155,6 +155,19 @@
   <script src="app.js"></script>
   <script src="map.js"></script>
 
+  <!--
+    ⚠️ SECURITY WARNING ⚠️
+    The Google Maps API key below is exposed in the frontend code.
+
+    To secure this API key:
+    1. Go to Google Cloud Console → Credentials → API Keys
+    2. Add HTTP referrer restrictions for your domain
+    3. Restrict to "Maps JavaScript API" only
+    4. Set daily quota limits
+
+    For production: Use a backend proxy to hide the API key.
+    See README.md for more information.
+  -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initLiveMap"
     async

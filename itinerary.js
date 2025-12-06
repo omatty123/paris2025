@@ -1,7 +1,14 @@
 // itinerary.js
 // FIXED VERSION with improved drag and drop + past days at bottom
 
-// ----- 1) Default data -----
+(function() {
+'use strict';
+
+// ----- 1) Constants and Config -----
+const MAX_ITEM_LENGTH = 200;
+const ITIN_LOCAL_KEY = "itinerary-columns-v1";
+
+// ----- 2) Default data -----
 window.ITIN_DATA = {
   "columns": [
     {
@@ -145,12 +152,16 @@ function normalizeTitles(state) {
 
 // Get today's date in Paris timezone as YYYY-MM-DD
 function getTodayParis() {
-  const now = new Date();
-  const parisNow = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Paris" }));
-  const y = parisNow.getFullYear();
-  const m = String(parisNow.getMonth() + 1).padStart(2, "0");
-  const d = String(parisNow.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  // Use Intl.DateTimeFormat to reliably get Paris date
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Paris',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+
+  // en-CA locale gives us YYYY-MM-DD format directly
+  return formatter.format(new Date());
 }
 
 // Sort day columns: today & future first, then past days
@@ -178,8 +189,41 @@ function sortDayColumns(dayCols) {
   return [...future, ...past];
 }
 
-// ----- 2) State + helpers -----
-const ITIN_LOCAL_KEY = "itinerary-columns-v1";
+// Input validation and sanitization
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return '';
+
+  // Trim whitespace
+  let sanitized = input.trim();
+
+  // Remove potential HTML/script tags
+  sanitized = sanitized.replace(/<[^>]*>/g, '');
+
+  // Remove null bytes
+  sanitized = sanitized.replace(/\0/g, '');
+
+  return sanitized;
+}
+
+function validateItemText(text) {
+  const sanitized = sanitizeInput(text);
+
+  if (!sanitized) {
+    return { valid: false, error: 'Item cannot be empty', sanitized: '' };
+  }
+
+  if (sanitized.length > MAX_ITEM_LENGTH) {
+    return {
+      valid: false,
+      error: `Item is too long (max ${MAX_ITEM_LENGTH} characters)`,
+      sanitized: sanitized.substring(0, MAX_ITEM_LENGTH)
+    };
+  }
+
+  return { valid: true, error: null, sanitized };
+}
+
+// ----- 3) State + helpers -----
 let itinState = null;
 let draggedElement = null;
 
@@ -207,7 +251,7 @@ function saveToLocal() {
   }
 }
 
-// ----- 3) Rendering with FIXED drag and drop -----
+// ----- 4) Rendering with FIXED drag and drop -----
 
 function buildCard(colId, itemIndex, text) {
   const card = document.createElement("div");
@@ -421,14 +465,22 @@ function renderItinerary() {
     function addItemFromInput() {
       const v = input.value.trim();
       if (!v) return;
-      col.items.push(v);
+
+      // Validate and sanitize input
+      const validation = validateItemText(v);
+      if (!validation.valid) {
+        alert(validation.error);
+        return;
+      }
+
+      col.items.push(validation.sanitized);
       input.value = "";
-      
+
       // Add pin to map for this new item (skip for Open Bin)
       if (col.id !== "open" && typeof window.addPinForItineraryItem === "function") {
-        window.addPinForItineraryItem(col.id, v);
+        window.addPinForItineraryItem(col.id, validation.sanitized);
       }
-      
+
       saveToLocal();
       renderItinerary();
     }
@@ -472,7 +524,15 @@ function renderItinerary() {
       function addToOpenBin() {
         const v = openBinInput.value.trim();
         if (!v) return;
-        openCol.items.push(v);
+
+        // Validate and sanitize input
+        const validation = validateItemText(v);
+        if (!validation.valid) {
+          alert(validation.error);
+          return;
+        }
+
+        openCol.items.push(validation.sanitized);
         openBinInput.value = "";
         saveToLocal();
         renderItinerary();
@@ -487,7 +547,7 @@ function renderItinerary() {
   }
 }
 
-// ----- 4) Item operations -----
+// ----- 5) Item operations -----
 
 function removeItem(colId, index) {
   const col = itinState.columns.find((c) => c.id === colId);
@@ -528,7 +588,7 @@ function moveItem(fromColId, fromIndex, toColId, toIndex = null) {
   renderItinerary();
 }
 
-// ----- 5) Reset -----
+// ----- 6) Reset -----
 
 // Add item to a specific day (called from map search)
 window.addItemToDay = function(dayId, itemText) {
@@ -537,8 +597,15 @@ window.addItemToDay = function(dayId, itemText) {
     alert("Invalid day: " + dayId);
     return;
   }
-  
-  col.items.push(itemText);
+
+  // Validate and sanitize input
+  const validation = validateItemText(itemText);
+  if (!validation.valid) {
+    alert(validation.error);
+    return;
+  }
+
+  col.items.push(validation.sanitized);
   saveToLocal();
   renderItinerary();
 };
@@ -553,7 +620,7 @@ function resetItinerary() {
   renderItinerary();
 }
 
-// ----- 6) GitHub sync -----
+// ----- 7) GitHub sync -----
 
 const GITHUB = {
   owner: "omatty123",
@@ -567,7 +634,9 @@ function loadGitHubToken() {
   try {
     const t = localStorage.getItem("itinerary-github-token");
     if (t) GITHUB.token = t;
-  } catch {}
+  } catch (error) {
+    console.error('Failed to load GitHub token from localStorage:', error);
+  }
 }
 
 function setGitHubToken() {
@@ -576,10 +645,14 @@ function setGitHubToken() {
   GITHUB.token = t.trim();
   try {
     localStorage.setItem("itinerary-github-token", GITHUB.token);
-  } catch {}
-  const status = document.getElementById("githubStatus");
-  if (status) {
-    status.textContent = "GitHub token saved locally.";
+    const status = document.getElementById("githubStatus");
+    if (status) {
+      status.textContent = "✓ GitHub token saved locally.";
+      status.style.color = "#2f7d32";
+    }
+  } catch (error) {
+    console.error('Failed to save GitHub token to localStorage:', error);
+    alert('Failed to save token: ' + error.message);
   }
 }
 
@@ -715,7 +788,7 @@ async function loadItineraryFromGitHub() {
   }
 }
 
-// ----- 7) Init -----
+// ----- 8) Init -----
 
 function initItinerary() {
   console.log("Initializing itinerary...");
@@ -742,3 +815,5 @@ if (document.readyState === "loading") {
 } else {
   initItinerary();
 }
+
+})(); // End of IIFE

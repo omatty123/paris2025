@@ -1,6 +1,14 @@
 // map.js
 // Home base map with daily pins and filter buttons
 
+(function() {
+'use strict';
+
+/* Constants */
+const DEFAULT_MAP_ZOOM = 12;
+const DETAIL_MAP_ZOOM = 15;
+const MAX_DETAIL_ZOOM = 14;
+
 let map;
 let geocoder;
 
@@ -97,7 +105,7 @@ function fitMapToVisibleMarkers() {
   if (visibleMarkers.length === 0) {
     // No markers visible, just show home
     map.setCenter(HOME);
-    map.setZoom(12);
+    map.setZoom(DEFAULT_MAP_ZOOM);
     return;
   }
   
@@ -117,24 +125,42 @@ function fitMapToVisibleMarkers() {
   
   // Don't zoom in too close if only a few markers
   const listener = google.maps.event.addListener(map, "idle", () => {
-    if (map.getZoom() > 14) {
-      map.setZoom(14);
+    if (map.getZoom() > MAX_DETAIL_ZOOM) {
+      map.setZoom(MAX_DETAIL_ZOOM);
     }
     google.maps.event.removeListener(listener);
   });
 }
 
-function addMarkerForPlace(place) {
-  if (!geocoder) return;
-
-  geocoder.geocode({ address: place.query || place.label }, (results, status) => {
-    if (status !== "OK" || !results[0]) {
-      console.warn("Geocode failed for", place.label, status);
+// Convert geocode callback to Promise for better async handling
+function geocodeAddress(address) {
+  return new Promise((resolve, reject) => {
+    if (!geocoder) {
+      reject(new Error('Geocoder not initialized'));
       return;
     }
 
-    const loc = results[0].geometry.location;
+    geocoder.geocode({ address }, (results, status) => {
+      if (status === "OK" && results[0]) {
+        resolve(results[0]);
+      } else {
+        reject(new Error(`Geocoding failed: ${status}`));
+      }
+    });
+  });
+}
+
+async function addMarkerForPlace(place) {
+  if (!geocoder) {
+    console.warn('Geocoder not initialized');
+    return null;
+  }
+
+  try {
+    const result = await geocodeAddress(place.query || place.label);
+    const loc = result.geometry.location;
     const cfg = DAY_CONFIG[place.dayId] || {};
+
     const marker = new google.maps.Marker({
       position: loc,
       map,
@@ -167,7 +193,12 @@ function addMarkerForPlace(place) {
         marker.setMap(map);
       }
     }
-  });
+
+    return marker;
+  } catch (error) {
+    console.warn("Geocode failed for", place.label, ":", error.message);
+    return null;
+  }
 }
 
 function setActiveMapButton(buttonId) {
@@ -197,14 +228,16 @@ function showDayPins(dayId) {
 }
 
 function showTodayPins() {
-  const now = new Date();
-  const parisNow = new Date(
-    now.toLocaleString("en-US", { timeZone: "Europe/Paris" })
-  );
-  const y = parisNow.getFullYear();
-  const m = String(parisNow.getMonth() + 1).padStart(2, "0");
-  const d = String(parisNow.getDate()).padStart(2, "0");
-  const todayStr = `${y}-${m}-${d}`;
+  // Use Intl.DateTimeFormat to reliably get Paris date
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Paris',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+
+  // en-CA locale gives us YYYY-MM-DD format directly
+  const todayStr = formatter.format(new Date());
 
   let matchedDay = null;
   Object.entries(TRIP_DATES).forEach(([dayId, dateStr]) => {
@@ -291,7 +324,7 @@ function searchAndAddPin() {
     allMarkers.push(marker);
     
     map.setCenter(location);
-    map.setZoom(15);
+    map.setZoom(DETAIL_MAP_ZOOM);
     
     searchInput.value = "";
     
@@ -325,13 +358,13 @@ function wireSearchButton() {
 }
 
 // Google callback
-function initLiveMap() {
+async function initLiveMap() {
   const el = document.getElementById("liveMap");
   if (!el) return;
 
   map = new google.maps.Map(el, {
     center: HOME,
-    zoom: 12,
+    zoom: DEFAULT_MAP_ZOOM,
     mapTypeControl: false,
     streetViewControl: false
   });
@@ -349,34 +382,39 @@ function initLiveMap() {
   markersByDay = {};
   activeFilter = "all";
 
-  PLACES.forEach(place => addMarkerForPlace(place));
+  // Use Promise.all to wait for all geocoding operations to complete
+  const geocodePromises = PLACES.map(place =>
+    addMarkerForPlace(place).catch(err => {
+      console.warn('Failed to add marker for:', place.label, err);
+      return null; // Continue even if one fails
+    })
+  );
+
+  await Promise.all(geocodePromises);
+
   wireMapButtons();
   wireSearchButton();
-  
-  // Set "Show all pins" as active and fit bounds after markers load
+
+  // Set "Show all pins" as active and fit bounds after all markers are loaded
   setActiveMapButton("mapShowAll");
-  
-  // Wait a moment for geocoding to complete, then fit bounds
-  setTimeout(() => {
-    fitMapToVisibleMarkers();
-  }, 2000);
+  fitMapToVisibleMarkers();
 }
 
-// Function to add a pin for a new itinerary item
+// Expose necessary functions to global scope
+window.initLiveMap = initLiveMap;
 window.addPinForItineraryItem = function(dayId, itemText) {
   if (!map || !geocoder) {
     console.warn("Map not initialized yet");
     return;
   }
-  
+
   const place = {
     dayId: dayId,
     label: itemText,
     query: itemText + ", Paris, France"
   };
-  
+
   addMarkerForPlace(place);
 };
 
-// Expose for the Google Maps callback
-window.initLiveMap = initLiveMap;
+})(); // End of IIFE
