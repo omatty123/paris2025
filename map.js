@@ -1,14 +1,15 @@
 // map.js
-// COMPLETE RESTORED LEAFLET VERSION
+// FULL DUAL-MODE VERSION
+// Works in normal browsers and in environments with iframe injection errors
 
 (function() {
-  'use strict';
+  "use strict";
 
   let map = null;
-  let markers = [];
   let markerLayer = null;
+  let markers = [];
 
-  // Color coding by day
+  // Day colors
   const DAY_COLORS = {
     dec3: "red",
     dec4: "blue",
@@ -19,7 +20,6 @@
     dec9: "black"
   };
 
-  // Day ID to readable label
   const DAY_LABELS = {
     dec3: "Dec 3",
     dec4: "Dec 4",
@@ -30,10 +30,12 @@
     dec9: "Dec 9"
   };
 
-  // Home base
-  const HOME_COORDS = [48.8287, 2.3559]; // 7 Avenue Stephen Pichon
+  const HOME_COORDS = [48.8287, 2.3559];
 
-  // Create a Leaflet icon for each color
+  // -------------------------------------------------------------------
+  // ICONS
+  // -------------------------------------------------------------------
+
   function makeIcon(color) {
     return L.divIcon({
       className: "custom-pin",
@@ -52,10 +54,21 @@
     });
   }
 
-  const defaultIcon = makeIcon("gray");
+  // -------------------------------------------------------------------
+  // MAP INITIALIZATION
+  // -------------------------------------------------------------------
 
   function initMap() {
-    map = L.map("liveMap").setView([48.8566, 2.3522], 12);
+    if (map) return;
+
+    console.log("Map initialization called");
+
+    try {
+      map = L.map("liveMap").setView([48.8566, 2.3522], 12);
+    } catch (err) {
+      console.error("Leaflet map failed to initialize:", err);
+      return;
+    }
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
@@ -68,7 +81,23 @@
     renderAllPins();
     setupFilterButtons();
     setupSearchBox();
+
+    console.log("Map initialization complete");
   }
+
+  // Force reattempt if Leaflet not ready
+  function safeInit() {
+    if (typeof L === "undefined") {
+      console.warn("Leaflet not ready, retrying map initialization");
+      setTimeout(safeInit, 300);
+      return;
+    }
+    initMap();
+  }
+
+  // -------------------------------------------------------------------
+  // MARKERS
+  // -------------------------------------------------------------------
 
   function clearMarkers() {
     markerLayer.clearLayers();
@@ -79,7 +108,8 @@
     const marker = L.marker(HOME_COORDS, {
       title: "Home Base"
     }).bindPopup("<b>Home Base</b><br>7 Avenue Stephen Pichon");
-    marker.addTo(markerLayer);
+
+    markerLayer.addLayer(marker);
     markers.push({
       day: "home",
       label: "Home base",
@@ -97,10 +127,9 @@
 
     state.columns.forEach(col => {
       if (col.id === "open") return;
-      const dayId = col.id;
 
       col.items.forEach(item => {
-        geocodeAndAddMarker(item, dayId, false);
+        geocodeAndAddMarker(item, col.id, false);
       });
     });
   }
@@ -108,19 +137,16 @@
   function geocodeAndAddMarker(query, dayId, centerMap) {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + " Paris")}`;
 
-    fetch(url, {
-      headers: { "Accept-Language": "en" }
-    })
+    fetch(url, { headers: { "Accept-Language": "en" } })
       .then(res => res.json())
       .then(data => {
         if (!data || data.length === 0) return;
 
-        const place = data[0];
-        const lat = parseFloat(place.lat);
-        const lon = parseFloat(place.lon);
+        const p = data[0];
+        const lat = parseFloat(p.lat);
+        const lon = parseFloat(p.lon);
 
-        const color = DAY_COLORS[dayId] || "gray";
-        const icon = makeIcon(color);
+        const icon = makeIcon(DAY_COLORS[dayId] || "gray");
         const dayLabel = DAY_LABELS[dayId] || "Unassigned";
 
         const marker = L.marker([lat, lon], {
@@ -131,7 +157,7 @@
           Day: ${dayLabel}
         `);
 
-        marker.addTo(markerLayer);
+        markerLayer.addLayer(marker);
 
         markers.push({
           day: dayId,
@@ -153,37 +179,36 @@
     geocodeAndAddMarker(itemText, dayId, false);
   };
 
+  // -------------------------------------------------------------------
+  // FILTERS
+  // -------------------------------------------------------------------
+
   function setupFilterButtons() {
     const showAll = document.getElementById("mapShowAll");
-    const clearBtn = document.getElementById("mapClear");
-
+    const clear = document.getElementById("mapClear");
     const dayButtons = Array.from(document.querySelectorAll("[data-day]"));
 
     function applyFilter(dayId) {
       markers.forEach(obj => {
-        if (dayId === "all") {
-          obj.marker.addTo(markerLayer);
-        } else if (obj.day === dayId) {
-          obj.marker.addTo(markerLayer);
+        if (dayId === "all" || obj.day === dayId) {
+          markerLayer.addLayer(obj.marker);
         } else {
           markerLayer.removeLayer(obj.marker);
         }
       });
     }
 
-    if (showAll) {
-      showAll.onclick = () => applyFilter("all");
-    }
-
-    if (clearBtn) {
-      clearBtn.onclick = () => applyFilter("all");
-    }
+    if (showAll) showAll.onclick = () => applyFilter("all");
+    if (clear) clear.onclick = () => applyFilter("all");
 
     dayButtons.forEach(btn => {
-      const day = btn.dataset.day;
-      btn.onclick = () => applyFilter(day);
+      btn.onclick = () => applyFilter(btn.dataset.day);
     });
   }
+
+  // -------------------------------------------------------------------
+  // SEARCH
+  // -------------------------------------------------------------------
 
   function setupSearchBox() {
     const input = document.getElementById("mapSearchInput");
@@ -202,10 +227,21 @@
     };
   }
 
+  // -------------------------------------------------------------------
+  // INIT IN BOTH ENVIRONMENTS
+  // -------------------------------------------------------------------
+
+  // Normal browser load
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initMap);
+    document.addEventListener("DOMContentLoaded", safeInit);
   } else {
-    initMap();
+    safeInit();
   }
+
+  // Handle broken iframe environments
+  window.addEventListener("error", () => {
+    console.warn("Global error detected, reattempting map initialization");
+    setTimeout(safeInit, 300);
+  });
 
 })();
