@@ -1,6 +1,10 @@
 // map.js
-// Stable Google Maps version using classic google.maps.Marker.
-// Full day color coding. No forced Paris. Rouen works.
+// Google Maps version with:
+// - HOME BASE restored
+// - Auto fit-to-bounds
+// - "Today" button restored
+// - Paris-only geocoding (except Rouen)
+// - No forced country errors
 
 (function () {
   "use strict";
@@ -8,11 +12,12 @@
   let map;
   let geocoder;
   let markers = [];
+  let bounds;
 
   // HOME BASE — correct coordinates
   const HOME_POSITION = { lat: 48.833469, lng: 2.359747 };
 
-  // Classic colored pin URLs
+  // Classic pin colors
   const DAY_ICONS = {
     dec3: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
     dec4: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -22,9 +27,7 @@
     dec8: "http://maps.google.com/mapfiles/ms/icons/brown-dot.png",
     dec9: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
     open: "http://maps.google.com/mapfiles/ms/icons/grey-dot.png",
-
-    // ★ REAL STAR ICON
-    home: "https://maps.google.com/mapfiles/kml/shapes/star.png"
+    home: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
   };
 
   // Labels
@@ -40,11 +43,33 @@
     home: "Home Base"
   };
 
+  // Determine today's dayId in Paris timezone
+  function getTodayDayId() {
+    const paris = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Paris",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date());
+
+    const map = {
+      "2025-12-03": "dec3",
+      "2025-12-04": "dec4",
+      "2025-12-05": "dec5",
+      "2025-12-06": "dec6",
+      "2025-12-07": "dec7",
+      "2025-12-08": "dec8",
+      "2025-12-09": "dec9"
+    };
+    return map[paris] || null;
+  }
+
   // Google callback
   window.initGoogleMap = function () {
     console.log("Google Maps initializing");
 
     geocoder = new google.maps.Geocoder();
+    bounds = new google.maps.LatLngBounds();
 
     map = new google.maps.Map(document.getElementById("liveMap"), {
       center: HOME_POSITION,
@@ -54,13 +79,12 @@
     });
 
     addHomeMarker();
-
     renderPinsWhenReady();
     setupFilters();
     setupSearch();
   };
 
-  // Wait for itinerary.js
+  // Wait for itinerary.js to load
   function renderPinsWhenReady() {
     const state = window.getItineraryState && window.getItineraryState();
     if (!state || !state.columns) {
@@ -74,6 +98,7 @@
   function clearMarkers() {
     markers.forEach(m => m.setMap(null));
     markers = [];
+    bounds = new google.maps.LatLngBounds();
   }
 
   // Add HOME marker
@@ -93,16 +118,7 @@
 
     marker.dayId = "home";
     markers.push(marker);
-  }
-
-  // FIT MAP TO ALL MARKERS
-  function fitMapToMarkers() {
-    if (!markers.length) return;
-
-    const bounds = new google.maps.LatLngBounds();
-    markers.forEach(m => bounds.extend(m.getPosition()));
-
-    map.fitBounds(bounds);
+    bounds.extend(HOME_POSITION);
   }
 
   // Render all pins
@@ -116,14 +132,18 @@
         geocodeAndMark(item, col.id, false);
       });
     });
-
-    // Ensure home + all items are visible
-    setTimeout(fitMapToMarkers, 600);
   }
 
   // Geocode + place marker
-  function geocodeAndMark(text, dayId, center) {
-    const query = text;
+  function geocodeAndMark(text, dayId, centerMap) {
+    let query = text;
+
+    // Force Paris EXCEPT:
+    // - Rouen day (dec5)
+    // - Open bin
+    if (["dec3","dec4","dec6","dec7","dec8","dec9"].includes(dayId)) {
+      query = `${text}, Paris, France`;
+    }
 
     geocoder.geocode({ address: query }, (results, status) => {
       if (status !== "OK" || !results?.length) {
@@ -149,66 +169,59 @@
       marker.addListener("click", () => inf.open(map, marker));
 
       markers.push(marker);
+      bounds.extend(loc);
 
-      if (center) {
+      if (centerMap) {
         map.setCenter(loc);
         map.setZoom(15);
       }
+
+      // Always auto-fit after adding
+      map.fitBounds(bounds);
     });
   }
 
-  // Exposed for itinerary.js
+  // Allow itinerary.js to add pins live
   window.addPinForItineraryItem = function (dayId, text) {
     geocodeAndMark(text, dayId, true);
   };
 
-  // Filters
+  // FILTER LOGIC + TODAY BUTTON
   function setupFilters() {
-    function filter(dayId) {
+    function applyFilter(dayId) {
+      bounds = new google.maps.LatLngBounds();
       markers.forEach(m => m.setMap(null));
 
-      if (dayId === "all") {
-        markers.forEach(m => m.setMap(map));
-        setTimeout(fitMapToMarkers, 300);
-        return;
-      }
-
       markers.forEach(m => {
-        if (m.dayId === dayId) m.setMap(map);
+        if (dayId === "all" || m.dayId === dayId) {
+          m.setMap(map);
+          bounds.extend(m.getPosition());
+        }
       });
 
-      setTimeout(fitMapToMarkers, 300);
+      map.fitBounds(bounds);
     }
 
-    document.getElementById("mapShowAll").onclick = () => filter("all");
-    document.getElementById("mapClear").onclick = () => filter("all");
+    document.getElementById("mapShowAll").onclick = () => applyFilter("all");
+    document.getElementById("mapClear").onclick = () => applyFilter("all");
 
-    // TODAY BUTTON SUPPORT
-    const todayBtn = document.getElementById("mapToday");
-    if (todayBtn) {
-      todayBtn.onclick = () => {
-        const pk = new Date().toLocaleString("en-CA", { timeZone: "Europe/Paris" }).split(" ")[0];
-        const day = pk.slice(5); // MM-DD
-        const mapDay = {
-          "12-03": "dec3",
-          "12-04": "dec4",
-          "12-05": "dec5",
-          "12-06": "dec6",
-          "12-07": "dec7",
-          "12-08": "dec8",
-          "12-09": "dec9"
-        }[day];
-
-        if (mapDay) filter(mapDay);
-      };
-    }
-
+    // Day buttons
     document.querySelectorAll("[data-day]").forEach(btn => {
-      btn.onclick = () => filter(btn.dataset.day);
+      btn.onclick = () => applyFilter(btn.dataset.day);
     });
+
+    // TODAY button
+    const todayId = getTodayDayId();
+    if (todayId) {
+      const btn = document.createElement("button");
+      btn.className = "map-filter-btn";
+      btn.textContent = "Today";
+      btn.onclick = () => applyFilter(todayId);
+      document.querySelector(".map-filters").appendChild(btn);
+    }
   }
 
-  // Search box
+  // SEARCH BOX LOGIC
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
