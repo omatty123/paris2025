@@ -297,6 +297,13 @@ function searchAndAddPin() {
     
     infoWindow.open(map, marker);
     setTimeout(function() { infoWindow.close(); }, 3000);
+    
+    // Ask which day to add to
+    const dayChoice = prompt("Add '" + query + "' to which day?\n\nEnter: dec3, dec4, dec5, dec6, dec7, dec8, dec9, or 'open' for Open Bin\n(Leave blank to only add pin to map)");
+    
+    if (dayChoice && typeof window.addItemToDay === "function") {
+      window.addItemToDay(dayChoice.toLowerCase().trim(), query);
+    }
   });
 }
 
