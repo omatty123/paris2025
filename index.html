@@ -8,25 +8,18 @@
   <!-- Cormorant Garamond -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Leaflet CSS (restored) -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-
   <!-- Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     crossorigin="anonymous"
-    referrerpolicy="no-referrer"
   />
 
   <!-- Local CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
 
+<body>
   <!-- HEADER -->
   <header class="main-header">
     <div class="header-top">
@@ -43,7 +36,7 @@
 
     <div class="header-buttons">
       <a class="header-btn" href="https://www.ratp.fr/itineraires" target="_blank">
-        <i class="fas fa-route"></i> RRATP directions
+        <i class="fas fa-route"></i> RATP directions
       </a>
 
       <a
@@ -53,57 +46,33 @@
       >
         <i class="fas fa-map-pin"></i> Open home in Maps
       </a>
-
-      <div class="weather-widget" id="weatherWidget">
-        <i class="fas fa-cloud-sun"></i>
-        <div class="weather-days" id="weatherDays">
-          <span class="weather-loading">Loading...</span>
-        </div>
-      </div>
     </div>
   </header>
 
   <!-- MAP -->
   <section class="card map-section">
-    <h2 class="section-title">
-      <i class="fas fa-house-chimney"></i> Home base and daily pins
-    </h2>
-
+    <h2 class="section-title"><i class="fas fa-house-chimney"></i> Home base and daily pins</h2>
     <p class="section-subtitle">
-      7 Avenue Stephen Pichon, Bâtiment B · 13ᵉ arrondissement · Each itinerary item is pinned on this map by date
+      7 Avenue Stephen Pichon · 13ᵉ arrondissement · Each itinerary item is pinned by date
     </p>
 
     <!-- FILTERS -->
     <div class="map-filters">
-      <button class="map-filter-btn" id="mapShowAll">
-        <i class="fas fa-globe"></i> Show all pins
-      </button>
-      <button class="map-filter-btn" id="mapToday">
-        <i class="fas fa-calendar-day"></i> Today
-      </button>
-      <button class="map-filter-btn" id="mapDec3" data-day="dec3">Dec 3</button>
-      <button class="map-filter-btn" id="mapDec4" data-day="dec4">Dec 4</button>
-      <button class="map-filter-btn" id="mapDec5" data-day="dec5">Dec 5</button>
-      <button class="map-filter-btn" id="mapDec6" data-day="dec6">Dec 6</button>
-      <button class="map-filter-btn" id="mapDec7" data-day="dec7">Dec 7</button>
-      <button class="map-filter-btn" id="mapDec8" data-day="dec8">Dec 8</button>
-      <button class="map-filter-btn" id="mapDec9" data-day="dec9">Dec 9</button>
-      <button class="map-filter-btn" id="mapClear">
-        <i class="fas fa-eye-slash"></i> Clear filters
-      </button>
+      <button class="map-filter-btn" id="mapShowAll"><i class="fas fa-globe"></i> Show all</button>
+      <button class="map-filter-btn" data-day="dec3">Dec 3</button>
+      <button class="map-filter-btn" data-day="dec4">Dec 4</button>
+      <button class="map-filter-btn" data-day="dec5">Dec 5</button>
+      <button class="map-filter-btn" data-day="dec6">Dec 6</button>
+      <button class="map-filter-btn" data-day="dec7">Dec 7</button>
+      <button class="map-filter-btn" data-day="dec8">Dec 8</button>
+      <button class="map-filter-btn" data-day="dec9">Dec 9</button>
+      <button class="map-filter-btn" id="mapClear"><i class="fas fa-eye-slash"></i> Clear filters</button>
     </div>
 
     <!-- SEARCH -->
     <div class="map-search-container">
-      <input 
-        type="text" 
-        id="mapSearchInput" 
-        class="map-search-input" 
-        placeholder="Search for a place to add a pin..."
-      />
-      <button id="mapSearchBtn" class="map-search-btn">
-        <i class="fas fa-search"></i> Search & Add Pin
-      </button>
+      <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Search for a place…" />
+      <button id="mapSearchBtn" class="map-search-btn"><i class="fas fa-search"></i> Add</button>
     </div>
 
     <div class="map-container">
@@ -113,7 +82,6 @@
 
   <!-- ITINERARY -->
   <section class="card itinerary-section">
-
     <div class="itinerary-controls-row itinerary-controls">
       <button id="resetBtn">Reset</button>
       <button id="githubToken">Set</button>
@@ -132,35 +100,26 @@
             <div class="day-title-container">
               <h4><i class="fas fa-inbox"></i> Open Bin</h4>
             </div>
-
             <div class="add-item-container">
-              <input
-                type="text"
-                class="add-item-input"
-                id="openBinInput"
-                placeholder="Add event…"
-              />
+              <input type="text" id="openBinInput" class="add-item-input" placeholder="Add event…" />
               <button class="add-item-btn" id="openBinAdd">+</button>
             </div>
           </div>
-
-          <div
-            id="openBinList"
-            class="itinerary-list"
-            data-day="OPEN BIN"
-          ></div>
+          <div id="openBinList" class="itinerary-list" data-day="open"></div>
         </div>
       </aside>
     </div>
   </section>
 
-  <!-- Leaflet JS (restored) -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Local scripts -->
+  <!-- Local Scripts -->
   <script src="app.js"></script>
-  <script src="map.js"></script>
   <script src="itinerary.js"></script>
+  <script src="map.js"></script>
 
+  <!-- Google Maps SCRIPT LOADED LAST -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initGoogleMap"
+    async defer
+  ></script>
 </body>
 </html>
