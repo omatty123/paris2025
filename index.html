@@ -61,7 +61,6 @@
       7 Avenue Stephen Pichon · 13ᵉ arrondissement · Each itinerary item is pinned by date
     </p>
 
-    <!-- FILTERS -->
     <div class="map-filters">
       <button class="map-filter-btn" id="mapShowAll"><i class="fas fa-globe"></i> Show all</button>
       <button class="map-filter-btn" data-day="dec3">Dec 3</button>
@@ -74,9 +73,8 @@
       <button class="map-filter-btn" id="mapClear"><i class="fas fa-eye-slash"></i> Clear</button>
     </div>
 
-    <!-- SEARCH -->
     <div class="map-search-container">
-      <input id="mapSearchInput" class="map-search-input" type="text" placeholder="Search for a place…" />
+      <input id="mapSearchInput" class="map-search-input" placeholder="Search for a place…" />
       <button id="mapSearchBtn" class="map-search-btn"><i class="fas fa-search"></i> Add</button>
     </div>
 
@@ -102,13 +100,10 @@
       <aside class="open-bin-section">
         <div class="day-column open-bin-wrapper">
           <div class="day-header">
-            <div class="day-title-container">
-              <h4><i class="fas fa-inbox"></i> Open Bin</h4>
-            </div>
-
+            <h4><i class="fas fa-inbox"></i> Open Bin</h4>
             <div class="add-item-container">
-              <input type="text" id="openBinInput" class="add-item-input" placeholder="Add event…" />
-              <button class="add-item-btn" id="openBinAdd">+</button>
+              <input id="openBinInput" class="add-item-input" placeholder="Add event…" />
+              <button id="openBinAdd" class="add-item-btn">+</button>
             </div>
           </div>
 
@@ -118,12 +113,12 @@
     </div>
   </section>
 
-  <!-- LOCAL SCRIPTS -->
+  <!-- Scripts -->
   <script src="app.js"></script>
   <script src="itinerary.js"></script>
   <script src="map.js"></script>
 
-  <!-- GOOGLE MAPS SCRIPT: correct callback = initMap -->
+  <!-- GOOGLE MAPS (CORRECT CALLBACK) -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt3um4yzu8yX5ECnsfOcSDyy1JiEEzSRQ&callback=initMap"
     async
