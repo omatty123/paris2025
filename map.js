@@ -46,52 +46,8 @@ function markerIcon(color) {
 const HOME_ICON =
   "https://maps.google.com/mapfiles/kml/shapes/star.png";
 
-// Places by day. Queries are what the geocoder searches.
-const PLACES = [
-  // Dec 3
-  { dayId: "dec3", label: "Arrive apartment", query: "Place d'Italie, Paris" },
-  { dayId: "dec3", label: "Musée d'Orsay", query: "Musée d'Orsay, Paris" },
-  { dayId: "dec3", label: "Pont Neuf", query: "Pont Neuf, Paris" },
-  { dayId: "dec3", label: "Notre-Dame exterior", query: "Cathédrale Notre-Dame de Paris" },
-
-  // Dec 4
-  { dayId: "dec4", label: "La Halte Paris 13", query: "La Halte, Paris 13" },
-  { dayId: "dec4", label: "Nationale", query: "Métro Nationale, Paris" },
-  { dayId: "dec4", label: "Louvre nineteenth-century rooms", query: "Louvre Museum, Paris" },
-  { dayId: "dec4", label: "Tuileries Garden", query: "Jardin des Tuileries, Paris" },
-  { dayId: "dec4", label: "Walk toward Passy", query: "Passy, Paris" },
-  { dayId: "dec4", label: "Maison de Balzac", query: "Maison de Balzac, Paris" },
-  { dayId: "dec4", label: "Walk to Trocadéro", query: "Trocadéro, Paris" },
-  { dayId: "dec4", label: "Le Temps des Cerises", query: "Le Temps des Cerises, Paris" },
-
-  // Dec 5
-  { dayId: "dec5", label: "Metro to Opéra", query: "Opéra, Paris" },
-  { dayId: "dec5", label: "Gare Saint-Lazare", query: "Gare Saint-Lazare, Paris" },
-  { dayId: "dec5", label: "Train to Rouen", query: "Gare de Rouen Rive Droite" },
-  { dayId: "dec5", label: "Cathedral and Gros Horloge", query: "Cathédrale Notre-Dame de Rouen" },
-  { dayId: "dec5", label: "Lunch at Vegan & Cie", query: "Vegan & Cie, Rouen" },
-  { dayId: "dec5", label: "Musée Flaubert", query: "Musée Flaubert et d'Histoire de la Médecine, Rouen" },
-  { dayId: "dec5", label: "Cimetière Monumental", query: "Cimetière Monumental, Rouen" },
-  { dayId: "dec5", label: "Croisset", query: "Croisset, Rouen" },
-  { dayId: "dec5", label: "Brasserie Le Lazare", query: "Brasserie Lazare, Paris" },
-
-  // Dec 6
-  { dayId: "dec6", label: "Belleville", query: "Belleville, Paris" },
-  { dayId: "dec6", label: "Promenade Dora Bruder", query: "Boulevard Ornano, Paris" },
-  { dayId: "dec6", label: "Montmartre and Sacré-Cœur", query: "Basilique du Sacré-Cœur, Paris" },
-  { dayId: "dec6", label: "Père Lachaise", query: "Cimetière du Père-Lachaise, Paris" },
-  { dayId: "dec6", label: "Pain Vin Fromages", query: "Pain Vin Fromages, Paris" },
-
-  // Dec 7
-  { dayId: "dec7", label: "Parc Montsouris", query: "Parc Montsouris, Paris" },
-  { dayId: "dec7", label: "Covered passages", query: "Passage des Panoramas, Paris" },
-  { dayId: "dec7", label: "Tuileries Christmas Market", query: "Jardin des Tuileries, Paris Christmas market" },
-  { dayId: "dec7", label: "Galeries Lafayette", query: "Galeries Lafayette Haussmann, Paris" },
-  { dayId: "dec7", label: "Carrefour Italie 2", query: "Carrefour Market Italie 2, Paris" },
-  { dayId: "dec7", label: "Darkoum Cantine Marocaine", query: "Darkoum Cantine Marocaine, Rue Daguerre, Paris" },
-
-  // Dec 8 and 9 currently empty in your itinerary; you can add later if you like.
-];
+// Empty PLACES array - only show pins from itinerary and manual search
+const PLACES = [];
 
 let markersByDay = {};
 let allMarkers = [];
@@ -447,19 +403,12 @@ async function loadPinsFromItinerary() {
     if (col.id === 'open') return; // Skip Open Bin
 
     col.items.forEach(itemText => {
-      // Check if this item already has a pin from PLACES array
-      const alreadyExists = PLACES.some(p =>
-        p.dayId === col.id && p.label === itemText
-      );
-
-      if (!alreadyExists) {
-        itineraryPlaces.push({
-          dayId: col.id,
-          label: itemText,
-          query: itemText + ", Paris, France",
-          fromItinerary: true
-        });
-      }
+      itineraryPlaces.push({
+        dayId: col.id,
+        label: itemText,
+        query: itemText + ", Paris, France",
+        fromItinerary: true
+      });
     });
   });
 
