@@ -1,5 +1,5 @@
 // itinerary.js
-// FIXED VERSION with improved drag and drop and past days at bottom
+// FIXED VERSION with improved drag and drop, past days at bottom, and map refresh integration
 
 (function() {
 'use strict';
@@ -454,12 +454,13 @@ function renderItinerary() {
       col.items.push(validation.sanitized);
       input.value = "";
 
-      if (col.id !== "open" && typeof window.addPinForItineraryItem === "function") {
-        window.addPinForItineraryItem(col.id, validation.sanitized);
-      }
-
       saveToLocal();
       renderItinerary();
+      
+      // Refresh map pins AFTER saving and rendering
+      if (typeof window.refreshMapPins === "function") {
+        window.refreshMapPins();
+      }
     }
 
     input.addEventListener("keypress", (e) => {
@@ -511,6 +512,11 @@ function renderItinerary() {
         openBinInput.value = "";
         saveToLocal();
         renderItinerary();
+        
+        // Refresh map pins
+        if (typeof window.refreshMapPins === "function") {
+          window.refreshMapPins();
+        }
       }
       openBinInput.onkeypress = (e) => {
         if (e.key === "Enter") addToOpenBin();
@@ -532,6 +538,11 @@ function removeItem(colId, index) {
   col.items.splice(idx, 1);
   saveToLocal();
   renderItinerary();
+  
+  // Refresh map pins after removal
+  if (typeof window.refreshMapPins === "function") {
+    window.refreshMapPins();
+  }
 }
 
 function moveItem(fromColId, fromIndex, toColId, toIndex = null) {
@@ -558,6 +569,11 @@ function moveItem(fromColId, fromIndex, toColId, toIndex = null) {
 
   saveToLocal();
   renderItinerary();
+  
+  // Refresh map pins after move
+  if (typeof window.refreshMapPins === "function") {
+    window.refreshMapPins();
+  }
 }
 
 // ----- 6) Reset -----
@@ -578,6 +594,11 @@ window.addItemToDay = function(dayId, itemText) {
   col.items.push(validation.sanitized);
   saveToLocal();
   renderItinerary();
+  
+  // Refresh map pins
+  if (typeof window.refreshMapPins === "function") {
+    window.refreshMapPins();
+  }
 };
 
 function resetItinerary() {
@@ -588,6 +609,11 @@ function resetItinerary() {
   normalizeTitles(itinState);
   saveToLocal();
   renderItinerary();
+  
+  // Refresh map pins after reset
+  if (typeof window.refreshMapPins === "function") {
+    window.refreshMapPins();
+  }
 }
 
 // ----- 7) GitHub sync -----
@@ -736,6 +762,11 @@ async function loadItineraryFromGitHub() {
     saveToLocal();
     renderItinerary();
 
+    // Refresh map pins after loading from GitHub
+    if (typeof window.refreshMapPins === "function") {
+      window.refreshMapPins();
+    }
+
     if (status) {
       status.textContent = "Loaded from GitHub";
       status.style.color = "#2f7d32";
@@ -772,6 +803,12 @@ window.removeItemFromDay = function(dayId, itemText) {
   col.items.splice(index, 1);
   saveToLocal();
   renderItinerary();
+  
+  // Refresh map pins
+  if (typeof window.refreshMapPins === "function") {
+    window.refreshMapPins();
+  }
+  
   console.log('Removed item from itinerary:', itemText);
   return true;
 };
