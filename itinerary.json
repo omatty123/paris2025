@@ -6,7 +6,6 @@
       "meta": "",
       "items": [
         "Conciergerie",
-        "Sainte-Chapelle",
         "Jardin du Luxembourg",
         "Chez Gladines",
         "Huitrerie Régis",
@@ -96,7 +95,9 @@
       "id": "dec8",
       "title": "Mon Dec 8",
       "meta": "",
-      "items": []
+      "items": [
+        "Sainte-Chapelle"
+      ]
     },
     {
       "id": "dec9",
