@@ -27,7 +27,7 @@
     dec5: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
     dec6: "http://maps.google.com/mapfiles/ms/icons/purple-dot.png",
     dec7: "http://maps.google.com/mapfiles/ms/icons/orange-dot.png",
-    dec8: "http://maps.google.com/mapfiles/ms/icons/brown-dot.png",
+    dec8: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png", // Changed from brown to yellow for testing
     dec9: "http://maps.google.com/mapfiles/ms/icons/black-dot.png",
     open: "http://maps.google.com/mapfiles/ms/icons/grey-dot.png",
 
@@ -255,11 +255,38 @@
   // Fit map to all visible markers
   function fitAllPins() {
     const visible = markers.filter(m => m.getMap());
+    console.log(`[FIT] Fitting ${visible.length} visible markers`);
+    
     if (!visible.length) return;
 
+    if (visible.length === 1) {
+      // Just one marker (probably home base), center on it
+      console.log(`[FIT] Single marker, centering on it`);
+      map.setCenter(visible[0].getPosition());
+      map.setZoom(13);
+      return;
+    }
+
     const bounds = new google.maps.LatLngBounds();
-    visible.forEach(m => bounds.extend(m.getPosition()));
+    visible.forEach(m => {
+      bounds.extend(m.getPosition());
+      console.log(`[FIT] Including marker: ${m.title} at ${m.getPosition().lat()}, ${m.getPosition().lng()}`);
+    });
+    
     map.fitBounds(bounds);
+    
+    // Ensure we don't zoom out too far or too close
+    google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+      const zoom = map.getZoom();
+      console.log(`[FIT] After fitBounds, zoom is: ${zoom}`);
+      if (zoom > 16) {
+        console.log(`[FIT] Zoom too close, setting to 16`);
+        map.setZoom(16);
+      } else if (zoom < 11) {
+        console.log(`[FIT] Zoom too far, setting to 11`);
+        map.setZoom(11);
+      }
+    });
   }
 
   // Filters including Today
