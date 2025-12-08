@@ -78,6 +78,11 @@
       return;
     }
     renderAllPins(s);
+    
+    // After rendering all pins, apply "today" filter as default view
+    setTimeout(() => {
+      applyTodayFilter();
+    }, 1000); // Give geocoding time to complete
   }
 
   function clearMarkers() {
@@ -287,6 +292,36 @@
     console.log(`[FIT] Bounds fitted with padding`);
   }
 
+  // Apply today's filter (show only today's pins + home base)
+  function applyTodayFilter() {
+    const parisToday = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Paris",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date());
+
+    const DAY_MAP = {
+      "2025-12-03": "dec3",
+      "2025-12-04": "dec4",
+      "2025-12-05": "dec5",
+      "2025-12-06": "dec6",
+      "2025-12-07": "dec7",
+      "2025-12-08": "dec8",
+      "2025-12-09": "dec9"
+    };
+
+    const dayId = DAY_MAP[parisToday];
+
+    // Outside trip dates, show only home base
+    if (!dayId) {
+      showOnlyHome();
+      return;
+    }
+
+    applyFilter(dayId);
+  }
+
   // Filters including Today
   function setupFilters() {
     function applyFilter(rawDayId) {
@@ -341,34 +376,7 @@
 
     // Today button, real Paris date mapped to trip dates
     if (todayBtn) {
-      todayBtn.onclick = () => {
-        const parisToday = new Intl.DateTimeFormat("en-CA", {
-          timeZone: "Europe/Paris",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit"
-        }).format(new Date());
-
-        const DAY_MAP = {
-          "2025-12-03": "dec3",
-          "2025-12-04": "dec4",
-          "2025-12-05": "dec5",
-          "2025-12-06": "dec6",
-          "2025-12-07": "dec7",
-          "2025-12-08": "dec8",
-          "2025-12-09": "dec9"
-        };
-
-        const dayId = DAY_MAP[parisToday];
-
-        // Outside trip dates, show only home base
-        if (!dayId) {
-          showOnlyHome();
-          return;
-        }
-
-        applyFilter(dayId);
-      };
+      todayBtn.onclick = () => applyTodayFilter();
     }
   }
 
