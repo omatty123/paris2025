@@ -158,6 +158,7 @@
 
     geocoder.geocode({ address: forcedQuery }, (results, status) => {
       if (status !== "OK" || !results || !results.length) {
+        console.warn("Geocoding failed for:", text, "Status:", status);
         pinsLoaded++;
         if (pinsLoaded === pinsToLoad) {
           fitAllPins();
@@ -198,7 +199,15 @@
 
   // For itinerary.js to add a pin when a new item is created
   window.addPinForItineraryItem = function (dayId, text) {
+    if (shouldSkipItem(text)) {
+      console.log("Skipping pin for:", text);
+      return;
+    }
+    
     const normalized = normalizeDayId(dayId) || "open";
+    
+    // For manually added items, increment counter before geocoding
+    pinsToLoad++;
     geocodeAndMark(text, normalized, true);
   };
 
@@ -307,6 +316,9 @@
       if (typeof window.addItemToDay === "function") {
         window.addItemToDay("open", text);
       }
+      
+      // Increment counter and geocode
+      pinsToLoad++;
       geocodeAndMark(text, "open", true);
       input.value = "";
     };
