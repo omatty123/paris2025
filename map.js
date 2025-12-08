@@ -105,6 +105,9 @@
 
   // Render all itinerary pins at startup
   function renderAllPins(state) {
+    console.log("=== renderAllPins called ===");
+    console.log("Current state:", state);
+    
     clearMarkers();
     addHomeMarker();
 
@@ -113,14 +116,20 @@
 
     state.columns.forEach(col => {
       const colId = normalizeDayId(col.id);
-      // Process all columns including Open Bin
+      console.log(`Processing column ${colId} with ${col.items.length} items:`, col.items);
       
       col.items.forEach(item => {
-        if (shouldSkipItem(item)) return;
+        if (shouldSkipItem(item)) {
+          console.log(`Skipping item: ${item}`);
+          return;
+        }
+        console.log(`Will geocode: ${item} for day ${colId}`);
         pinsToLoad++;
         geocodeAndMark(item, colId, false);
       });
     });
+
+    console.log(`Total pins to load: ${pinsToLoad}`);
 
     if (pinsToLoad === 0) {
       // Only home base
@@ -205,16 +214,22 @@
     });
   }
 
+  // Expose function to refresh all pins (called when itinerary changes)
+  window.refreshMapPins = function() {
+    console.log("=== refreshMapPins called ===");
+    const state = window.getItineraryState && window.getItineraryState();
+    if (state) {
+      renderAllPins(state);
+    } else {
+      console.error("refreshMapPins: Could not get itinerary state");
+    }
+  };
+
+  // Legacy function - kept for backwards compatibility
   // For itinerary.js to add a pin when a new item is created
-  // Instead of adding individual pins, we refresh all pins to stay in sync
   window.addPinForItineraryItem = function (dayId, text) {
-    // Small delay to ensure itinerary state is saved first
-    setTimeout(() => {
-      const state = window.getItineraryState && window.getItineraryState();
-      if (state) {
-        renderAllPins(state);
-      }
-    }, 100);
+    console.log("=== addPinForItineraryItem called (legacy) ===");
+    window.refreshMapPins();
   };
 
   // Show only home base on map
