@@ -1,5 +1,5 @@
 // map.js
-// France-only geocoding
+// France only geocoding
 // - Dec 5 -> Rouen, France
 // - All other days + Open Bin -> Paris, France
 // Home base star always visible
@@ -46,6 +46,12 @@
     open: "Open Bin",
     home: "Home Base"
   };
+
+  // Normalize any incoming day id so little inconsistencies cannot break pins
+  function normalizeDayId(raw) {
+    if (!raw) return "";
+    return String(raw).trim().toLowerCase();
+  }
 
   // Google Maps init callback
   window.initGoogleMap = function () {
@@ -106,12 +112,13 @@
     pinsToLoad = 0;
 
     state.columns.forEach(col => {
-      if (col.id === "open") return;
+      const colId = normalizeDayId(col.id);
+      if (colId === "open") return;
 
       col.items.forEach(item => {
         if (shouldSkipItem(item)) return;
         pinsToLoad++;
-        geocodeAndMark(item, col.id, false);
+        geocodeAndMark(item, colId, false);
       });
     });
 
@@ -143,9 +150,10 @@
   }
 
   // Geocode and create marker
-  function geocodeAndMark(text, dayId, center) {
+  function geocodeAndMark(text, rawDayId, center) {
     if (!text || !text.trim()) return;
 
+    const dayId = normalizeDayId(rawDayId) || "open";
     const forcedQuery = getForcedQuery(text, dayId);
 
     geocoder.geocode({ address: forcedQuery }, (results, status) => {
@@ -190,7 +198,8 @@
 
   // For itinerary.js to add a pin when a new item is created
   window.addPinForItineraryItem = function (dayId, text) {
-    geocodeAndMark(text, dayId, true);
+    const normalized = normalizeDayId(dayId) || "open";
+    geocodeAndMark(text, normalized, true);
   };
 
   // Show only home base on map
@@ -214,15 +223,17 @@
 
   // Filters including Today
   function setupFilters() {
-    function applyFilter(dayId) {
-      if (dayId === "all") {
+    function applyFilter(rawDayId) {
+      const dayId = normalizeDayId(rawDayId);
+
+      if (dayId === "all" || dayId === "") {
         // Show everything including home
         markers.forEach(m => m.setMap(map));
         fitAllPins();
         return;
       }
 
-      // Day specific filter: always include home
+      // Day specific filter, always include home
       markers.forEach(m => m.setMap(null));
       markers.forEach(m => {
         if (m.dayId === "home" || m.dayId === dayId) {
@@ -249,7 +260,7 @@
       btn.onclick = () => applyFilter(btn.dataset.day);
     });
 
-    // Today button: real Paris date, mapped to trip dates
+    // Today button, real Paris date mapped to trip dates
     if (todayBtn) {
       todayBtn.onclick = () => {
         const parisToday = new Intl.DateTimeFormat("en-CA", {
@@ -271,7 +282,7 @@
 
         const dayId = DAY_MAP[parisToday];
 
-        // Outside trip dates: only home base
+        // Outside trip dates, show only home base
         if (!dayId) {
           showOnlyHome();
           return;
@@ -282,7 +293,7 @@
     }
   }
 
-  // Search box: add to Open Bin as Paris locations
+  // Search box, add to Open Bin as Paris locations
   function setupSearch() {
     const input = document.getElementById("mapSearchInput");
     const btn = document.getElementById("mapSearchBtn");
