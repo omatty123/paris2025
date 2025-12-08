@@ -150,7 +150,10 @@ const DAY_LABELS = {
     title: "Sun Dec 7",
     photoUrl: "https://www.amazon.com/photos/shared/HZA2sp5wSK-hBzVIUkOqOA.AZTCZ8KBnR3vN9LR6q1es8"
   },
-  dec8: { title: "Mon Dec 8" },
+  dec8: { 
+    title: "Mon Dec 8",
+    photoUrl: "https://www.amazon.com/photos/shared/GNvf0QknSbWI0R9UrDgbcQ.Zd_G_G7vxAF0uARZUtXH4a"
+  },
   dec9: { title: "Tue Dec 9" }
 };
 
