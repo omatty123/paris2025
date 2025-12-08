@@ -113,8 +113,8 @@
 
     state.columns.forEach(col => {
       const colId = normalizeDayId(col.id);
-      if (colId === "open") return;
-
+      // Process all columns including Open Bin
+      
       col.items.forEach(item => {
         if (shouldSkipItem(item)) return;
         pinsToLoad++;
@@ -127,6 +127,14 @@
       fitAllPins();
     }
   }
+  
+  // Expose function to refresh all pins (called when itinerary changes)
+  window.refreshMapPins = function() {
+    const state = window.getItineraryState && window.getItineraryState();
+    if (state) {
+      renderAllPins(state);
+    }
+  };
 
   // Items that should not create pins
   function shouldSkipItem(text) {
@@ -198,17 +206,15 @@
   }
 
   // For itinerary.js to add a pin when a new item is created
+  // Instead of adding individual pins, we refresh all pins to stay in sync
   window.addPinForItineraryItem = function (dayId, text) {
-    if (shouldSkipItem(text)) {
-      console.log("Skipping pin for:", text);
-      return;
-    }
-    
-    const normalized = normalizeDayId(dayId) || "open";
-    
-    // For manually added items, increment counter before geocoding
-    pinsToLoad++;
-    geocodeAndMark(text, normalized, true);
+    // Small delay to ensure itinerary state is saved first
+    setTimeout(() => {
+      const state = window.getItineraryState && window.getItineraryState();
+      if (state) {
+        renderAllPins(state);
+      }
+    }, 100);
   };
 
   // Show only home base on map
