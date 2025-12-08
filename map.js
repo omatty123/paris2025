@@ -292,6 +292,40 @@
     console.log(`[FIT] Bounds fitted with padding`);
   }
 
+  // Apply filter for a specific day
+  function applyFilter(rawDayId) {
+    const dayId = normalizeDayId(rawDayId);
+    console.log(`[FILTER] Applying filter for: "${rawDayId}" (normalized: "${dayId}")`);
+    console.log(`[FILTER] Total markers available: ${markers.length}`);
+    
+    // Log all marker dayIds
+    markers.forEach(m => console.log(`  - Marker dayId: ${m.dayId}, title: ${m.title}`));
+
+    if (dayId === "all" || dayId === "") {
+      // Show everything including home
+      console.log("[FILTER] Showing all markers");
+      markers.forEach(m => m.setMap(map));
+      fitAllPins();
+      return;
+    }
+
+    // Day specific filter, always include home
+    console.log(`[FILTER] Filtering for dayId: ${dayId} + home`);
+    let shownCount = 0;
+    markers.forEach(m => m.setMap(null));
+    markers.forEach(m => {
+      if (m.dayId === "home" || m.dayId === dayId) {
+        m.setMap(map);
+        shownCount++;
+        console.log(`  ✓ Showing: ${m.title} (${m.dayId})`);
+      } else {
+        console.log(`  ✗ Hiding: ${m.title} (${m.dayId})`);
+      }
+    });
+    console.log(`[FILTER] Showing ${shownCount} markers`);
+    fitAllPins();
+  }
+
   // Apply today's filter (show only today's pins + home base)
   function applyTodayFilter() {
     const parisToday = new Intl.DateTimeFormat("en-CA", {
@@ -324,38 +358,6 @@
 
   // Filters including Today
   function setupFilters() {
-    function applyFilter(rawDayId) {
-      const dayId = normalizeDayId(rawDayId);
-      console.log(`[FILTER] Applying filter for: "${rawDayId}" (normalized: "${dayId}")`);
-      console.log(`[FILTER] Total markers available: ${markers.length}`);
-      
-      // Log all marker dayIds
-      markers.forEach(m => console.log(`  - Marker dayId: ${m.dayId}, title: ${m.title}`));
-
-      if (dayId === "all" || dayId === "") {
-        // Show everything including home
-        console.log("[FILTER] Showing all markers");
-        markers.forEach(m => m.setMap(map));
-        fitAllPins();
-        return;
-      }
-
-      // Day specific filter, always include home
-      console.log(`[FILTER] Filtering for dayId: ${dayId} + home`);
-      let shownCount = 0;
-      markers.forEach(m => m.setMap(null));
-      markers.forEach(m => {
-        if (m.dayId === "home" || m.dayId === dayId) {
-          m.setMap(map);
-          shownCount++;
-          console.log(`  ✓ Showing: ${m.title} (${m.dayId})`);
-        } else {
-          console.log(`  ✗ Hiding: ${m.title} (${m.dayId})`);
-        }
-      });
-      console.log(`[FILTER] Showing ${shownCount} markers`);
-      fitAllPins();
-    }
 
     const showAllBtn = document.getElementById("mapShowAll");
     const clearBtn = document.getElementById("mapClear");
