@@ -137,12 +137,27 @@
     }
   }
   
+  // Debounce timer for refresh
+  let refreshTimer = null;
+  
   // Expose function to refresh all pins (called when itinerary changes)
   window.refreshMapPins = function() {
-    const state = window.getItineraryState && window.getItineraryState();
-    if (state) {
-      renderAllPins(state);
+    console.log("=== refreshMapPins called (will debounce) ===");
+    
+    // Clear any pending refresh
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
     }
+    
+    // Wait 500ms before actually refreshing to batch multiple changes
+    refreshTimer = setTimeout(() => {
+      console.log("=== Actually refreshing pins now ===");
+      const state = window.getItineraryState && window.getItineraryState();
+      if (state) {
+        renderAllPins(state);
+      }
+      refreshTimer = null;
+    }, 500);
   };
 
   // Items that should not create pins
@@ -173,9 +188,11 @@
     const dayId = normalizeDayId(rawDayId) || "open";
     const forcedQuery = getForcedQuery(text, dayId);
 
+    console.log(`[GEOCODE START] "${text}" → dayId: ${dayId}, query: "${forcedQuery}"`);
+
     geocoder.geocode({ address: forcedQuery }, (results, status) => {
       if (status !== "OK" || !results || !results.length) {
-        console.warn("Geocoding failed for:", text, "Status:", status);
+        console.error(`[GEOCODE FAIL] "${text}" - Status: ${status}`);
         pinsLoaded++;
         if (pinsLoaded === pinsToLoad) {
           fitAllPins();
@@ -184,6 +201,7 @@
       }
 
       const loc = results[0].geometry.location;
+      console.log(`[GEOCODE SUCCESS] "${text}" → lat: ${loc.lat()}, lng: ${loc.lng()}`);
 
       const marker = new google.maps.Marker({
         position: loc,
@@ -193,6 +211,7 @@
       });
 
       marker.dayId = dayId;
+      console.log(`[MARKER CREATED] "${text}" with dayId: ${dayId}, icon: ${DAY_ICONS[dayId]}`);
 
       const inf = new google.maps.InfoWindow({
         content: `<b>${text}</b><br>${DAY_LABELS[dayId] || ""}`
@@ -201,9 +220,12 @@
       marker.addListener("click", () => inf.open(map, marker));
 
       markers.push(marker);
+      console.log(`[MARKER ADDED] Total markers now: ${markers.length}`);
 
       pinsLoaded++;
+      console.log(`[PROGRESS] ${pinsLoaded}/${pinsToLoad} pins loaded`);
       if (pinsLoaded === pinsToLoad) {
+        console.log("[ALL PINS LOADED] Fitting bounds...");
         fitAllPins();
       }
 
@@ -213,17 +235,6 @@
       }
     });
   }
-
-  // Expose function to refresh all pins (called when itinerary changes)
-  window.refreshMapPins = function() {
-    console.log("=== refreshMapPins called ===");
-    const state = window.getItineraryState && window.getItineraryState();
-    if (state) {
-      renderAllPins(state);
-    } else {
-      console.error("refreshMapPins: Could not get itinerary state");
-    }
-  };
 
   // Legacy function - kept for backwards compatibility
   // For itinerary.js to add a pin when a new item is created
@@ -255,21 +266,34 @@
   function setupFilters() {
     function applyFilter(rawDayId) {
       const dayId = normalizeDayId(rawDayId);
+      console.log(`[FILTER] Applying filter for: "${rawDayId}" (normalized: "${dayId}")`);
+      console.log(`[FILTER] Total markers available: ${markers.length}`);
+      
+      // Log all marker dayIds
+      markers.forEach(m => console.log(`  - Marker dayId: ${m.dayId}, title: ${m.title}`));
 
       if (dayId === "all" || dayId === "") {
         // Show everything including home
+        console.log("[FILTER] Showing all markers");
         markers.forEach(m => m.setMap(map));
         fitAllPins();
         return;
       }
 
       // Day specific filter, always include home
+      console.log(`[FILTER] Filtering for dayId: ${dayId} + home`);
+      let shownCount = 0;
       markers.forEach(m => m.setMap(null));
       markers.forEach(m => {
         if (m.dayId === "home" || m.dayId === dayId) {
           m.setMap(map);
+          shownCount++;
+          console.log(`  ✓ Showing: ${m.title} (${m.dayId})`);
+        } else {
+          console.log(`  ✗ Hiding: ${m.title} (${m.dayId})`);
         }
       });
+      console.log(`[FILTER] Showing ${shownCount} markers`);
       fitAllPins();
     }
 
