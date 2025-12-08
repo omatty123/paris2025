@@ -273,20 +273,18 @@
       console.log(`[FIT] Including marker: ${m.title} at ${m.getPosition().lat()}, ${m.getPosition().lng()}`);
     });
     
-    map.fitBounds(bounds);
-    
-    // Ensure we don't zoom out too far or too close
-    google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
-      const zoom = map.getZoom();
-      console.log(`[FIT] After fitBounds, zoom is: ${zoom}`);
-      if (zoom > 16) {
-        console.log(`[FIT] Zoom too close, setting to 16`);
-        map.setZoom(16);
-      } else if (zoom < 11) {
-        console.log(`[FIT] Zoom too far, setting to 11`);
-        map.setZoom(11);
+    // Add padding so the view is wider and shows all markers comfortably
+    map.fitBounds(bounds, {
+      padding: {
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50
       }
     });
+    
+    // Don't constrain zoom - let it show the full area from Paris to Rouen
+    console.log(`[FIT] Bounds fitted with padding`);
   }
 
   // Filters including Today
