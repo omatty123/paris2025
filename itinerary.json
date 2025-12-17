@@ -85,7 +85,8 @@
         "Carrefour Italie 2",
         "Darkoum Cantine Marocaine",
         "Meet Person",
-        "luxembourg garden"
+        "luxembourg garden",
+        "CHOUKRAN – Restaurant Marocain, Paris 9"
       ]
     },
     {
@@ -106,7 +107,9 @@
       "id": "dec9",
       "title": "Tue Dec 9",
       "meta": "",
-      "items": []
+      "items": [
+        "CDG"
+      ]
     }
   ]
 }
